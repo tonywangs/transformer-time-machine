@@ -1,12 +1,12 @@
 {
   "valid": true,
   "model": "EleutherAI/pythia-70m-deduped",
-  "checkpoints": 8,
+  "checkpoints": 38,
   "scenes": 3,
-  "frames": 24,
-  "attention_rows_checked": 7296,
-  "max_row_sum_error": 3.0081719160079956e-06,
-  "sha256": "38136584c548324f0655d36a2f151aae8679cd410d7e868fa882dc32dedaf2ad",
+  "frames": 114,
+  "attention_rows_checked": 34656,
+  "max_row_sum_error": 3.010965883731842e-06,
+  "sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
   "extractor_sha256": "8f829efcf0c412adebd88a614f5085d2c5bf1f168a6ba22fbdaace6fe373f25b",
   "limits": "Internal consistency and hash verification; not an independent model rerun."
 }

@@ -2,7 +2,7 @@
 'use strict';
 
 const $ = (id) => document.getElementById(id);
-const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, timer: null };
+const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, timer: null, playbackSpeed: 1 };
 const exampleOrder = ['story', 'echo', 'capital'];
 const exampleCopy = {
   story: { tab: 'Finish a phrase', question: 'Once upon a… what?', explanation: '“Time” is the familiar continuation. Rewind training to see when it appears among the model’s guesses.', reference: 'Familiar completion' },
@@ -84,7 +84,10 @@ function initDataUI() {
   $('modelSpec').innerHTML = `<span class="spec-name">${esc(m.label || m.id)}</span><span class="spec-line">${esc(typeof m.parameters === 'number' ? `${Math.round(m.parameters / 1e6)}M parameters` : m.parameters)} · ${m.layers} layers · ${m.heads} heads</span>`;
   $('sceneTabs').innerHTML = state.data.scenes.map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${i === state.scene}" aria-controls="instrument" data-scene="${i}"><span class="tab-number">0${i + 1}</span>${esc(exampleCopy[s.id]?.tab || s.title)}</button>`).join('');
   $('checkpointSlider').max = state.data.checkpoints.length - 1;
-  $('timelineTicks').innerHTML = state.data.checkpoints.map(() => '<i></i>').join('');
+  const tickStride = Math.max(1, Math.ceil((state.data.checkpoints.length - 1) / 16));
+  $('timelineTicks').innerHTML = state.data.checkpoints.map((_, i, checkpoints) => `<i class="${i % tickStride === 0 || i === checkpoints.length - 1 ? 'major-tick' : 'minor-tick'}"></i>`).join('');
+  $('checkpointSelect').innerHTML = state.data.checkpoints.map((checkpoint, i) => `<option value="${i}">Step ${number.format(checkpoint.step)}</option>`).join('');
+  $('playbackSpeed').value = String(state.playbackSpeed);
   $('timelineStart').textContent = `STEP ${number.format(state.data.checkpoints[0].step)}`;
   $('timelineEnd').textContent = `STEP ${number.format(state.data.checkpoints.at(-1).step)}`;
   $('headColumnLabels').style.gridTemplateColumns = `repeat(${m.heads},1fr)`;
@@ -262,12 +265,18 @@ function renderHistory() {
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
   $('historyStart').textContent = `STEP ${compactStep(state.data.checkpoints[0].step)}`;
   $('historyEnd').textContent = `STEP ${compactStep(state.data.checkpoints.at(-1).step)}`;
+  const peakIndex = values.indexOf(Math.max(...values));
+  const peak = scene().frames[peakIndex];
+  $('peakProbability').dataset.frame = peakIndex;
+  $('peakProbability').innerHTML = `<span>Highest recorded chance <span aria-hidden="true">↗</span></span><strong>“${esc(scene().target_label.trim())}” · ${percent(peak.target_probability)} · Step ${number.format(peak.step)}</strong>`;
+  $('peakProbability').setAttribute('aria-label', `Jump to highest recorded chance of ${scene().target_label.trim()}: ${percent(peak.target_probability)}, step ${number.format(peak.step)}`);
 }
 
 function renderTimeline() {
   $('stepNumber').textContent = number.format(frame().step);
   $('checkpointCount').textContent = `${state.frame + 1} / ${state.data.checkpoints.length} observations`;
   $('checkpointSlider').value = state.frame;
+  $('checkpointSelect').value = String(state.frame);
   $('checkpointSlider').setAttribute('aria-valuetext', `Training step ${number.format(frame().step)}, checkpoint ${state.frame + 1} of ${state.data.checkpoints.length}`);
   $('checkpointSlider').style.setProperty('--progress', `${state.frame / Math.max(1, state.data.checkpoints.length - 1) * 100}%`);
   $('previousButton').disabled = state.frame === 0;
@@ -298,11 +307,15 @@ function play() {
   $('playIcon').textContent = 'Ⅱ';
   $('playLabel').textContent = 'Pause';
   $('playButton').setAttribute('aria-label', 'Pause checkpoints');
+  schedulePlayback();
+}
+function schedulePlayback() {
+  clearInterval(state.timer);
   state.timer = setInterval(() => {
     if (state.frame >= state.data.checkpoints.length - 1) { pause(); return; }
     setFrame(state.frame + 1, false);
     if (state.frame === state.data.checkpoints.length - 1) pause();
-  }, 1200);
+  }, 1200 / state.playbackSpeed);
 }
 
 function buildProvenance() {
@@ -325,7 +338,7 @@ $('sceneTabs').addEventListener('click', (event) => {
   pause();
   state.scene = Number(button.dataset.scene);
   state.query = scene().tokens.length - 1;
-  render();
+  setFrame(state.frame);
 });
 $('sceneTabs').addEventListener('keydown', (event) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || !state.data) return;
@@ -381,11 +394,24 @@ $('attentionMatrix').addEventListener('click', (event) => {
 });
 $('probabilityHistory').addEventListener('click', (event) => {
   if (!state.data) return;
-  const r = event.currentTarget.getBoundingClientRect();
-  const fraction = ((event.clientX - r.left) / r.width * 320 - 9) / 302;
+  const svg = event.currentTarget;
+  const transform = svg.getScreenCTM();
+  if (!transform) return;
+  const point = svg.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+  const fraction = (point.matrixTransform(transform.inverse()).x - 9) / 302;
   setFrame(Math.round(fraction * (state.data.checkpoints.length - 1)));
 });
+$('peakProbability').addEventListener('click', (event) => setFrame(Number(event.currentTarget.dataset.frame)));
 $('checkpointSlider').addEventListener('input', (event) => setFrame(Number(event.target.value)));
+$('checkpointSelect').addEventListener('change', (event) => setFrame(Number(event.target.value)));
+$('playbackSpeed').addEventListener('change', (event) => {
+  const speed = Number(event.target.value);
+  if (![0.5, 1, 2, 4].includes(speed)) return;
+  state.playbackSpeed = speed;
+  if (state.playing) schedulePlayback();
+});
 $('previousButton').addEventListener('click', () => setFrame(state.frame - 1));
 $('nextButton').addEventListener('click', () => setFrame(state.frame + 1));
 $('playButton').addEventListener('click', play);

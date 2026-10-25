@@ -1,24 +1,29 @@
-# First prototype verification
+# Expanded timeline verification
 
-Completed October 25, 2026. Dataset SHA-256: `38136584c548324f0655d36a2f151aae8679cd410d7e868fa882dc32dedaf2ad`.
+Completed October 25, 2026. Dataset SHA-256: `874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266`.
 
 ## Actual scope
 
-Pythia-70M-deduped: 70,426,624 parameters, six layers, eight heads. Eight training checkpoints from step 0 through 143,000, three fixed prompts, 24 recorded forward passes, and 59,520 stored attention values. Extraction ran on local CPU in float32. No Modal jobs or paid model API calls were launched.
+Pythia-70M-deduped: 70,426,624 parameters, six layers, eight heads. The timeline now contains 38 training checkpoints from step 0 through 143,000, three fixed prompts, 114 recorded forward passes, and 282,720 stored attention values. The selected steps are listed in [the checkpoint manifest](../scripts/checkpoint-steps.txt). They include the original eight training steps and 30 additional steps, selected before inspecting the new outputs.
+
+All observations were recomputed together on a Modal Linux CPU container in float32 with eager attention. [The run record](modal-run.json) captures packages, resource limits, and timing: 34.64 seconds to prefetch weights and 92.86 seconds for the complete function, including extraction and independent replays. No GPU training or paid model API was used. The function had a 15-minute timeout, four-core CPU limit, 8 GiB memory limit, one container, and no automatic retries. These durations are measured runtime, not a billing statement.
 
 ## Checks completed
 
-- [Data validation](validation-data.json): all 24 frames passed dimension, checkpoint identity, probability, causality, concentration, source-hash, and checksum checks. All 7,296 attention rows were checked; maximum rounded row-sum error was about `3.01e-6`.
-- [Independent initialization replay](replay-step0.json) and [independent final-checkpoint replay](replay-final.json): reloaded immutable local weights without importing the extractor or using extraction shards. All three prompts' tokenization, top-eight token IDs/text, top probabilities, target probabilities, and rounded attention entries matched exactly. Maximum difference between unrounded attention and stored values was `5.3644e-7`, within the declared `6e-7` rounding tolerance.
-- JavaScript syntax check passed. Browser tests covered scene changes, flow/matrix switching, head and query selection, playback from the final step, keyboard timeline endpoints, and experiment details. The browser reported no JavaScript errors during the final pass.
-- Desktop and narrow layouts were inspected. At a 390 CSS-pixel viewport, page width and scroll width both measured 390 after correcting head-grid overflow. The attention flow has its own horizontal scroll region for long token sequences.
+- [Data validation](validation-data.json): all 114 frames passed dimension, checkpoint identity, probability, causality, concentration, source-hash, and checksum checks. All 34,656 attention rows were checked; maximum rounded row-sum error was about `3.01e-6`. Local validation of the returned bundle matched the remote report.
+- Independent replays at [initialization](replay-step0.json), [step 5,000](replay-new-checkpoint.json), and [the final checkpoint](replay-final.json) reloaded immutable cached weights without importing the extractor or using its shards. All three prompts' tokenization, top-eight token IDs/text, probabilities, and rounded attention entries matched exactly. Maximum difference between unrounded attention and stored values was `5.3644e-7`, within the declared `6e-7` rounding tolerance.
+- [Expansion audit](expansion-audit.json): all 38 checkpoint SHAs matched the independently enumerated Hugging Face revisions. Exact prompts, token IDs, target IDs, tokenizer revision, and extractor source hash were preserved.
+- JavaScript syntax and whitespace checks passed. Browser checks covered exact-step selection, changing playback speed while playing, stopping at the endpoint, per-scene peak jumps, slider/select synchronization, and chart-dot clicks at tablet width. Chart clicks now account for SVG aspect-ratio margins.
+- At a 390 CSS-pixel viewport, page width and scroll width both measured 390; the sampling note and new controls remain visible. No JavaScript errors were observed in the test browser.
+
+## Environment change from the first release
+
+The first eight-step release ran on an Apple silicon CPU. This release reruns those steps on Linux alongside all new steps, so its floats are not byte-identical to the old release. Across the 24 overlapping frames, the largest absolute probability difference is about `6.52e-5` (0.00652 percentage points), and the largest stored attention difference is about `0.005962` (0.5962 percentage points). The expansion audit retains the measured differences. The current release's independent replays are exact within its own recorded environment; no Mac and Linux frames are mixed in the published dataset.
 
 ## What the examples show
 
-For `Once upon a`, the illustrative next-token probability of ` time` is approximately 2.96% at step 2,000, 0.43% at step 10,000, and 7.69% at the final checkpoint. For the color sequence, ` purple` is approximately 7.80% at step 2,000 and 0.14% at the final checkpoint. These reversals are retained in the display.
+For `Once upon a`, ` time` is the top next-token guess at step 2,000, loses that position at 3,000, returns at 5,000, and loses it again at 6,000. Its highest probability among these 38 snapshots is about 11.70% at step 100,000, compared with 7.69% at the final checkpoint. The denser early timeline exposes changes hidden between the original observations.
 
-These are curated prompt observations from one small model trajectory, not a discovery about general capability acquisition. Attention concentration does not establish head importance or causal explanation. This release has neither custom prompt inference nor interpolated training states.
+For the color sequence, ` purple` peaks at about 7.80% at step 2,000 and ends at 0.14%. For the factual prompt, ` Paris` peaks at about 0.85% at step 60,000. Neither is the top next token at any recorded checkpoint. A model preferring ` the` after the factual prompt could still begin a longer answer; immediate token rank is not a full-answer evaluation.
 
-## Next useful iteration
-
-Inspect additional real prompts and checkpoints to find visually legible stories, record the curation choices, and produce a short demo recording. Broader models or Modal extraction should follow a bounded pilot; they are not needed to use this static prototype.
+These are curated prompt observations from one small model trajectory, not a discovery about general capability acquisition. Attention concentration does not establish head importance or causal explanation. Peaks are maxima over the recorded samples, not a claim about unobserved training steps. This release has neither custom prompt inference nor interpolated model states.

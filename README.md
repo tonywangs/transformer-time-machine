@@ -4,9 +4,9 @@
 
 An interactive, recorded-data view of Pythia's training. Scrub checkpoints while the same prompt stays fixed; inspect actual attention and next-token probabilities.
 
-The first dataset targets **Pythia-70M-deduped**, eight checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
+The dataset covers **Pythia-70M-deduped**, 38 checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
 
-The first dataset is extracted and verified. See the [verification record](docs/verification.md), including independent replay results for initialization and the final checkpoint.
+The observations are extracted and verified. See the [verification record](docs/verification.md), including independent checkpoint replays.
 
 ## Preview
 
@@ -27,6 +27,7 @@ python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python scripts/extract_traces.py \
   --cache-dir /tmp/transformer-time-machine-cache \
+  --steps "$(cat scripts/checkpoint-steps.txt)" \
   --output dist/data/traces.json
 .venv/bin/python scripts/validate_traces.py --traces dist/data/traces.json
 .venv/bin/python scripts/replay_checkpoint.py \
@@ -36,9 +37,21 @@ node --check dist/app.js
 
 Extraction downloads public model checkpoints from Hugging Face, one at a time. Cache weights outside this project's source/deployment tree. It executes actual float32, evaluation-mode, eager-attention forward passes on CPU; `--device cuda` is optional. It never trains weights, uses remote custom code, or calls a paid model API.
 
-The default steps are `0,64,512,2000,10000,30000,70000,143000`. Each is resolved to its immutable commit SHA. `--steps` can specify an ordered subset. Resume uses cached extraction shards keyed by checkpoint and script hash. The output includes the exact tokenizer revision, token IDs, source revisions, library versions, dtype/device, extraction-script hash, and a `.sha256` sidecar. Changing source code invalidates previous extraction shards.
+The published 38-step selection is in [scripts/checkpoint-steps.txt](scripts/checkpoint-steps.txt). It retains the original eight training steps, adds every available early checkpoint through step 1,000, samples each 1,000-step checkpoint through 10,000, and then uses wider intervals through step 143,000. These steps were chosen to resolve early changes and the reversals visible in the first release, before inspecting their new outputs. They are a subset of the model repository's 154 available training checkpoints.
+
+Without `--steps`, the extractor still uses the original eight-step pilot: `0,64,512,2000,10000,30000,70000,143000`. Every requested revision is resolved to its immutable commit SHA. Resume uses cached extraction shards keyed by checkpoint, script hash, and runtime environment. The output includes the exact tokenizer revision, token IDs, source revisions, library versions, dtype/device, extraction-script hash, and a `.sha256` sidecar. Changing source code invalidates previous extraction shards. Downloading all 38 float32 weight files requires roughly 11 GB of cache space; the website serves only the compact observations.
 
 `requirements-lock.txt` records the complete package set used for the first extraction (Python 3.12, Apple silicon CPU). Install it instead of `requirements.txt` to reproduce that package set. Cached extraction shards also require matching tokenizer, device, and runtime metadata; incompatible shards are recomputed. The replay utility makes no network calls and reloads the final saved checkpoint from the local weight cache, comparing fresh outputs against the exported observations.
+
+### Optional Modal runner
+
+The expanded release uses a Modal CPU container to avoid slow local weight downloads. With the Modal client installed under Python 3.11 and your account authenticated (the local and remote Python versions must match for this serialized function):
+
+```sh
+modal run scripts/extract_on_modal.py --output /tmp/modal-observations.json.gz
+```
+
+This temporary job has one container, a four-core CPU limit, an 8 GiB memory limit, and a 15-minute function timeout, with no automatic retries or GPU allocation. It uploads only the extractor, validator, replay script, and checkpoint list. All 38 checkpoints are evaluated in the same container; independent replays check steps 0, 5,000, and 143,000. The gzip file contains a JSON bundle with `traces` and `sha256` strings and a `reports` object. It does not deploy or replace website files automatically. Runtime packages and function duration are recorded in [docs/modal-run.json](docs/modal-run.json); the local client used for this release was Modal 1.1.1. Model weights stay in ephemeral container storage.
 
 ## Reading the display
 
@@ -47,6 +60,8 @@ The default steps are `0,64,512,2000,10000,30000,70000,143000`. Each is resolved
 - Concentration is normalized attention entropy. It describes focus, not causal importance.
 - A target such as ` Paris` is an illustrative completion. Its probability is not an accuracy score, and need not increase during training.
 - Playback visits discrete, unevenly spaced recorded steps. No intermediate model states are synthesized.
+- The exact-step menu jumps to any recorded checkpoint. Playback speed changes how long each observation stays on screen; it does not represent training time.
+- The history chart is clickable. Its shortcut jumps to the tracked completion's highest probability among the recorded checkpoints, which is not necessarily the highest point between them.
 - The model is small and pretrained; it is not a chat assistant. These three handpicked prompts cannot support general conclusions about learning.
 
 See [the trace contract](docs/data-contract.md) for tensor axes and semantics. 

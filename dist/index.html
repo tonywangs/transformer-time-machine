@@ -48,12 +48,24 @@
           <h2>The model’s next guess.</h2><p class="panel-description">The next-token predictions after the full prompt.</p>
           <div class="prediction-lead"><span class="small-label">MOST LIKELY NEXT TOKEN</span><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
           <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
-          <div class="history-panel"><div class="history-title"><div><span class="small-label">PROBABILITY OF OUR COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><p class="history-note">Probability across the recorded checkpoints. This is one possible completion, not an accuracy score.</p></div>
+          <div class="history-panel"><div class="history-title"><div><span class="small-label">PROBABILITY OF OUR COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button><p class="history-note">Click the chart to jump. Dots are equally spaced checkpoints; training gaps vary. This completion’s probability is not an accuracy score.</p></div>
           <div class="reading-note"><span class="note-symbol" aria-hidden="true">✳</span><p><strong>Attention is a clue, not a thought.</strong> These weights show how a head mixes information between tokens. They don’t fully explain the model’s answer.</p></div>
         </aside>
       </section>
 
-      <section class="timeline-panel" aria-label="Training checkpoint timeline"><div class="timeline-top"><div class="timeline-title"><span class="small-label">TRAINING STEP</span><strong id="stepNumber"></strong><span id="checkpointCount"></span></div><div class="transport"><button id="previousButton" class="icon-button" aria-label="Previous checkpoint" title="Previous checkpoint (left arrow)">←</button><button id="playButton" class="play-button" aria-label="Play checkpoints"><span id="playIcon" aria-hidden="true">▶</span><span id="playLabel">Play training</span></button><button id="nextButton" class="icon-button" aria-label="Next checkpoint" title="Next checkpoint (right arrow)">→</button></div></div><div class="timeline-track"><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div><div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Discrete observations · use ← → to travel</span><span id="timelineEnd">FINAL CHECKPOINT</span></div></section>
+      <section class="timeline-panel" aria-label="Training checkpoint timeline">
+        <div class="timeline-top">
+          <div class="timeline-title"><span class="small-label">TRAINING STEP</span><strong id="stepNumber"></strong><span id="checkpointCount"></span></div>
+          <div class="transport"><button id="previousButton" class="icon-button" aria-label="Previous checkpoint" title="Previous checkpoint (left arrow)">←</button><button id="playButton" class="play-button" aria-label="Play checkpoints"><span id="playIcon" aria-hidden="true">▶</span><span id="playLabel">Play training</span></button><button id="nextButton" class="icon-button" aria-label="Next checkpoint" title="Next checkpoint (right arrow)">→</button></div>
+        </div>
+        <div class="timeline-options">
+          <label class="timeline-select-label" for="checkpointSelect">Jump to <select id="checkpointSelect" aria-label="Jump to a recorded training step"></select></label>
+          <label class="timeline-select-label" for="playbackSpeed">Speed <select id="playbackSpeed" aria-label="Playback speed" title="At 1×, each recorded checkpoint stays on screen for 1.2 seconds"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+          <p class="sampling-note" id="samplingNote">One tick per snapshot. Training gaps vary.</p>
+        </div>
+        <div class="timeline-track"><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint" aria-describedby="samplingNote"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div>
+        <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Use ← → to travel · every frame is recorded</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
+      </section>
       <footer class="page-footer"><p>Same architecture. Same prompt. Different moments in training.</p><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>
     </div>
   </main>

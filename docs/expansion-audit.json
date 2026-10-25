@@ -1,0 +1,298 @@
+{
+  "valid": true,
+  "trace_sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
+  "baseline_trace_sha256": "38136584c548324f0655d36a2f151aae8679cd410d7e868fa882dc32dedaf2ad",
+  "baseline_environment": {
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "torch_version": "2.8.0",
+    "transformers_version": "4.56.2",
+    "environment_sha256": "3c9e5a347e2eef3e6e79db15c40af4967edc65965bee95ce211eaa91946398f2"
+  },
+  "expanded_environment": {
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "torch_version": "2.8.0+cpu",
+    "transformers_version": "4.56.2",
+    "environment_sha256": "1ba9f355b1c635e62eb742a6dd75b8220ff5a634159a7c8d10dec92e6a79a962"
+  },
+  "selected_checkpoint_manifest_match": true,
+  "checkpoints": 38,
+  "previous_frames_compared": 24,
+  "max_cross_environment_probability_difference": 6.51627779006958e-05,
+  "max_cross_environment_rounded_attention_difference": 0.005962014198303223,
+  "limits": "Coverage/provenance checks and cross-runtime comparison; cross-runtime numerical differences are reported, not constrained to replay tolerances.",
+  "scenes": [
+    {
+      "scene": "echo",
+      "peak_step": 2000,
+      "peak_probability": 0.07800156623125076,
+      "target_top1_steps": [],
+      "top1_transitions": [
+        {
+          "step": 0,
+          "token": " Murder",
+          "target_probability": 1.3103739547659643e-05
+        },
+        {
+          "step": 16,
+          "token": ".",
+          "target_probability": 1.8847376850317232e-05
+        },
+        {
+          "step": 128,
+          "token": ",",
+          "target_probability": 4.179687493888196e-06
+        },
+        {
+          "step": 512,
+          "token": ".",
+          "target_probability": 0.0004171301261521876
+        },
+        {
+          "step": 1000,
+          "token": " red",
+          "target_probability": 0.028807610273361206
+        },
+        {
+          "step": 3000,
+          "token": " blue",
+          "target_probability": 0.03948493301868439
+        },
+        {
+          "step": 4000,
+          "token": " and",
+          "target_probability": 0.010809599421918392
+        },
+        {
+          "step": 5000,
+          "token": " red",
+          "target_probability": 0.012540841475129128
+        },
+        {
+          "step": 6000,
+          "token": "-",
+          "target_probability": 0.0033244318328797817
+        },
+        {
+          "step": 7000,
+          "token": ",",
+          "target_probability": 0.0031726376619189978
+        },
+        {
+          "step": 9000,
+          "token": "-",
+          "target_probability": 0.0011367059778422117
+        },
+        {
+          "step": 10000,
+          "token": ",",
+          "target_probability": 0.0018295017071068287
+        },
+        {
+          "step": 40000,
+          "token": ".",
+          "target_probability": 0.0019130079308524728
+        },
+        {
+          "step": 50000,
+          "token": ",",
+          "target_probability": 0.006591073703020811
+        },
+        {
+          "step": 60000,
+          "token": " blue",
+          "target_probability": 0.008942763321101665
+        },
+        {
+          "step": 70000,
+          "token": " color",
+          "target_probability": 0.00435255141928792
+        },
+        {
+          "step": 80000,
+          "token": " yellow",
+          "target_probability": 0.009329012595117092
+        },
+        {
+          "step": 90000,
+          "token": ",",
+          "target_probability": 0.0012188897235319018
+        },
+        {
+          "step": 130000,
+          "token": " yellow",
+          "target_probability": 0.009782233275473118
+        },
+        {
+          "step": 140000,
+          "token": " green",
+          "target_probability": 0.005105718970298767
+        },
+        {
+          "step": 143000,
+          "token": ",",
+          "target_probability": 0.0013818099396303296
+        }
+      ]
+    },
+    {
+      "scene": "story",
+      "peak_step": 100000,
+      "peak_probability": 0.11702734231948853,
+      "target_top1_steps": [
+        2000,
+        5000,
+        12000,
+        15000,
+        20000,
+        25000,
+        30000,
+        50000,
+        60000,
+        70000,
+        80000,
+        90000,
+        100000,
+        110000,
+        120000,
+        130000,
+        140000,
+        143000
+      ],
+      "top1_transitions": [
+        {
+          "step": 0,
+          "token": " Emb",
+          "target_probability": 3.141100751236081e-05
+        },
+        {
+          "step": 16,
+          "token": ",",
+          "target_probability": 3.831689900835045e-05
+        },
+        {
+          "step": 128,
+          "token": " the",
+          "target_probability": 0.0010557682253420353
+        },
+        {
+          "step": 256,
+          "token": " good",
+          "target_probability": 0.00544162280857563
+        },
+        {
+          "step": 512,
+          "token": " man",
+          "target_probability": 0.00272604962810874
+        },
+        {
+          "step": 1000,
+          "token": " new",
+          "target_probability": 0.0102430684491992
+        },
+        {
+          "step": 2000,
+          "token": " time",
+          "target_probability": 0.02956949733197689
+        },
+        {
+          "step": 3000,
+          "token": " new",
+          "target_probability": 0.014755375683307648
+        },
+        {
+          "step": 4000,
+          "token": "\n",
+          "target_probability": 0.005912079941481352
+        },
+        {
+          "step": 5000,
+          "token": " time",
+          "target_probability": 0.04482154920697212
+        },
+        {
+          "step": 6000,
+          "token": "\n",
+          "target_probability": 0.0173526369035244
+        },
+        {
+          "step": 7000,
+          "token": " day",
+          "target_probability": 0.0392264649271965
+        },
+        {
+          "step": 8000,
+          "token": "\n",
+          "target_probability": 0.024178244173526764
+        },
+        {
+          "step": 9000,
+          "token": " day",
+          "target_probability": 0.010102403350174427
+        },
+        {
+          "step": 12000,
+          "token": " time",
+          "target_probability": 0.03635284677147865
+        },
+        {
+          "step": 40000,
+          "token": " few",
+          "target_probability": 0.049084678292274475
+        },
+        {
+          "step": 50000,
+          "token": " time",
+          "target_probability": 0.07697257399559021
+        }
+      ]
+    },
+    {
+      "scene": "capital",
+      "peak_step": 60000,
+      "peak_probability": 0.008521669544279575,
+      "target_top1_steps": [],
+      "top1_transitions": [
+        {
+          "step": 0,
+          "token": " plainly",
+          "target_probability": 1.3350934750633314e-05
+        },
+        {
+          "step": 16,
+          "token": ".",
+          "target_probability": 8.54935478855623e-06
+        },
+        {
+          "step": 32,
+          "token": ",",
+          "target_probability": 7.002918209764175e-06
+        },
+        {
+          "step": 64,
+          "token": " the",
+          "target_probability": 9.070086889551021e-06
+        },
+        {
+          "step": 1000,
+          "token": " a",
+          "target_probability": 0.00010065419337479398
+        },
+        {
+          "step": 4000,
+          "token": " the",
+          "target_probability": 0.0002531007048673928
+        },
+        {
+          "step": 7000,
+          "token": " a",
+          "target_probability": 0.0015691654989495873
+        },
+        {
+          "step": 8000,
+          "token": " the",
+          "target_probability": 0.00031316676177084446
+        }
+      ]
+    }
+  ]
+}

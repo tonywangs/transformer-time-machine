@@ -1,0 +1,56 @@
+{
+  "valid": true,
+  "model": "EleutherAI/pythia-70m-deduped",
+  "step": 5000,
+  "model_commit_sha": "dded41feea06c23ff3e04640e6aad2db57541e66",
+  "tokenizer_commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+  "trace_sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
+  "replay_script_sha256": "369a842b950f1542f9782e49034509cacb22412365a7ef37d01ff5238b1c3dc5",
+  "device": "cpu",
+  "dtype": "float32",
+  "attention_implementation": "eager",
+  "torch_version": "2.8.0+cpu",
+  "transformers_version": "4.56.2",
+  "local_files_only": true,
+  "attention_tolerance": 6e-07,
+  "probability_tolerance": 1e-07,
+  "scenes": [
+    {
+      "scene": "echo",
+      "prompt_tokens": 11,
+      "tokenization_and_top_ids_match": true,
+      "attention_entries_checked": 5808,
+      "max_raw_attention_error": 5.364418029785156e-07,
+      "max_rounded_attention_error": 0.0,
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0
+    },
+    {
+      "scene": "story",
+      "prompt_tokens": 3,
+      "tokenization_and_top_ids_match": true,
+      "attention_entries_checked": 432,
+      "max_raw_attention_error": 5.364418029785156e-07,
+      "max_rounded_attention_error": 0.0,
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0
+    },
+    {
+      "scene": "capital",
+      "prompt_tokens": 5,
+      "tokenization_and_top_ids_match": true,
+      "attention_entries_checked": 1200,
+      "max_raw_attention_error": 5.364418029785156e-07,
+      "max_rounded_attention_error": 0.0,
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0
+    }
+  ],
+  "max_errors": {
+    "max_raw_attention_error": 5.364418029785156e-07,
+    "max_rounded_attention_error": 0.0,
+    "max_top_probability_error": 0.0,
+    "target_probability_error": 0.0
+  },
+  "elapsed_seconds": 0.543
+}
