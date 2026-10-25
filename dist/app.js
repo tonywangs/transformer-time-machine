@@ -3,6 +3,12 @@
 
 const $ = (id) => document.getElementById(id);
 const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, timer: null };
+const exampleOrder = ['story', 'echo', 'capital'];
+const exampleCopy = {
+  story: { tab: 'Finish a phrase', question: 'Once upon a… what?', explanation: '“Time” is the familiar continuation. Rewind training to see when it appears among the model’s guesses.', reference: 'Familiar completion' },
+  echo: { tab: 'Repeat a pattern', question: 'Can it repeat six colors?', explanation: 'The first line gives a six-color cycle. The second repeats its first five colors. If the same cycle continues, “purple” comes next.', reference: 'If the cycle repeats' },
+  capital: { tab: 'Complete a fact', question: 'Does it predict Paris?', explanation: '“Paris” is the direct factual completion. Track its probability alongside the model’s other next-token guesses.', reference: 'Direct completion' }
+};
 const number = new Intl.NumberFormat('en-US');
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -51,7 +57,9 @@ async function loadData() {
     if (!response.ok) throw new Error(`The observation file returned HTTP ${response.status}. Please try again in a moment.`);
     const data = await response.json();
     validateData(data);
-    state.data = data;
+    // Presentation order only: keep the downloaded observations unchanged.
+    const order = (id) => exampleOrder.includes(id) ? exampleOrder.indexOf(id) : exampleOrder.length;
+    state.data = { ...data, scenes: [...data.scenes].sort((a, b) => order(a.id) - order(b.id)) };
     state.scene = 0;
     state.frame = data.checkpoints.length - 1;
     state.layer = Math.min(2, data.model.layers - 1);
@@ -74,7 +82,7 @@ async function loadData() {
 function initDataUI() {
   const m = state.data.model;
   $('modelSpec').innerHTML = `<span class="spec-name">${esc(m.label || m.id)}</span><span class="spec-line">${esc(typeof m.parameters === 'number' ? `${Math.round(m.parameters / 1e6)}M parameters` : m.parameters)} · ${m.layers} layers · ${m.heads} heads</span>`;
-  $('sceneTabs').innerHTML = state.data.scenes.map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${i === state.scene}" aria-controls="instrument" data-scene="${i}"><span class="tab-number">0${i + 1}</span>${esc(s.title)}</button>`).join('');
+  $('sceneTabs').innerHTML = state.data.scenes.map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${i === state.scene}" aria-controls="instrument" data-scene="${i}"><span class="tab-number">0${i + 1}</span>${esc(exampleCopy[s.id]?.tab || s.title)}</button>`).join('');
   $('checkpointSlider').max = state.data.checkpoints.length - 1;
   $('timelineTicks').innerHTML = state.data.checkpoints.map(() => '<i></i>').join('');
   $('timelineStart').textContent = `STEP ${number.format(state.data.checkpoints[0].step)}`;
@@ -90,9 +98,7 @@ function render() {
   const activeId = document.activeElement?.id;
   const s = scene();
   const f = frame();
-  $('sceneTitle').textContent = s.kicker || s.title;
-  $('sceneDescription').textContent = s.description;
-  $('promptText').textContent = s.prompt;
+  renderExample(s, f);
   $('headLabel').textContent = `Layer ${state.layer + 1} / Head ${state.head + 1}`;
   $('focusValue').textContent = `${(f.concentration[state.layer][state.head] * 100).toFixed(1)}%`;
   document.querySelectorAll('.scene-tab').forEach((b) => { b.setAttribute('aria-selected', String(Number(b.dataset.scene) === state.scene)); b.tabIndex = Number(b.dataset.scene) === state.scene ? 0 : -1; });
@@ -103,6 +109,32 @@ function render() {
   renderHistory();
   renderTimeline();
   if (activeId && (activeId.startsWith('head-') || activeId.startsWith('query-'))) $(activeId)?.focus({ preventScroll: true });
+}
+
+function renderExample(s, f) {
+  const copy = exampleCopy[s.id];
+  $('sceneTitle').textContent = copy?.question || s.title;
+  $('sceneDescription').textContent = copy?.explanation || s.description;
+  // Line breaks group the existing color tokens; no tokens are added to the input.
+  if (s.id === 'echo') {
+    $('promptText').innerHTML = `<span class="sequence-line">${esc(s.tokens.slice(0, 6).join(''))}</span><span class="sequence-line">${esc(s.tokens.slice(6).join(''))}</span>`;
+  } else $('promptText').textContent = s.prompt;
+  $('referenceLabel').textContent = copy?.reference || 'Completion to track';
+  $('referenceCompletion').textContent = s.target_label.trim();
+  const top = f.top_tokens[0];
+  $('exampleGuess').textContent = `“${top.token.trim() || displayToken(top.token)}” · ${percent(top.probability)}`;
+  const rank = f.top_tokens.findIndex((t) => s.target_token_ids.includes(t.id));
+  const target = s.target_label.trim();
+  const snapshot = rank === 0
+    ? `At step ${number.format(f.step)}, “${target}” is the top guess (${percent(f.target_probability)}).`
+    : `At step ${number.format(f.step)}, “${target}” gets ${percent(f.target_probability)}${rank < 0 ? ' and is outside the top eight guesses' : ` and ranks #${rank + 1}`}.`;
+  const wins = s.frames.filter((item) => s.target_token_ids.includes(item.top_tokens[0].id)).length;
+  const note = s.id === 'echo' && wins === 0
+    ? `None of these ${s.frames.length} checkpoints chooses “${target}” as its top next token. This example shows an unreliable continuation.`
+    : s.id === 'capital'
+      ? 'This tests the immediate next token. Another word could begin a longer answer.'
+      : 'Press Play training to watch the guesses change. Progress can reverse between checkpoints.';
+  $('exampleObservation').textContent = `${snapshot} ${note}`;
 }
 
 function renderHeads() {

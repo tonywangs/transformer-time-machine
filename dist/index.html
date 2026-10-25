@@ -18,7 +18,7 @@
 
   <main>
     <section class="intro">
-      <div><div class="eyebrow">A SMALL MODEL. A LONG MEMORY.</div><h1>Transformer <em>Time Machine</em></h1><p class="intro-copy">Rewind one model’s training. Watch its attention shift—and its next word change.</p></div>
+      <div><div class="eyebrow">A SMALL MODEL. A LONG MEMORY.</div><h1>Transformer <em>Time Machine</em></h1><p class="intro-copy">Give a model an unfinished phrase. Rewind its training to see how its next guess changes.</p></div>
       <div class="model-spec" id="modelSpec"><span class="spec-name">A recorded experiment</span><span class="spec-line">Loading model details</span></div>
     </section>
 
@@ -30,9 +30,11 @@
 
       <section class="instrument-grid">
         <div class="attention-panel">
-          <div class="panel-topline"><span class="eyebrow">01 / WHERE IT LOOKS</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
+          <div class="panel-topline"><span class="eyebrow">01 / TRY AN EXAMPLE</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
           <div class="scene-heading"><h2 id="sceneTitle"></h2><p id="sceneDescription"></p></div>
-          <div class="prompt-line"><span class="prompt-mark" aria-hidden="true">“</span><p id="promptText"></p><span class="prompt-mark close" aria-hidden="true">”</span></div>
+          <div class="prompt-line"><p id="promptText"></p><span class="next-token-gap" aria-label="Next token to predict">→ ?</span></div>
+          <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div><div><span class="small-label">MODEL’S TOP GUESS HERE</span><strong id="exampleGuess"></strong></div></div><p id="exampleObservation"></p></div>
+          <p class="attention-explainer"><strong>Explore the attention weights.</strong> The lines below show how one head weights the tokens in this prompt. They don’t explain the prediction on their own.</p>
           <div class="attention-toolbar"><div><span class="small-label">INSPECTING</span><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label">LAST-TOKEN FOCUS</span><span id="focusValue"></span></div></div>
           <div class="visualization" id="visualization"><svg id="flowGraph" role="img" aria-label="Attention from the selected token to earlier tokens"></svg><div class="matrix-wrap" id="matrixWrap" hidden><canvas id="attentionMatrix" aria-label="Attention matrix. Rows are query tokens and columns are key tokens." role="img"></canvas><div id="matrixTip" class="matrix-tip" hidden></div></div></div>
           <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High attention</span></div>
@@ -42,11 +44,11 @@
         </div>
 
         <aside class="prediction-panel">
-          <div class="panel-topline"><span class="eyebrow">02 / WHAT COMES NEXT</span><span class="small-cross" aria-hidden="true">↗</span></div>
-          <h2>A word in the making.</h2><p class="panel-description">The next-token predictions after the full prompt.</p>
+          <div class="panel-topline"><span class="eyebrow">02 / TOP EIGHT GUESSES</span><span class="small-cross" aria-hidden="true">↗</span></div>
+          <h2>The model’s next guess.</h2><p class="panel-description">The next-token predictions after the full prompt.</p>
           <div class="prediction-lead"><span class="small-label">MOST LIKELY NEXT TOKEN</span><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
           <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
-          <div class="history-panel"><div class="history-title"><div><span class="small-label">FOLLOW ONE COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><p class="history-note">Probability across the recorded checkpoints. This is one possible completion, not an accuracy score.</p></div>
+          <div class="history-panel"><div class="history-title"><div><span class="small-label">PROBABILITY OF OUR COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><p class="history-note">Probability across the recorded checkpoints. This is one possible completion, not an accuracy score.</p></div>
           <div class="reading-note"><span class="note-symbol" aria-hidden="true">✳</span><p><strong>Attention is a clue, not a thought.</strong> These weights show how a head mixes information between tokens. They don’t fully explain the model’s answer.</p></div>
         </aside>
       </section>
