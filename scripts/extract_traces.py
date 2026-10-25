@@ -22,8 +22,8 @@ SCENES = [
          description="A familiar phrase, seen at different points in training. Watch the probability of time alongside the model's other next-token guesses.",
          prompt="Once upon a", target_label=" time"),
     dict(id="capital", title="A fact taking shape", kicker="Factual completion",
-         description="An illustrative factual prompt. Follow Paris through training; its probability can rise or fall, and a small model may prefer another completion.",
-         prompt="The capital of France is", target_label=" Paris"),
+         description="A factual sentence ending in a city-name slot. Follow Paris through training and watch when it becomes the top next-token guess.",
+         prompt="The capital of France is the city of", target_label=" Paris"),
 ]
 
 
@@ -148,6 +148,7 @@ def main():
                       environment=environment, environment_sha256=environment_hash,
                       notes=["Actual eval-mode checkpoint forward passes; no synthetic intermediate frames.",
                              "Targets are illustrative next tokens, not an accuracy benchmark.",
+                             "The factual prompt was selected for a final-checkpoint success from a documented two-round candidate screen (docs/fact-candidate-screen.json).",
                              "Attention weights are rounded to six decimal places.",
                              "Concentration measures last-query focus, not head importance or causality.",
                              "No implicit beginning-of-sequence token; pretrained tokenizer from final checkpoint.",

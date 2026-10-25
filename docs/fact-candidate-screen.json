@@ -1,0 +1,2799 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "model_id": "EleutherAI/pythia-70m-deduped",
+  "purpose": "Disclosed selection of an illustrative factual success, not an accuracy benchmark",
+  "screening_history": "First 16 candidates were screened first; eight Paris-format variants were then declared together and tested. This report reruns all 24 under one script. Original screen: docs/history/fact-initial-screen.json.",
+  "created_at": "2026-10-25T10:55:51.754825+00:00",
+  "probe_sha256": "24bfefa313a0003efdfdc27492af8bb6e397ac792e379f2e96e8816dd3722e6f",
+  "candidate_list_sha256": "ff387673acd4c48d20208b6d5ab47afacfeedeb5d0b4eb039070a84462624f41",
+  "source_trace_sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
+  "tokenizer_commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+  "checkpoints": [
+    {
+      "step": 0,
+      "revision": "step0",
+      "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c913ae980de9355947d0bf73f9f10d580eb79301"
+    },
+    {
+      "step": 143000,
+      "revision": "step143000",
+      "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb"
+    }
+  ],
+  "selection_rule": "Eligible only if the target is one tokenizer token, is not top-1 at step 0, and is top-1 at step 143000. Prefer france_original, then paris_country, then france_possessive, then the eight follow-up Paris formats in declared order if eligible; otherwise select the eligible candidate with highest final target probability, breaking ties by declared list order. If either endpoint is absent, make no recommendation. This selection is curated for an illustrative success and must not be presented as representative accuracy.",
+  "environment": {
+    "python_version": "3.12.14",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "torch_version": "2.8.0",
+    "torch_build": "PyTorch built with:\n  - GCC 4.2\n  - C++ Version: 201703\n  - clang 15.0.0\n  - OpenMP 201811\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: NO AVX\n  - Build settings: BLAS_INFO=accelerate, BUILD_TYPE=Release, COMMIT_SHA=a1cb3cc05d46d198467bebbb6e8fba50a325d4e7, CXX_COMPILER=/usr/bin/c++, CXX_FLAGS= -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_PYTORCH_QNNPACK -DAT_BUILD_ARM_VEC256_WITH_SLEEF -DUSE_XNNPACK -DUSE_PYTORCH_METAL_EXPORT -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -DUSE_COREML_DELEGATE -O2 -fPIC -DC10_NODEPRECATED -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=braced-scalar-init -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wvla-extension -Wsuggest-override -Wnewline-eof -Winconsistent-missing-override -Winconsistent-missing-destructor-override -Wno-pass-failed -Wno-error=old-style-cast -Wconstant-conversion -Qunused-arguments -faligned-new -fno-math-errno -fno-trapping-math -Werror=format -DUSE_MPS -Wno-missing-braces, LAPACK_INFO=accelerate, TORCH_VERSION=2.8.0, USE_CUDA=OFF, USE_CUDNN=OFF, USE_CUSPARSELT=OFF, USE_EIGEN_FOR_BLAS=ON, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, USE_XCCL=OFF, USE_XPU=OFF, \n",
+    "transformers_version": "4.56.2",
+    "huggingface_hub_version": "0.35.3",
+    "tokenizers_version": "0.22.2",
+    "device": "cpu",
+    "dtype": "float32",
+    "attention_implementation": "eager",
+    "eval_mode": true,
+    "inference_mode": true,
+    "use_cache": false,
+    "local_files_only": true,
+    "num_threads": 4,
+    "seed": 0,
+    "add_special_tokens": false
+  },
+  "rank_definition": "1 + number of vocabulary tokens with strictly greater probability; top1 separately compares argmax token ID",
+  "candidates": [
+    {
+      "id": "france_original",
+      "prompt": "The capital of France is",
+      "target": " Paris",
+      "prompt_token_ids": [
+        510,
+        5347,
+        273,
+        6181,
+        310
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.3350922927202191e-05,
+          "target_rank": 31285,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 30236,
+              "token": " plainly",
+              "probability": 0.00018900807481259108
+            },
+            {
+              "id": 37134,
+              "token": " είναι",
+              "probability": 0.000180219387402758
+            },
+            {
+              "id": 757,
+              "token": "ian",
+              "probability": 0.0001724493340589106
+            },
+            {
+              "id": 26156,
+              "token": " metres",
+              "probability": 0.00016724954184610397
+            },
+            {
+              "id": 28314,
+              "token": " worries",
+              "probability": 0.00015604833606630564
+            },
+            {
+              "id": 32095,
+              "token": "/{",
+              "probability": 0.00015508163778577
+            },
+            {
+              "id": 26971,
+              "token": "secure",
+              "probability": 0.00015472553786821663
+            },
+            {
+              "id": 29514,
+              "token": " pencil",
+              "probability": 0.00015033589443191886
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.0019442889606580138,
+          "target_rank": 50,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.12740761041641235
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.0840880274772644
+            },
+            {
+              "id": 417,
+              "token": " not",
+              "probability": 0.04372558742761612
+            },
+            {
+              "id": 275,
+              "token": " in",
+              "probability": 0.023487621918320656
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.022662395611405373
+            },
+            {
+              "id": 281,
+              "token": " to",
+              "probability": 0.021962465718388557
+            },
+            {
+              "id": 271,
+              "token": " an",
+              "probability": 0.016847429797053337
+            },
+            {
+              "id": 1024,
+              "token": " now",
+              "probability": 0.010106833651661873
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_country",
+      "prompt": "Paris is the capital of",
+      "target": " France",
+      "prompt_token_ids": [
+        36062,
+        310,
+        253,
+        5347,
+        273
+      ],
+      "target_token_ids": [
+        6181
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.3178779227018822e-05,
+          "target_rank": 31747,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 20607,
+              "token": "Library",
+              "probability": 0.00024477223632857203
+            },
+            {
+              "id": 16515,
+              "token": " anx",
+              "probability": 0.0002084093284793198
+            },
+            {
+              "id": 27141,
+              "token": " Baseball",
+              "probability": 0.00020562103600241244
+            },
+            {
+              "id": 31567,
+              "token": " basin",
+              "probability": 0.0002024664281634614
+            },
+            {
+              "id": 29435,
+              "token": "458",
+              "probability": 0.0001805745851015672
+            },
+            {
+              "id": 49581,
+              "token": "ocyanate",
+              "probability": 0.000172449232195504
+            },
+            {
+              "id": 15879,
+              "token": "--------------------",
+              "probability": 0.00017056550132110715
+            },
+            {
+              "id": 34068,
+              "token": " 430",
+              "probability": 0.00016797438729554415
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.021120823919773102,
+          "target_rank": 3,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.38512954115867615
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.048903994262218475
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.021120823919773102
+            },
+            {
+              "id": 3060,
+              "token": " Europe",
+              "probability": 0.020161012187600136
+            },
+            {
+              "id": 7422,
+              "token": " Russia",
+              "probability": 0.017232002690434456
+            },
+            {
+              "id": 7785,
+              "token": " Paris",
+              "probability": 0.015223904512822628
+            },
+            {
+              "id": 3968,
+              "token": " America",
+              "probability": 0.01076247077435255
+            },
+            {
+              "id": 9643,
+              "token": " Britain",
+              "probability": 0.009216872975230217
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "france_possessive",
+      "prompt": "France's capital is",
+      "target": " Paris",
+      "prompt_token_ids": [
+        33639,
+        434,
+        5347,
+        310
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.6391451936215162e-05,
+          "target_rank": 24967,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 36436,
+              "token": " mV",
+              "probability": 0.00020977540407329798
+            },
+            {
+              "id": 6980,
+              "token": " princip",
+              "probability": 0.00018357032968197018
+            },
+            {
+              "id": 37134,
+              "token": " είναι",
+              "probability": 0.0001712204684736207
+            },
+            {
+              "id": 49454,
+              "token": " alarms",
+              "probability": 0.00016268649778794497
+            },
+            {
+              "id": 37589,
+              "token": " bachelor",
+              "probability": 0.00015865945897530764
+            },
+            {
+              "id": 40931,
+              "token": "dala",
+              "probability": 0.00015695550246164203
+            },
+            {
+              "id": 903,
+              "token": "rough",
+              "probability": 0.00015653860464226454
+            },
+            {
+              "id": 50079,
+              "token": "took",
+              "probability": 0.00014996241952758282
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.002739448333159089,
+          "target_rank": 47,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.05119352415204048
+            },
+            {
+              "id": 275,
+              "token": " in",
+              "probability": 0.04719623923301697
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.03278379514813423
+            },
+            {
+              "id": 387,
+              "token": " at",
+              "probability": 0.017607983201742172
+            },
+            {
+              "id": 327,
+              "token": " on",
+              "probability": 0.016628222540020943
+            },
+            {
+              "id": 1335,
+              "token": " still",
+              "probability": 0.01577598787844181
+            },
+            {
+              "id": 671,
+              "token": " also",
+              "probability": 0.014233292080461979
+            },
+            {
+              "id": 1024,
+              "token": " now",
+              "probability": 0.013723157346248627
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "rome_country",
+      "prompt": "Rome is the capital of",
+      "target": " Italy",
+      "prompt_token_ids": [
+        51,
+        485,
+        310,
+        253,
+        5347,
+        273
+      ],
+      "target_token_ids": [
+        9972
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.400854489475023e-05,
+          "target_rank": 30088,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 27141,
+              "token": " Baseball",
+              "probability": 0.00019783683819696307
+            },
+            {
+              "id": 49914,
+              "token": " readout",
+              "probability": 0.00019570215954445302
+            },
+            {
+              "id": 23004,
+              "token": " Championships",
+              "probability": 0.00019273771613370627
+            },
+            {
+              "id": 34068,
+              "token": " 430",
+              "probability": 0.00017716990259941667
+            },
+            {
+              "id": 40470,
+              "token": "reo",
+              "probability": 0.00017401392688043416
+            },
+            {
+              "id": 16515,
+              "token": " anx",
+              "probability": 0.00017156214744318277
+            },
+            {
+              "id": 41159,
+              "token": " intimacy",
+              "probability": 0.00016945334209594876
+            },
+            {
+              "id": 39058,
+              "token": "fiddle",
+              "probability": 0.0001655359665164724
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.007191161159425974,
+          "target_rank": 6,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.43000420928001404
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.04165595769882202
+            },
+            {
+              "id": 3060,
+              "token": " Europe",
+              "probability": 0.014645840041339397
+            },
+            {
+              "id": 5427,
+              "token": " India",
+              "probability": 0.011131091974675655
+            },
+            {
+              "id": 7422,
+              "token": " Russia",
+              "probability": 0.007460301276296377
+            },
+            {
+              "id": 9972,
+              "token": " Italy",
+              "probability": 0.007191161159425974
+            },
+            {
+              "id": 776,
+              "token": " our",
+              "probability": 0.0071334573440253735
+            },
+            {
+              "id": 271,
+              "token": " an",
+              "probability": 0.006247788667678833
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "tokyo_country",
+      "prompt": "Tokyo is the capital of",
+      "target": " Japan",
+      "prompt_token_ids": [
+        32040,
+        11904,
+        310,
+        253,
+        5347,
+        273
+      ],
+      "target_token_ids": [
+        4047
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 9.640593816584442e-06,
+          "target_rank": 40101,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 23004,
+              "token": " Championships",
+              "probability": 0.0002133394154952839
+            },
+            {
+              "id": 40470,
+              "token": "reo",
+              "probability": 0.0001986501447390765
+            },
+            {
+              "id": 46790,
+              "token": "hung",
+              "probability": 0.00019489994156174362
+            },
+            {
+              "id": 16515,
+              "token": " anx",
+              "probability": 0.0001902473741210997
+            },
+            {
+              "id": 29730,
+              "token": " Aur",
+              "probability": 0.00018611722043715417
+            },
+            {
+              "id": 7294,
+              "token": "}}^",
+              "probability": 0.00017971375200431794
+            },
+            {
+              "id": 49325,
+              "token": " 1882",
+              "probability": 0.00017092966299969703
+            },
+            {
+              "id": 25734,
+              "token": "CLASS",
+              "probability": 0.00016763864550739527
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.07446890324354172,
+          "target_rank": 2,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.35242047905921936
+            },
+            {
+              "id": 4047,
+              "token": " Japan",
+              "probability": 0.07446890324354172
+            },
+            {
+              "id": 4135,
+              "token": " China",
+              "probability": 0.042368993163108826
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.02813783288002014
+            },
+            {
+              "id": 5427,
+              "token": " India",
+              "probability": 0.011580211110413074
+            },
+            {
+              "id": 7422,
+              "token": " Russia",
+              "probability": 0.008496083319187164
+            },
+            {
+              "id": 17413,
+              "token": " Tokyo",
+              "probability": 0.008486754260957241
+            },
+            {
+              "id": 512,
+              "token": " all",
+              "probability": 0.005848540924489498
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "madrid_country",
+      "prompt": "Madrid is the capital of",
+      "target": " Spain",
+      "prompt_token_ids": [
+        19008,
+        6992,
+        310,
+        253,
+        5347,
+        273
+      ],
+      "target_token_ids": [
+        11268
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 2.0901836251141503e-05,
+          "target_rank": 17424,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 27141,
+              "token": " Baseball",
+              "probability": 0.0001956218184204772
+            },
+            {
+              "id": 32064,
+              "token": " Kend",
+              "probability": 0.00018542296311352402
+            },
+            {
+              "id": 4503,
+              "token": " equal",
+              "probability": 0.00017700367607176304
+            },
+            {
+              "id": 11506,
+              "token": " Proposition",
+              "probability": 0.00017623379244469106
+            },
+            {
+              "id": 20607,
+              "token": "Library",
+              "probability": 0.00016278057591989636
+            },
+            {
+              "id": 42123,
+              "token": " activism",
+              "probability": 0.00016222099657170475
+            },
+            {
+              "id": 49914,
+              "token": " readout",
+              "probability": 0.0001602409320184961
+            },
+            {
+              "id": 34556,
+              "token": "�",
+              "probability": 0.0001547528081573546
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.001803539227694273,
+          "target_rank": 42,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.4139164090156555
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.03856607526540756
+            },
+            {
+              "id": 5427,
+              "token": " India",
+              "probability": 0.01897078938782215
+            },
+            {
+              "id": 3060,
+              "token": " Europe",
+              "probability": 0.012839412316679955
+            },
+            {
+              "id": 3968,
+              "token": " America",
+              "probability": 0.010190342552959919
+            },
+            {
+              "id": 1457,
+              "token": " New",
+              "probability": 0.00898636132478714
+            },
+            {
+              "id": 7422,
+              "token": " Russia",
+              "probability": 0.007381158415228128
+            },
+            {
+              "id": 436,
+              "token": " this",
+              "probability": 0.006700143218040466
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "ottawa_country",
+      "prompt": "Ottawa is the capital of",
+      "target": " Canada",
+      "prompt_token_ids": [
+        43468,
+        26629,
+        310,
+        253,
+        5347,
+        273
+      ],
+      "target_token_ids": [
+        6144
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 2.6468835130799562e-05,
+          "target_rank": 11191,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 31567,
+              "token": " basin",
+              "probability": 0.00019199108646716923
+            },
+            {
+              "id": 23004,
+              "token": " Championships",
+              "probability": 0.0001882966753328219
+            },
+            {
+              "id": 31093,
+              "token": "IENT",
+              "probability": 0.0001786938519217074
+            },
+            {
+              "id": 46790,
+              "token": "hung",
+              "probability": 0.000172956264577806
+            },
+            {
+              "id": 39058,
+              "token": "fiddle",
+              "probability": 0.0001682141300989315
+            },
+            {
+              "id": 20607,
+              "token": "Library",
+              "probability": 0.00016408314695581794
+            },
+            {
+              "id": 11742,
+              "token": " processed",
+              "probability": 0.00016281109128613025
+            },
+            {
+              "id": 1956,
+              "token": "egin",
+              "probability": 0.00015969775267876685
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.034210097044706345,
+          "target_rank": 3,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.4450535476207733
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.03876984864473343
+            },
+            {
+              "id": 6144,
+              "token": " Canada",
+              "probability": 0.034210097044706345
+            },
+            {
+              "id": 17367,
+              "token": " Ontario",
+              "probability": 0.013437812216579914
+            },
+            {
+              "id": 697,
+              "token": " its",
+              "probability": 0.0106496661901474
+            },
+            {
+              "id": 29539,
+              "token": " Ottawa",
+              "probability": 0.010433489456772804
+            },
+            {
+              "id": 24604,
+              "token": " Montreal",
+              "probability": 0.008750557899475098
+            },
+            {
+              "id": 1457,
+              "token": " New",
+              "probability": 0.008307141251862049
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "largest_planet",
+      "prompt": "The largest planet in our solar system is",
+      "target": " Jupiter",
+      "prompt_token_ids": [
+        510,
+        6253,
+        8859,
+        275,
+        776,
+        9666,
+        985,
+        310
+      ],
+      "target_token_ids": [
+        34434
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.4881630704621784e-05,
+          "target_rank": 28075,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 26156,
+              "token": " metres",
+              "probability": 0.00021648856636602432
+            },
+            {
+              "id": 22240,
+              "token": " antigens",
+              "probability": 0.00020089470490347594
+            },
+            {
+              "id": 30236,
+              "token": " plainly",
+              "probability": 0.00019240542314946651
+            },
+            {
+              "id": 45820,
+              "token": " motto",
+              "probability": 0.00016938197950366884
+            },
+            {
+              "id": 18397,
+              "token": "ifiable",
+              "probability": 0.00016624068666715175
+            },
+            {
+              "id": 47469,
+              "token": "Pipeline",
+              "probability": 0.00016410047828685492
+            },
+            {
+              "id": 42793,
+              "token": " prefrontal",
+              "probability": 0.0001608923776075244
+            },
+            {
+              "id": 9151,
+              "token": "DC",
+              "probability": 0.00016083032824099064
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.01696295477449894,
+          "target_rank": 5,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.17241071164608002
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.04679621383547783
+            },
+            {
+              "id": 4441,
+              "token": " located",
+              "probability": 0.027885369956493378
+            },
+            {
+              "id": 275,
+              "token": " in",
+              "probability": 0.019938508048653603
+            },
+            {
+              "id": 34434,
+              "token": " Jupiter",
+              "probability": 0.01696295477449894
+            },
+            {
+              "id": 1925,
+              "token": " called",
+              "probability": 0.015581290237605572
+            },
+            {
+              "id": 1929,
+              "token": " known",
+              "probability": 0.01495696883648634
+            },
+            {
+              "id": 387,
+              "token": " at",
+              "probability": 0.01160733588039875
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "earth_orbit",
+      "prompt": "The Earth revolves around the",
+      "target": " sun",
+      "prompt_token_ids": [
+        510,
+        7565,
+        3585,
+        14503,
+        1475,
+        253
+      ],
+      "target_token_ids": [
+        5101
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 8.315127161040436e-06,
+          "target_rank": 43057,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 15968,
+              "token": "Return",
+              "probability": 0.00026265010819770396
+            },
+            {
+              "id": 6956,
+              "token": " Mo",
+              "probability": 0.00019986025290563703
+            },
+            {
+              "id": 3117,
+              "token": ")}",
+              "probability": 0.00018349345191381872
+            },
+            {
+              "id": 4492,
+              "token": "link",
+              "probability": 0.00018053050735034049
+            },
+            {
+              "id": 18156,
+              "token": " NK",
+              "probability": 0.00017019431106746197
+            },
+            {
+              "id": 11505,
+              "token": " Main",
+              "probability": 0.00016752748342696577
+            },
+            {
+              "id": 48183,
+              "token": " sha",
+              "probability": 0.00016655387298669666
+            },
+            {
+              "id": 43525,
+              "token": " hypergly",
+              "probability": 0.00016358774155378342
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.043042849749326706,
+          "target_rank": 1,
+          "target_is_top1": true,
+          "top_tokens": [
+            {
+              "id": 5101,
+              "token": " sun",
+              "probability": 0.043042849749326706
+            },
+            {
+              "id": 4146,
+              "token": " Sun",
+              "probability": 0.02512199990451336
+            },
+            {
+              "id": 12334,
+              "token": " moon",
+              "probability": 0.02372703328728676
+            },
+            {
+              "id": 1533,
+              "token": " world",
+              "probability": 0.022404057905077934
+            },
+            {
+              "id": 8859,
+              "token": " planet",
+              "probability": 0.017310399562120438
+            },
+            {
+              "id": 16363,
+              "token": " Moon",
+              "probability": 0.014857064001262188
+            },
+            {
+              "id": 7565,
+              "token": " Earth",
+              "probability": 0.01279977522790432
+            },
+            {
+              "id": 10325,
+              "token": " universe",
+              "probability": 0.010966953821480274
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": true
+    },
+    {
+      "id": "week_days",
+      "prompt": "There are seven days in a",
+      "target": " week",
+      "prompt_token_ids": [
+        2512,
+        403,
+        5093,
+        1897,
+        275,
+        247
+      ],
+      "target_token_ids": [
+        2129
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.8547201761975884e-05,
+          "target_rank": 21032,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 19577,
+              "token": "Listen",
+              "probability": 0.00024661116185598075
+            },
+            {
+              "id": 31915,
+              "token": " contempor",
+              "probability": 0.0002227833028882742
+            },
+            {
+              "id": 13785,
+              "token": " panc",
+              "probability": 0.0001949751895153895
+            },
+            {
+              "id": 35621,
+              "token": "resize",
+              "probability": 0.00018736235506366938
+            },
+            {
+              "id": 27170,
+              "token": " outfit",
+              "probability": 0.00018512089445721358
+            },
+            {
+              "id": 18146,
+              "token": "167",
+              "probability": 0.00016516144387423992
+            },
+            {
+              "id": 48937,
+              "token": "ftime",
+              "probability": 0.00016461292398162186
+            },
+            {
+              "id": 32349,
+              "token": " aven",
+              "probability": 0.00015626799722667783
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.02505183406174183,
+          "target_rank": 3,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 4194,
+              "token": " row",
+              "probability": 0.08649466931819916
+            },
+            {
+              "id": 1388,
+              "token": " day",
+              "probability": 0.026768645271658897
+            },
+            {
+              "id": 2129,
+              "token": " week",
+              "probability": 0.02505183406174183
+            },
+            {
+              "id": 1770,
+              "token": " month",
+              "probability": 0.019548531621694565
+            },
+            {
+              "id": 2014,
+              "token": " single",
+              "probability": 0.01884099282324314
+            },
+            {
+              "id": 807,
+              "token": " year",
+              "probability": 0.018420273438096046
+            },
+            {
+              "id": 1048,
+              "token": " long",
+              "probability": 0.015265352092683315
+            },
+            {
+              "id": 747,
+              "token": " new",
+              "probability": 0.012821804732084274
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "year_months",
+      "prompt": "There are twelve months in a",
+      "target": " year",
+      "prompt_token_ids": [
+        2512,
+        403,
+        13265,
+        2607,
+        275,
+        247
+      ],
+      "target_token_ids": [
+        807
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.985562630579807e-05,
+          "target_rank": 19060,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 13785,
+              "token": " panc",
+              "probability": 0.0002898615493904799
+            },
+            {
+              "id": 18146,
+              "token": "167",
+              "probability": 0.0002056835510302335
+            },
+            {
+              "id": 15530,
+              "token": " occasions",
+              "probability": 0.00018355497741140425
+            },
+            {
+              "id": 14306,
+              "token": " pric",
+              "probability": 0.0001769823138602078
+            },
+            {
+              "id": 38301,
+              "token": " kol",
+              "probability": 0.00017660426965449005
+            },
+            {
+              "id": 35621,
+              "token": "resize",
+              "probability": 0.0001751540694385767
+            },
+            {
+              "id": 31915,
+              "token": " contempor",
+              "probability": 0.0001705570612102747
+            },
+            {
+              "id": 19577,
+              "token": "Listen",
+              "probability": 0.00016543114907108247
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.04761364683508873,
+          "target_rank": 2,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 4194,
+              "token": " row",
+              "probability": 0.06718700379133224
+            },
+            {
+              "id": 807,
+              "token": " year",
+              "probability": 0.04761364683508873
+            },
+            {
+              "id": 2129,
+              "token": " week",
+              "probability": 0.027506254613399506
+            },
+            {
+              "id": 1770,
+              "token": " month",
+              "probability": 0.023196544498205185
+            },
+            {
+              "id": 2014,
+              "token": " single",
+              "probability": 0.019402742385864258
+            },
+            {
+              "id": 1388,
+              "token": " day",
+              "probability": 0.019134603440761566
+            },
+            {
+              "id": 1643,
+              "token": " few",
+              "probability": 0.01860712096095085
+            },
+            {
+              "id": 1048,
+              "token": " long",
+              "probability": 0.016251225024461746
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "largest_ocean",
+      "prompt": "The largest ocean on Earth is the",
+      "target": " Pacific",
+      "prompt_token_ids": [
+        510,
+        6253,
+        12927,
+        327,
+        7565,
+        310,
+        253
+      ],
+      "target_token_ids": [
+        11553
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 2.678198870853521e-05,
+          "target_rank": 10739,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 18156,
+              "token": " NK",
+              "probability": 0.00020545996085274965
+            },
+            {
+              "id": 40257,
+              "token": " roar",
+              "probability": 0.00018515541160013527
+            },
+            {
+              "id": 37814,
+              "token": " metropolitan",
+              "probability": 0.00018342684779781848
+            },
+            {
+              "id": 8192,
+              "token": " Log",
+              "probability": 0.0001779504818841815
+            },
+            {
+              "id": 40688,
+              "token": " Into",
+              "probability": 0.00017088185995817184
+            },
+            {
+              "id": 43525,
+              "token": " hypergly",
+              "probability": 0.00016901001799851656
+            },
+            {
+              "id": 20900,
+              "token": "Storage",
+              "probability": 0.00016881780175026506
+            },
+            {
+              "id": 38637,
+              "token": " MID",
+              "probability": 0.00016701854474376887
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.026055334135890007,
+          "target_rank": 3,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 6253,
+              "token": " largest",
+              "probability": 0.03704113885760307
+            },
+            {
+              "id": 12927,
+              "token": " ocean",
+              "probability": 0.026585450395941734
+            },
+            {
+              "id": 11553,
+              "token": " Pacific",
+              "probability": 0.026055334135890007
+            },
+            {
+              "id": 1533,
+              "token": " world",
+              "probability": 0.01966039650142193
+            },
+            {
+              "id": 954,
+              "token": " most",
+              "probability": 0.015786007046699524
+            },
+            {
+              "id": 18351,
+              "token": " Gulf",
+              "probability": 0.01460858341306448
+            },
+            {
+              "id": 6150,
+              "token": " sea",
+              "probability": 0.010504201054573059
+            },
+            {
+              "id": 14847,
+              "token": " Atlantic",
+              "probability": 0.009818519465625286
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "water_freezing",
+      "prompt": "Water freezes at zero degrees",
+      "target": " Celsius",
+      "prompt_token_ids": [
+        26042,
+        1959,
+        13505,
+        387,
+        5058,
+        7759
+      ],
+      "target_token_ids": [
+        330,
+        1241,
+        3750
+      ],
+      "single_token_target": false,
+      "observations": [],
+      "not_evaluated_reason": "Target is not a single tokenizer token; incompatible with this UI.",
+      "eligible_for_selection": false
+    },
+    {
+      "id": "gold_symbol",
+      "prompt": "The chemical symbol for gold is",
+      "target": " Au",
+      "prompt_token_ids": [
+        510,
+        5793,
+        9484,
+        323,
+        5328,
+        310
+      ],
+      "target_token_ids": [
+        18940
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.2877142580691725e-05,
+          "target_rank": 32345,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 30236,
+              "token": " plainly",
+              "probability": 0.0002948754990939051
+            },
+            {
+              "id": 22240,
+              "token": " antigens",
+              "probability": 0.00021309140720404685
+            },
+            {
+              "id": 28314,
+              "token": " worries",
+              "probability": 0.00020945687720086426
+            },
+            {
+              "id": 23520,
+              "token": "offee",
+              "probability": 0.0001957538624992594
+            },
+            {
+              "id": 16051,
+              "token": " rug",
+              "probability": 0.00017906739958561957
+            },
+            {
+              "id": 37134,
+              "token": " είναι",
+              "probability": 0.0001697669067652896
+            },
+            {
+              "id": 15153,
+              "token": " traveling",
+              "probability": 0.00015996384900063276
+            },
+            {
+              "id": 26156,
+              "token": " metres",
+              "probability": 0.00015742966206744313
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.0004384850908536464,
+          "target_rank": 258,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.17582111060619354
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.08487635850906372
+            },
+            {
+              "id": 271,
+              "token": " an",
+              "probability": 0.01742565631866455
+            },
+            {
+              "id": 5328,
+              "token": " gold",
+              "probability": 0.016627676784992218
+            },
+            {
+              "id": 908,
+              "token": " used",
+              "probability": 0.015018188394606113
+            },
+            {
+              "id": 281,
+              "token": " to",
+              "probability": 0.014122067019343376
+            },
+            {
+              "id": 417,
+              "token": " not",
+              "probability": 0.013569457456469536
+            },
+            {
+              "id": 275,
+              "token": " in",
+              "probability": 0.0112179359421134
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "human_exhalation",
+      "prompt": "Humans breathe oxygen and exhale carbon",
+      "target": " dioxide",
+      "prompt_token_ids": [
+        40320,
+        507,
+        23233,
+        7768,
+        285,
+        26004,
+        1079,
+        6315
+      ],
+      "target_token_ids": [
+        21295
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 2.877414590329863e-05,
+          "target_rank": 9175,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 39062,
+              "token": " narratives",
+              "probability": 0.00021334824850782752
+            },
+            {
+              "id": 11324,
+              "token": " BR",
+              "probability": 0.000197765592020005
+            },
+            {
+              "id": 19039,
+              "token": " Reference",
+              "probability": 0.00016257358947768807
+            },
+            {
+              "id": 38136,
+              "token": " recruits",
+              "probability": 0.00016198688535951078
+            },
+            {
+              "id": 16925,
+              "token": " Sep",
+              "probability": 0.00015873831580393016
+            },
+            {
+              "id": 17982,
+              "token": "\n\t ",
+              "probability": 0.00015152126434259117
+            },
+            {
+              "id": 7622,
+              "token": " route",
+              "probability": 0.0001512434391770512
+            },
+            {
+              "id": 48081,
+              "token": "Records",
+              "probability": 0.00014926778385415673
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.8978238701820374,
+          "target_rank": 1,
+          "target_is_top1": true,
+          "top_tokens": [
+            {
+              "id": 21295,
+              "token": " dioxide",
+              "probability": 0.8978238701820374
+            },
+            {
+              "id": 1114,
+              "token": " mon",
+              "probability": 0.015267940238118172
+            },
+            {
+              "id": 318,
+              "token": "ation",
+              "probability": 0.011684920638799667
+            },
+            {
+              "id": 15,
+              "token": ".",
+              "probability": 0.006851623300462961
+            },
+            {
+              "id": 13,
+              "token": ",",
+              "probability": 0.00461289519444108
+            },
+            {
+              "id": 366,
+              "token": "ate",
+              "probability": 0.003845758968964219
+            },
+            {
+              "id": 684,
+              "token": "ates",
+              "probability": 0.003686260897666216
+            },
+            {
+              "id": 280,
+              "token": "ic",
+              "probability": 0.003662488656118512
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": true
+    },
+    {
+      "id": "triangle_sides",
+      "prompt": "A triangle has three",
+      "target": " sides",
+      "prompt_token_ids": [
+        34,
+        19037,
+        556,
+        1264
+      ],
+      "target_token_ids": [
+        7123
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 3.985263901995495e-05,
+          "target_rank": 3885,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 45292,
+              "token": " Cisco",
+              "probability": 0.0002441824763081968
+            },
+            {
+              "id": 33841,
+              "token": "nej",
+              "probability": 0.00020476173085626215
+            },
+            {
+              "id": 11793,
+              "token": " True",
+              "probability": 0.0001935661566676572
+            },
+            {
+              "id": 16374,
+              "token": "large",
+              "probability": 0.00018702329543884844
+            },
+            {
+              "id": 20380,
+              "token": "\n                          ",
+              "probability": 0.00016653847706038505
+            },
+            {
+              "id": 535,
+              "token": "\n\n",
+              "probability": 0.000159347357111983
+            },
+            {
+              "id": 31317,
+              "token": " clicks",
+              "probability": 0.0001545407867524773
+            },
+            {
+              "id": 1981,
+              "token": "ling",
+              "probability": 0.00015418868861161172
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.017388002946972847,
+          "target_rank": 5,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 2792,
+              "token": " points",
+              "probability": 0.06113623082637787
+            },
+            {
+              "id": 9297,
+              "token": " edges",
+              "probability": 0.030997466295957565
+            },
+            {
+              "id": 13388,
+              "token": " vertices",
+              "probability": 0.022578787058591843
+            },
+            {
+              "id": 3603,
+              "token": " elements",
+              "probability": 0.01814035139977932
+            },
+            {
+              "id": 7123,
+              "token": " sides",
+              "probability": 0.017388002946972847
+            },
+            {
+              "id": 4243,
+              "token": " parts",
+              "probability": 0.014963800087571144
+            },
+            {
+              "id": 10103,
+              "token": " dimensions",
+              "probability": 0.013923979364335537
+            },
+            {
+              "id": 1027,
+              "token": " different",
+              "probability": 0.01357157714664936
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_city_of",
+      "prompt": "The capital of France is the city of",
+      "target": " Paris",
+      "prompt_token_ids": [
+        510,
+        5347,
+        273,
+        6181,
+        310,
+        253,
+        2846,
+        273
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 2.5319755877717398e-05,
+          "target_rank": 12160,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 31567,
+              "token": " basin",
+              "probability": 0.0002258199529023841
+            },
+            {
+              "id": 27141,
+              "token": " Baseball",
+              "probability": 0.0001914142194436863
+            },
+            {
+              "id": 23004,
+              "token": " Championships",
+              "probability": 0.00018503358296584338
+            },
+            {
+              "id": 4414,
+              "token": "_.",
+              "probability": 0.00016962156223598868
+            },
+            {
+              "id": 10536,
+              "token": "HD",
+              "probability": 0.00015683086530771106
+            },
+            {
+              "id": 22974,
+              "token": "\\!\\",
+              "probability": 0.00015433129738084972
+            },
+            {
+              "id": 20607,
+              "token": "Library",
+              "probability": 0.0001512628950877115
+            },
+            {
+              "id": 40470,
+              "token": "reo",
+              "probability": 0.00015078936121426523
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.11215289682149887,
+          "target_rank": 1,
+          "target_is_top1": true,
+          "top_tokens": [
+            {
+              "id": 7785,
+              "token": " Paris",
+              "probability": 0.11215289682149887
+            },
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.0526677705347538
+            },
+            {
+              "id": 22889,
+              "token": " Bour",
+              "probability": 0.017585590481758118
+            },
+            {
+              "id": 659,
+              "token": " St",
+              "probability": 0.016668004915118217
+            },
+            {
+              "id": 418,
+              "token": " L",
+              "probability": 0.013819948770105839
+            },
+            {
+              "id": 378,
+              "token": " B",
+              "probability": 0.013699016533792019
+            },
+            {
+              "id": 11877,
+              "token": " Saint",
+              "probability": 0.013657273724675179
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.01332950871437788
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": true
+    },
+    {
+      "id": "paris_capital_city",
+      "prompt": "France's capital city is",
+      "target": " Paris",
+      "prompt_token_ids": [
+        33639,
+        434,
+        5347,
+        2846,
+        310
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.3685501471627504e-05,
+          "target_rank": 30620,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 36436,
+              "token": " mV",
+              "probability": 0.0002067541645374149
+            },
+            {
+              "id": 37589,
+              "token": " bachelor",
+              "probability": 0.00017135892994701862
+            },
+            {
+              "id": 37134,
+              "token": " είναι",
+              "probability": 0.0001652082719374448
+            },
+            {
+              "id": 46287,
+              "token": " Buenos",
+              "probability": 0.00016115560720209032
+            },
+            {
+              "id": 903,
+              "token": "rough",
+              "probability": 0.00015530033851973712
+            },
+            {
+              "id": 49454,
+              "token": " alarms",
+              "probability": 0.00015285119297914207
+            },
+            {
+              "id": 6980,
+              "token": " princip",
+              "probability": 0.00014890245802234858
+            },
+            {
+              "id": 43731,
+              "token": "ClassName",
+              "probability": 0.00014875819033477455
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.0030355218332260847,
+          "target_rank": 37,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.06062128022313118
+            },
+            {
+              "id": 275,
+              "token": " in",
+              "probability": 0.0468902625143528
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.032662831246852875
+            },
+            {
+              "id": 1024,
+              "token": " now",
+              "probability": 0.015625951811671257
+            },
+            {
+              "id": 4441,
+              "token": " located",
+              "probability": 0.014559656381607056
+            },
+            {
+              "id": 417,
+              "token": " not",
+              "probability": 0.013664180412888527
+            },
+            {
+              "id": 327,
+              "token": " on",
+              "probability": 0.012933827936649323
+            },
+            {
+              "id": 671,
+              "token": " also",
+              "probability": 0.012806572020053864
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_city_colon",
+      "prompt": "France's capital city:",
+      "target": " Paris",
+      "prompt_token_ids": [
+        33639,
+        434,
+        5347,
+        2846,
+        27
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.858422729128506e-05,
+          "target_rank": 21024,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 33762,
+              "token": "DATE",
+              "probability": 0.0001909599086502567
+            },
+            {
+              "id": 47099,
+              "token": "Sender",
+              "probability": 0.00018789444584399462
+            },
+            {
+              "id": 29416,
+              "token": "agh",
+              "probability": 0.0001735369733069092
+            },
+            {
+              "id": 35713,
+              "token": "fficacy",
+              "probability": 0.0001717294508125633
+            },
+            {
+              "id": 48978,
+              "token": "oplasma",
+              "probability": 0.00016218442760873586
+            },
+            {
+              "id": 37407,
+              "token": "approved",
+              "probability": 0.0001582402765052393
+            },
+            {
+              "id": 34856,
+              "token": "dup",
+              "probability": 0.00015594408614560962
+            },
+            {
+              "id": 26827,
+              "token": "relim",
+              "probability": 0.00015357861411757767
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.03764519840478897,
+          "target_rank": 1,
+          "target_is_top1": true,
+          "top_tokens": [
+            {
+              "id": 7785,
+              "token": " Paris",
+              "probability": 0.03764519840478897
+            },
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.030352333560585976
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.02650611288845539
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.020572543144226074
+            },
+            {
+              "id": 380,
+              "token": " The",
+              "probability": 0.01679082214832306
+            },
+            {
+              "id": 1457,
+              "token": " New",
+              "probability": 0.011380670592188835
+            },
+            {
+              "id": 346,
+              "token": " \"",
+              "probability": 0.008463593199849129
+            },
+            {
+              "id": 401,
+              "token": " F",
+              "probability": 0.008190187625586987
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": true
+    },
+    {
+      "id": "paris_colon",
+      "prompt": "The capital of France:",
+      "target": " Paris",
+      "prompt_token_ids": [
+        510,
+        5347,
+        273,
+        6181,
+        27
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.7957279851543717e-05,
+          "target_rank": 21929,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 15106,
+              "token": "move",
+              "probability": 0.00021052666124887764
+            },
+            {
+              "id": 22707,
+              "token": " Lisa",
+              "probability": 0.00019907737441826612
+            },
+            {
+              "id": 8427,
+              "token": " vivo",
+              "probability": 0.0001901957584777847
+            },
+            {
+              "id": 17533,
+              "token": "itic",
+              "probability": 0.0001766574860084802
+            },
+            {
+              "id": 42221,
+              "token": " encapsulated",
+              "probability": 0.00017589553317520767
+            },
+            {
+              "id": 6208,
+              "token": " mouth",
+              "probability": 0.00016734891687519848
+            },
+            {
+              "id": 13279,
+              "token": " opens",
+              "probability": 0.00016381070599891245
+            },
+            {
+              "id": 5544,
+              "token": " explained",
+              "probability": 0.00016157579375430942
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.013586778193712234,
+          "target_rank": 8,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.11392746865749359
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.06124955043196678
+            },
+            {
+              "id": 380,
+              "token": " The",
+              "probability": 0.056958600878715515
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.03055107779800892
+            },
+            {
+              "id": 247,
+              "token": " a",
+              "probability": 0.019862985238432884
+            },
+            {
+              "id": 346,
+              "token": " \"",
+              "probability": 0.018120810389518738
+            },
+            {
+              "id": 309,
+              "token": " I",
+              "probability": 0.015276025980710983
+            },
+            {
+              "id": 7785,
+              "token": " Paris",
+              "probability": 0.013586778193712234
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_country_field",
+      "prompt": "Country: France\nCapital:",
+      "target": " Paris",
+      "prompt_token_ids": [
+        32351,
+        27,
+        6181,
+        187,
+        15614,
+        1562,
+        27
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.5094767150003463e-05,
+          "target_rank": 27551,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 6208,
+              "token": " mouth",
+              "probability": 0.0002416161441942677
+            },
+            {
+              "id": 27193,
+              "token": "Notification",
+              "probability": 0.00018887093756347895
+            },
+            {
+              "id": 34780,
+              "token": " Kane",
+              "probability": 0.00018866593018174171
+            },
+            {
+              "id": 24917,
+              "token": " logged",
+              "probability": 0.00018233887385576963
+            },
+            {
+              "id": 23022,
+              "token": " Ø",
+              "probability": 0.0001783134212018922
+            },
+            {
+              "id": 11371,
+              "token": " settled",
+              "probability": 0.00017275862046517432
+            },
+            {
+              "id": 18057,
+              "token": " lemma",
+              "probability": 0.00017175333050545305
+            },
+            {
+              "id": 48431,
+              "token": "ginx",
+              "probability": 0.00016911739658098668
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.03856390342116356,
+          "target_rank": 3,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.13082680106163025
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.05208379402756691
+            },
+            {
+              "id": 7785,
+              "token": " Paris",
+              "probability": 0.03856390342116356
+            },
+            {
+              "id": 5112,
+              "token": " French",
+              "probability": 0.013517388142645359
+            },
+            {
+              "id": 22785,
+              "token": " Belgium",
+              "probability": 0.012200023047626019
+            },
+            {
+              "id": 1986,
+              "token": " United",
+              "probability": 0.011774254962801933
+            },
+            {
+              "id": 330,
+              "token": " C",
+              "probability": 0.00873174425214529
+            },
+            {
+              "id": 6176,
+              "token": " Germany",
+              "probability": 0.007753859739750624
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_qa",
+      "prompt": "Q: What is the capital of France?\nA:",
+      "target": " Paris",
+      "prompt_token_ids": [
+        50,
+        27,
+        1737,
+        310,
+        253,
+        5347,
+        273,
+        6181,
+        32,
+        187,
+        34,
+        27
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 9.741645953909028e-06,
+          "target_rank": 39854,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 5544,
+              "token": " explained",
+              "probability": 0.00024070072686299682
+            },
+            {
+              "id": 2865,
+              "token": "isc",
+              "probability": 0.000235294210142456
+            },
+            {
+              "id": 23204,
+              "token": " да",
+              "probability": 0.00020432690507732332
+            },
+            {
+              "id": 33762,
+              "token": "DATE",
+              "probability": 0.00020079758542124182
+            },
+            {
+              "id": 6208,
+              "token": " mouth",
+              "probability": 0.00019344213069416583
+            },
+            {
+              "id": 13482,
+              "token": "129",
+              "probability": 0.00018315453780815005
+            },
+            {
+              "id": 15039,
+              "token": " mos",
+              "probability": 0.00017888426373247057
+            },
+            {
+              "id": 46160,
+              "token": "anding",
+              "probability": 0.00017182603187393397
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.012675967067480087,
+          "target_rank": 12,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 309,
+              "token": " I",
+              "probability": 0.10099037736654282
+            },
+            {
+              "id": 380,
+              "token": " The",
+              "probability": 0.07656726986169815
+            },
+            {
+              "id": 733,
+              "token": " It",
+              "probability": 0.06527596712112427
+            },
+            {
+              "id": 5112,
+              "token": " French",
+              "probability": 0.027297569438815117
+            },
+            {
+              "id": 496,
+              "token": " In",
+              "probability": 0.025478322058916092
+            },
+            {
+              "id": 329,
+              "token": " A",
+              "probability": 0.02519994042813778
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.024670332670211792
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.022203605622053146
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_answer",
+      "prompt": "What is the capital of France?\nAnswer:",
+      "target": " Paris",
+      "prompt_token_ids": [
+        1276,
+        310,
+        253,
+        5347,
+        273,
+        6181,
+        32,
+        187,
+        32869,
+        27
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 1.1479633030830882e-05,
+          "target_rank": 35606,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 6208,
+              "token": " mouth",
+              "probability": 0.00022285616432782263
+            },
+            {
+              "id": 22707,
+              "token": " Lisa",
+              "probability": 0.00020285780192352831
+            },
+            {
+              "id": 4437,
+              "token": " October",
+              "probability": 0.00020076800137758255
+            },
+            {
+              "id": 23204,
+              "token": " да",
+              "probability": 0.0001916694745887071
+            },
+            {
+              "id": 5544,
+              "token": " explained",
+              "probability": 0.00018974051636178046
+            },
+            {
+              "id": 25540,
+              "token": " plural",
+              "probability": 0.00018402641580905765
+            },
+            {
+              "id": 34351,
+              "token": " serm",
+              "probability": 0.0001815965079003945
+            },
+            {
+              "id": 46946,
+              "token": "=`",
+              "probability": 0.0001802909973775968
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.0067787375301122665,
+          "target_rank": 17,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 380,
+              "token": " The",
+              "probability": 0.10760200768709183
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.0593944676220417
+            },
+            {
+              "id": 733,
+              "token": " It",
+              "probability": 0.037140894681215286
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.03707747533917427
+            },
+            {
+              "id": 5112,
+              "token": " French",
+              "probability": 0.02130740135908127
+            },
+            {
+              "id": 329,
+              "token": " A",
+              "probability": 0.019099831581115723
+            },
+            {
+              "id": 831,
+              "token": " This",
+              "probability": 0.0174778513610363
+            },
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.014521520584821701
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    },
+    {
+      "id": "paris_apposition",
+      "prompt": "France's capital,",
+      "target": " Paris",
+      "prompt_token_ids": [
+        33639,
+        434,
+        5347,
+        13
+      ],
+      "target_token_ids": [
+        7785
+      ],
+      "single_token_target": true,
+      "observations": [
+        {
+          "step": 0,
+          "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+          "target_probability": 2.191096245951485e-05,
+          "target_rank": 16149,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 6149,
+              "token": " earth",
+              "probability": 0.0002557207481004298
+            },
+            {
+              "id": 32511,
+              "token": "terror",
+              "probability": 0.00025251938495785
+            },
+            {
+              "id": 31304,
+              "token": " também",
+              "probability": 0.00023447636340279132
+            },
+            {
+              "id": 16331,
+              "token": " 08",
+              "probability": 0.00022883867495693266
+            },
+            {
+              "id": 4817,
+              "token": " passed",
+              "probability": 0.0001805052743293345
+            },
+            {
+              "id": 45880,
+              "token": " clashes",
+              "probability": 0.00017598671547602862
+            },
+            {
+              "id": 14855,
+              "token": " weakness",
+              "probability": 0.0001751086674630642
+            },
+            {
+              "id": 49027,
+              "token": "describe",
+              "probability": 0.00017239349836017936
+            }
+          ]
+        },
+        {
+          "step": 143000,
+          "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+          "target_probability": 0.026316531002521515,
+          "target_rank": 3,
+          "target_is_top1": false,
+          "top_tokens": [
+            {
+              "id": 253,
+              "token": " the",
+              "probability": 0.08402261137962341
+            },
+            {
+              "id": 6181,
+              "token": " France",
+              "probability": 0.06175053119659424
+            },
+            {
+              "id": 7785,
+              "token": " Paris",
+              "probability": 0.026316531002521515
+            },
+            {
+              "id": 285,
+              "token": " and",
+              "probability": 0.02443407103419304
+            },
+            {
+              "id": 352,
+              "token": " it",
+              "probability": 0.01774156466126442
+            },
+            {
+              "id": 6176,
+              "token": " Germany",
+              "probability": 0.012375028803944588
+            },
+            {
+              "id": 534,
+              "token": " which",
+              "probability": 0.01095831673592329
+            },
+            {
+              "id": 187,
+              "token": "\n",
+              "probability": 0.010639330372214317
+            }
+          ]
+        }
+      ],
+      "eligible_for_selection": false
+    }
+  ],
+  "recommendation": {
+    "id": "paris_city_of",
+    "prompt": "The capital of France is the city of",
+    "target": " Paris"
+  },
+  "wall_seconds": 0.7489425419989857
+}

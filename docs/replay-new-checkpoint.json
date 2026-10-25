@@ -4,7 +4,7 @@
   "step": 5000,
   "model_commit_sha": "dded41feea06c23ff3e04640e6aad2db57541e66",
   "tokenizer_commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
-  "trace_sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
+  "trace_sha256": "21e806364dace6d96c2b51349ea480e92031d58b77f7af86012e0896423390a3",
   "replay_script_sha256": "369a842b950f1542f9782e49034509cacb22412365a7ef37d01ff5238b1c3dc5",
   "device": "cpu",
   "dtype": "float32",
@@ -37,9 +37,9 @@
     },
     {
       "scene": "capital",
-      "prompt_tokens": 5,
+      "prompt_tokens": 8,
       "tokenization_and_top_ids_match": true,
-      "attention_entries_checked": 1200,
+      "attention_entries_checked": 3072,
       "max_raw_attention_error": 5.364418029785156e-07,
       "max_rounded_attention_error": 0.0,
       "max_top_probability_error": 0.0,
@@ -52,5 +52,5 @@
     "max_top_probability_error": 0.0,
     "target_probability_error": 0.0
   },
-  "elapsed_seconds": 0.543
+  "elapsed_seconds": 0.48
 }

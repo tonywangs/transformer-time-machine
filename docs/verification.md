@@ -1,48 +1,39 @@
-# Expanded timeline verification
+# Verification record
 
-Completed October 25, 2026. Dataset SHA-256: `874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266`.
+Updated October 25, 2026. Current dataset SHA-256: `21e806364dace6d96c2b51349ea480e92031d58b77f7af86012e0896423390a3`.
 
-## Actual scope
+## Current dataset and extraction
 
-Pythia-70M-deduped: 70,426,624 parameters, six layers, eight heads. The timeline now contains 38 training checkpoints from step 0 through 143,000, three fixed prompts, 114 recorded forward passes, and 282,720 stored attention values. The selected steps are listed in [the checkpoint manifest](../scripts/checkpoint-steps.txt). They include the original eight training steps and 30 additional steps, selected before inspecting the new outputs.
+Pythia-70M-deduped has 70,426,624 parameters, six layers, and eight heads. This release contains the same [38 selected checkpoints](../scripts/checkpoint-steps.txt), three prompts, 114 recorded forward passes, and 353,856 stored attention values. The factual prompt changed to `The capital of France is the city of`, with the single-token target ` Paris`.
 
-All observations were recomputed together on a Modal Linux CPU container in float32 with eager attention. [The run record](modal-run.json) captures packages, resource limits, and timing: 34.64 seconds to prefetch weights and 92.86 seconds for the complete function, including extraction and independent replays. No GPU training or paid model API was used. The function had a 15-minute timeout, four-core CPU limit, 8 GiB memory limit, one container, and no automatic retries. These durations are measured runtime, not a billing statement.
+All three scenes were recomputed together in a Modal Linux CPU container with float32 and eager attention. The [run record](modal-run.json) reports 29.12 seconds for prefetching and 87.58 seconds for the complete function, including extraction and independent replays. Resources were bounded to one container, four CPU cores, 8 GiB memory, a 15-minute timeout, and no automatic retries. No GPU training or paid model API was used. These are measured runtimes, not billing amounts.
 
-## Checks completed
+- [Validation](validation-data.json) passed for all 114 frames and 40,128 attention rows, covering dimensions, checkpoint identity, probabilities, causality, concentration, source hash, and dataset checksum. Maximum rounded row-sum error was about `3.01e-6`.
+- Independent replays at [step 0](replay-step0.json), [step 5,000](replay-new-checkpoint.json), [step 12,000](replay-fact-first-success.json), and [step 143,000](replay-final.json) loaded immutable cached weights without importing the extractor or reading its shards. All three scenes matched exactly in tokenization, top-eight identities and probabilities, target probabilities, and rounded attention. Maximum raw attention difference from stored rounded values was `5.3644e-7`, within the `6e-7` tolerance.
+- The [replacement audit](fact-replacement-audit.json) confirms unchanged model, checkpoint manifest, and tokenizer identity. Recomputed story and color scenes are exactly equal to the previous release. The factual scene is newly measured; no local probe values were spliced into the published Linux dataset.
 
-- [Data validation](validation-data.json): all 114 frames passed dimension, checkpoint identity, probability, causality, concentration, source-hash, and checksum checks. All 34,656 attention rows were checked; maximum rounded row-sum error was about `3.01e-6`. Local validation of the returned bundle matched the remote report.
-- Independent replays at [initialization](replay-step0.json), [step 5,000](replay-new-checkpoint.json), and [the final checkpoint](replay-final.json) reloaded immutable cached weights without importing the extractor or using its shards. All three prompts' tokenization, top-eight token IDs/text, probabilities, and rounded attention entries matched exactly. Maximum difference between unrounded attention and stored values was `5.3644e-7`, within the declared `6e-7` rounding tolerance.
-- [Expansion audit](expansion-audit.json): all 38 checkpoint SHAs matched the independently enumerated Hugging Face revisions. Exact prompts, token IDs, target IDs, tokenizer revision, and extractor source hash were preserved.
-- JavaScript syntax and whitespace checks passed. Browser checks covered exact-step selection, changing playback speed while playing, stopping at the endpoint, per-scene peak jumps, slider/select synchronization, and chart-dot clicks at tablet width. Chart clicks now account for SVG aspect-ratio margins.
-- At a 390 CSS-pixel viewport, page width and scroll width both measured 390; the sampling note and new controls remain visible. No JavaScript errors were observed in the test browser.
+## Why the factual prompt changed
 
-## Environment change from the first release
+The original `The capital of France is` never ranked ` Paris` first in the 38 observations. Its highest recorded Paris probability was 0.85%, at step 60,000; the final checkpoint assigned 0.19% and preferred ` the`. It remains documented in the replacement audit.
 
-The first eight-step release ran on an Apple silicon CPU. This release reruns those steps on Linux alongside all new steps, so its floats are not byte-identical to the old release. Across the 24 overlapping frames, the largest absolute probability difference is about `6.52e-5` (0.00652 percentage points), and the largest stored attention difference is about `0.005962` (0.5962 percentage points). The expansion audit retains the measured differences. The current release's independent replays are exact within its own recorded environment; no Mac and Linux frames are mixed in the published dataset.
+The replacement was deliberately selected to illustrate a factual completion that becomes the top guess. An [initial screen of 16 candidates](history/fact-initial-screen.json) was followed by eight Paris-format variants. The [complete 24-candidate screen](fact-candidate-screen.json) retains every tested prompt, endpoint result, selection rule, and local runtime record. Selection required a single-token target, not top-one at initialization, and top-one at the final checkpoint. This is disclosed curation for a visual example, not an accuracy benchmark.
 
-## What the examples show
+For the new wording, Paris first becomes the top guess at the **recorded step 12,000**, with 14.45% probability. It wins at seven sampled checkpoints: 12,000, 15,000, 20,000, 100,000, 120,000, 130,000, and 143,000. Its probability peaks at 19.48% at step 15,000 and ends at 11.22%. It loses first place between the sampled pairs 20,000→25,000, 100,000→110,000, and 130,000→140,000. The first observed success is independently replayed; the true transition could lie between sampled checkpoints.
 
-For `Once upon a`, ` time` is the top next-token guess at step 2,000, loses that position at 3,000, returns at 5,000, and loses it again at 6,000. Its highest probability among these 38 snapshots is about 11.70% at step 100,000, compared with 7.69% at the final checkpoint. The denser early timeline exposes changes hidden between the original observations.
+This demonstrates sensitivity to prompt wording and a non-monotonic next-token trajectory. It does not show that the original prompt improved, that a fact was acquired permanently at one exact step, or that the model has general factual competence. The unchanged color example still never selects purple as its top next token. Attention concentration describes focus, not causal importance.
 
-For the color sequence, ` purple` peaks at about 7.80% at step 2,000 and ends at 0.14%. For the factual prompt, ` Paris` peaks at about 0.85% at step 60,000. Neither is the top next token at any recorded checkpoint. A model preferring ` the` after the factual prompt could still begin a longer answer; immediate token rank is not a full-answer evaluation.
+## Current factual interface verification
 
-These are curated prompt observations from one small model trajectory, not a discovery about general capability acquisition. Attention concentration does not establish head importance or causal explanation. Peaks are maxima over the recorded samples, not a claim about unobserved training steps. This release has neither custom prompt inference nor interpolated model states.
+Browser checks with the replacement dataset confirmed that 1,100 × 620 CSS pixels still fit the full page with zero overflow in all three panels. The final view showed Paris at 11.2%; advancing from step 10,000 to 12,000 changed the top guess from ` the` to ` Paris` at 14.5%; the peak shortcut selected step 15,000 at 19.5%. The eight-token Matrix view worked. At 390 × 844, the scrolling page measured 390 × 2,149 with no horizontal overflow. No console errors or warnings were observed, and all 12 playback regression tests passed against the current JavaScript.
 
-## Single-screen dashboard revision
+## Earlier interface verification
 
-The desktop UI reserves layout rows for the header, prompt tabs, three simultaneous panels, and playback dock. Browser checks at 1,100 × 620, 1,280 × 650, 1,366 × 768, and 1,440 × 900 CSS pixels confirmed document dimensions equal the viewport and no vertical overflow inside the prompt, attention, or prediction panels. At the smallest size, all 11 color-token labels, all 48 head controls, the prediction list, and history fit above the dock. The color cycle remains two distinct lines. No page scaling or overflow clipping is used to obtain the fit.
+The following browser checks were completed during the dashboard and motion revisions against the previous dataset, SHA-256 `874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266`:
 
-The attention SVG now uses its panel's actual dimensions and staggers crowded labels. A ResizeObserver redraws SVG/canvas geometry when available space changes. Matrix switching, token/head selection, step selection, play/pause, and resizing passed browser checks with no console errors. The 390-pixel phone layout and a wide window shorter than 620 pixels retain readable scrolling without horizontal page overflow.
+- At 1,100 × 620, 1,280 × 650, 1,366 × 768, and 1,440 × 900 CSS pixels, the desktop page fit the viewport without panel overflow. All 11 color-token labels, 48 heads, predictions, history, and playback controls remained visible. No page scaling or overflow clipping was used. Phone and short-window layouts retained readable scrolling without horizontal overflow.
+- Flow/Matrix switching, query/head selection, exact-step selection, keyboard scrubbing, peak shortcuts, resizing, playback speed changes, and modal pause were checked without console errors. During 0.5× playback the visual playhead moved from 40.77% to 41.75% over approximately 0.88 seconds while recorded step 5,000 and leading probability 4.48% stayed fixed.
+- Pause/resume preserves fractional progress. Numeric readouts remain discrete; only presentation properties animate. Exact-zero attention paths stay invisible. Reduced-motion preferences disable interpolated presentation. Deterministic transport regression checks are available with `node scripts/test-playback.cjs`.
 
-This is a presentation change. The 38-checkpoint observations, their checksum, and extraction/replay code are unchanged.
+## Historical extraction change
 
-
-## Motion and microinteractions
-
-Playback now uses one elapsed-time animation-frame loop with a continuous visual playhead and a separate integer observation index. Browser samples during 0.5× playback showed the playhead progressing from 40.77% to 41.75% across approximately 0.88 seconds while the displayed step remained 5,000 and the leading probability remained 4.48%. Pausing freezes progress; resume and speed changes preserve the fractional interval. Seeking stops playback and settles onto the selected checkpoint. The endpoint stops exactly at the final recorded observation.
-
-Prediction rows retain token identity as their ranks change, using short positional transitions. Head buttons, query controls, and SVG nodes are retained across updates. Numeric readouts always use recorded values; only their presentation animates. Exact-zero attention paths remain invisible. Reduced-motion settings disable animated interpolation, including JavaScript transitions, while playback continues to visit recorded observations.
-
-Browser checks covered playback, changing speed, final-stop behavior, keyboard scrubbing and its accessible value, switching prompts/views/heads/query tokens, and opening About while playing. The 1,100 × 620 dashboard retained zero document/panel overflow, and the 390-pixel mobile fallback retained zero horizontal overflow. No console errors or warnings were observed. Deterministic transport regression checks can be run with `node scripts/test-playback.cjs`.
-
-The recorded dataset and extraction/replay scripts are unchanged; dataset SHA-256 remains `874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266`.
+The [archived expansion audit](history/expansion-audit.json) covers the earlier move from eight Mac CPU checkpoints to 38 Linux CPU checkpoints, with its original hashes and numerical comparisons intact. It is not a validation report for the current factual replacement. The current validation and replay reports above all identify the new dataset checksum.

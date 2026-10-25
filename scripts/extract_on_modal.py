@@ -60,7 +60,12 @@ def extract():
         sys.executable, "/pipeline/validate_traces.py", "--traces", str(out / "traces.json"),
         "--extractor", "/pipeline/extract_traces.py"], text=True)
     reports = {"validation-data.json": json.loads(validation)}
-    for step, name in ((0, "step0"), (5000, "new-checkpoint"), (143000, "final")):
+    traces = json.loads((out / "traces.json").read_text())
+    factual = next(scene for scene in traces["scenes"] if scene["id"] == "capital")
+    first_success = next(frame["step"] for frame in factual["frames"]
+                         if frame["top_tokens"][0]["id"] in factual["target_token_ids"])
+    for step, name in ((0, "step0"), (5000, "new-checkpoint"),
+                       (first_success, "fact-first-success"), (143000, "final")):
         replay = subprocess.check_output([
             sys.executable, "/pipeline/replay_checkpoint.py", "--traces", str(out / "traces.json"),
             "--cache-dir", cache, "--step", str(step)], text=True)

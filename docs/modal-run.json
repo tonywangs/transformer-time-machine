@@ -3,8 +3,8 @@
   "memory_limit_mib": 8192,
   "timeout_seconds": 900,
   "gpu": null,
-  "prefetch_seconds": 34.640809979000004,
-  "function_wall_seconds": 92.85617148600001,
+  "prefetch_seconds": 29.120416292999998,
+  "function_wall_seconds": 87.577889786,
   "runtime_packages": [
     "aiohappyeyeballs==2.4.3",
     "aiohttp==3.10.8",
@@ -44,7 +44,7 @@
     "uv==0.5.14",
     "yarl==1.13.1"
   ],
-  "run_id": "ap-kBXGklf2gt5uG1QXYV3Zwh",
+  "run_id": "ap-w5TPav9YyWiBbx5CN47fuB",
   "status": "completed",
-  "trace_sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266"
+  "trace_sha256": "21e806364dace6d96c2b51349ea480e92031d58b77f7af86012e0896423390a3"
 }

@@ -4,9 +4,9 @@
   "checkpoints": 38,
   "scenes": 3,
   "frames": 114,
-  "attention_rows_checked": 34656,
+  "attention_rows_checked": 40128,
   "max_row_sum_error": 3.010965883731842e-06,
-  "sha256": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
-  "extractor_sha256": "8f829efcf0c412adebd88a614f5085d2c5bf1f168a6ba22fbdaace6fe373f25b",
+  "sha256": "21e806364dace6d96c2b51349ea480e92031d58b77f7af86012e0896423390a3",
+  "extractor_sha256": "ef7b26b15c055619f6cba3f98e6cd30dd83d7a48d8576335241387e33bae5d95",
   "limits": "Internal consistency and hash verification; not an independent model rerun."
 }

@@ -6,6 +6,8 @@ An interactive, recorded-data view of Pythia's training. Scrub checkpoints while
 
 The dataset covers **Pythia-70M-deduped**, 38 checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
 
+The factual example completes “The capital of France is the city of” with “ Paris”. It was selected for a visible success through a [documented candidate screen](docs/fact-candidate-screen.json): 16 initial prompts, then eight Paris-format variants. The original “The capital of France is” did not put Paris first at any sampled checkpoint. This wording change illustrates prompt sensitivity; it is not a general factual-accuracy result.
+
 The observations are extracted and verified. See the [verification record](docs/verification.md), including independent checkpoint replays.
 
 ## Preview
@@ -53,7 +55,7 @@ The expanded release uses a Modal CPU container to avoid slow local weight downl
 modal run scripts/extract_on_modal.py --output /tmp/modal-observations.json.gz
 ```
 
-This temporary job has one container, a four-core CPU limit, an 8 GiB memory limit, and a 15-minute function timeout, with no automatic retries or GPU allocation. It uploads only the extractor, validator, replay script, and checkpoint list. All 38 checkpoints are evaluated in the same container; independent replays check steps 0, 5,000, and 143,000. The gzip file contains a JSON bundle with `traces` and `sha256` strings and a `reports` object. It does not deploy or replace website files automatically. Runtime packages and function duration are recorded in [docs/modal-run.json](docs/modal-run.json); the local client used for this release was Modal 1.1.1. Model weights stay in ephemeral container storage.
+This temporary job has one container, a four-core CPU limit, an 8 GiB memory limit, and a 15-minute function timeout, with no automatic retries or GPU allocation. It uploads only the extractor, validator, replay script, and checkpoint list. All 38 checkpoints are evaluated in the same container; independent replays check steps 0, 5,000, the factual example’s first observed top-one checkpoint, and 143,000. The gzip file contains a JSON bundle with `traces` and `sha256` strings and a `reports` object. It does not deploy or replace website files automatically. Runtime packages and function duration are recorded in [docs/modal-run.json](docs/modal-run.json); the local client used for this release was Modal 1.1.1. Model weights stay in ephemeral container storage.
 
 ## Reading the display
 
@@ -79,6 +81,6 @@ Only files under `dist/` are served. Model extraction is a separate Python workf
 
 ## Source and attribution
 
-`dist/` contains only static assets and recorded traces; `scripts/` contains extraction and validation code. Keep model weights, caches, credentials, and virtual environments out of source and deployment archives.
+`dist/` contains only static assets and recorded traces; `scripts/` contains extraction, validation, prompt-screening, and playback-test code. Keep model weights, caches, credentials, and virtual environments out of source and deployment archives.
 
 The model and checkpoint trajectory come from [EleutherAI Pythia](https://github.com/EleutherAI/pythia) and its [Hugging Face model repository](https://huggingface.co/EleutherAI/pythia-70m-deduped). [AttentionViz](https://arxiv.org/abs/2305.03210) is related visualization work. This project presents measured snapshots; it does not claim a new interpretability method.

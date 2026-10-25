@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "model_identity_unchanged": true,
+  "checkpoint_manifest_unchanged": true,
+  "tokenizer_identity_unchanged": true,
+  "checkpoint_count": 38,
+  "hashes": {
+    "before_trace": "874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266",
+    "after_trace": "21e806364dace6d96c2b51349ea480e92031d58b77f7af86012e0896423390a3",
+    "screening_report": "0d10f4b351a3e6d21f5a1494bc7e7df31add0d3a40ddbeac9d367e3e903dab49",
+    "audit_script": "0dd4d3fce949c4725b1769f6c6aca3d834ccefc85734b8ce5aa2aefc739931ea",
+    "before_extractor": "8f829efcf0c412adebd88a614f5085d2c5bf1f168a6ba22fbdaace6fe373f25b",
+    "after_extractor": "ef7b26b15c055619f6cba3f98e6cd30dd83d7a48d8576335241387e33bae5d95"
+  },
+  "unchanged_scenes": {
+    "story": {
+      "scene_exact": true,
+      "top_token_identities_equal": true,
+      "maximum_absolute_differences": {
+        "target_probability": 0.0,
+        "attention": 0.0,
+        "concentration": 0.0,
+        "top_probabilities_by_rank": 0.0
+      }
+    },
+    "echo": {
+      "scene_exact": true,
+      "top_token_identities_equal": true,
+      "maximum_absolute_differences": {
+        "target_probability": 0.0,
+        "attention": 0.0,
+        "concentration": 0.0,
+        "top_probabilities_by_rank": 0.0
+      }
+    }
+  },
+  "old_fact": {
+    "prompt": "The capital of France is",
+    "target": " Paris",
+    "top1_count": 0,
+    "first_top1_step": null,
+    "all_top1_steps": [],
+    "top1_reversals": [],
+    "peak": {
+      "step": 60000,
+      "target_rank_in_top8": null,
+      "target_probability": 0.008521669544279575,
+      "top_token": " the"
+    },
+    "final": {
+      "step": 143000,
+      "target_rank_in_top8": null,
+      "target_probability": 0.0019439684692770243,
+      "top_token": " the"
+    },
+    "checkpoints": [
+      {
+        "step": 0,
+        "target_rank_in_top8": null,
+        "target_probability": 1.3350934750633314e-05,
+        "top_token": " plainly"
+      },
+      {
+        "step": 1,
+        "target_rank_in_top8": null,
+        "target_probability": 1.3350934750633314e-05,
+        "top_token": " plainly"
+      },
+      {
+        "step": 2,
+        "target_rank_in_top8": null,
+        "target_probability": 1.3344410035642795e-05,
+        "top_token": " plainly"
+      },
+      {
+        "step": 4,
+        "target_rank_in_top8": null,
+        "target_probability": 1.3228120224084705e-05,
+        "top_token": " plainly"
+      },
+      {
+        "step": 8,
+        "target_rank_in_top8": null,
+        "target_probability": 1.1794698366429657e-05,
+        "top_token": " plainly"
+      },
+      {
+        "step": 16,
+        "target_rank_in_top8": null,
+        "target_probability": 8.54935478855623e-06,
+        "top_token": "."
+      },
+      {
+        "step": 32,
+        "target_rank_in_top8": null,
+        "target_probability": 7.002918209764175e-06,
+        "top_token": ","
+      },
+      {
+        "step": 64,
+        "target_rank_in_top8": null,
+        "target_probability": 9.070086889551021e-06,
+        "top_token": " the"
+      },
+      {
+        "step": 128,
+        "target_rank_in_top8": null,
+        "target_probability": 2.4640847186674364e-05,
+        "top_token": " the"
+      },
+      {
+        "step": 256,
+        "target_rank_in_top8": null,
+        "target_probability": 7.675111191929318e-06,
+        "top_token": " the"
+      },
+      {
+        "step": 512,
+        "target_rank_in_top8": null,
+        "target_probability": 6.928393122507259e-05,
+        "top_token": " the"
+      },
+      {
+        "step": 1000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.00010065419337479398,
+        "top_token": " a"
+      },
+      {
+        "step": 2000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.00010503533121664077,
+        "top_token": " a"
+      },
+      {
+        "step": 3000,
+        "target_rank_in_top8": null,
+        "target_probability": 7.8287732321769e-05,
+        "top_token": " a"
+      },
+      {
+        "step": 4000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0002531007048673928,
+        "top_token": " the"
+      },
+      {
+        "step": 5000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.00022380264999810606,
+        "top_token": " the"
+      },
+      {
+        "step": 6000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0002877943334169686,
+        "top_token": " the"
+      },
+      {
+        "step": 7000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0015691654989495873,
+        "top_token": " a"
+      },
+      {
+        "step": 8000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.00031316676177084446,
+        "top_token": " the"
+      },
+      {
+        "step": 9000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0005090948543511331,
+        "top_token": " the"
+      },
+      {
+        "step": 10000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0008846521377563477,
+        "top_token": " the"
+      },
+      {
+        "step": 12000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0018930183723568916,
+        "top_token": " the"
+      },
+      {
+        "step": 15000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0016932692378759384,
+        "top_token": " the"
+      },
+      {
+        "step": 20000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.003093716921284795,
+        "top_token": " the"
+      },
+      {
+        "step": 25000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0014989617047831416,
+        "top_token": " the"
+      },
+      {
+        "step": 30000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.002143142744898796,
+        "top_token": " the"
+      },
+      {
+        "step": 40000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.006255985237658024,
+        "top_token": " the"
+      },
+      {
+        "step": 50000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0032497411593794823,
+        "top_token": " the"
+      },
+      {
+        "step": 60000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.008521669544279575,
+        "top_token": " the"
+      },
+      {
+        "step": 70000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.004717461299151182,
+        "top_token": " the"
+      },
+      {
+        "step": 80000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0014332473510876298,
+        "top_token": " the"
+      },
+      {
+        "step": 90000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.002475118264555931,
+        "top_token": " the"
+      },
+      {
+        "step": 100000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0007293337839655578,
+        "top_token": " the"
+      },
+      {
+        "step": 110000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0026744180358946323,
+        "top_token": " the"
+      },
+      {
+        "step": 120000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.006546291988343,
+        "top_token": " the"
+      },
+      {
+        "step": 130000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0017997275572270155,
+        "top_token": " the"
+      },
+      {
+        "step": 140000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0006843727896921337,
+        "top_token": " the"
+      },
+      {
+        "step": 143000,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0019439684692770243,
+        "top_token": " the"
+      }
+    ]
+  },
+  "new_fact": {
+    "prompt": "The capital of France is the city of",
+    "target": " Paris",
+    "top1_count": 7,
+    "first_top1_step": 12000,
+    "all_top1_steps": [
+      12000,
+      15000,
+      20000,
+      100000,
+      120000,
+      130000,
+      143000
+    ],
+    "top1_reversals": [
+      {
+        "from_step": 20000,
+        "to_step": 25000
+      },
+      {
+        "from_step": 100000,
+        "to_step": 110000
+      },
+      {
+        "from_step": 130000,
+        "to_step": 140000
+      }
+    ],
+    "peak": {
+      "step": 15000,
+      "target_rank_in_top8": 1,
+      "target_probability": 0.1948305368423462,
+      "top_token": " Paris"
+    },
+    "final": {
+      "step": 143000,
+      "target_rank_in_top8": 1,
+      "target_probability": 0.1121574342250824,
+      "top_token": " Paris"
+    },
+    "checkpoints": [
+      {
+        "step": 0,
+        "target_rank_in_top8": null,
+        "target_probability": 2.5319744963780977e-05,
+        "top_token": " basin"
+      },
+      {
+        "step": 1,
+        "target_rank_in_top8": null,
+        "target_probability": 2.5319744963780977e-05,
+        "top_token": " basin"
+      },
+      {
+        "step": 2,
+        "target_rank_in_top8": null,
+        "target_probability": 2.5306046154582873e-05,
+        "top_token": " basin"
+      },
+      {
+        "step": 4,
+        "target_rank_in_top8": null,
+        "target_probability": 2.5062601707759313e-05,
+        "top_token": " basin"
+      },
+      {
+        "step": 8,
+        "target_rank_in_top8": null,
+        "target_probability": 2.1893763914704323e-05,
+        "top_token": " basin"
+      },
+      {
+        "step": 16,
+        "target_rank_in_top8": null,
+        "target_probability": 1.4598716916225385e-05,
+        "top_token": "."
+      },
+      {
+        "step": 32,
+        "target_rank_in_top8": null,
+        "target_probability": 9.118539310293272e-06,
+        "top_token": " the"
+      },
+      {
+        "step": 64,
+        "target_rank_in_top8": null,
+        "target_probability": 8.848558536556084e-06,
+        "top_token": " the"
+      },
+      {
+        "step": 128,
+        "target_rank_in_top8": null,
+        "target_probability": 3.1196923373499885e-05,
+        "top_token": " the"
+      },
+      {
+        "step": 256,
+        "target_rank_in_top8": null,
+        "target_probability": 4.696753967436962e-05,
+        "top_token": " the"
+      },
+      {
+        "step": 512,
+        "target_rank_in_top8": null,
+        "target_probability": 0.0014911426696926355,
+        "top_token": " the"
+      },
+      {
+        "step": 1000,
+        "target_rank_in_top8": 5,
+        "target_probability": 0.012685907073318958,
+        "top_token": " the"
+      },
+      {
+        "step": 2000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.0657195895910263,
+        "top_token": " the"
+      },
+      {
+        "step": 3000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.04053882881999016,
+        "top_token": " the"
+      },
+      {
+        "step": 4000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.03347981721162796,
+        "top_token": " the"
+      },
+      {
+        "step": 5000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.04605453461408615,
+        "top_token": " the"
+      },
+      {
+        "step": 6000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.03376748040318489,
+        "top_token": " the"
+      },
+      {
+        "step": 7000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.05392303317785263,
+        "top_token": " the"
+      },
+      {
+        "step": 8000,
+        "target_rank_in_top8": 3,
+        "target_probability": 0.018400711938738823,
+        "top_token": " the"
+      },
+      {
+        "step": 9000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.051517367362976074,
+        "top_token": " the"
+      },
+      {
+        "step": 10000,
+        "target_rank_in_top8": 3,
+        "target_probability": 0.05477725714445114,
+        "top_token": " the"
+      },
+      {
+        "step": 12000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.1445121169090271,
+        "top_token": " Paris"
+      },
+      {
+        "step": 15000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.1948305368423462,
+        "top_token": " Paris"
+      },
+      {
+        "step": 20000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.1005236804485321,
+        "top_token": " Paris"
+      },
+      {
+        "step": 25000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.06096380949020386,
+        "top_token": " the"
+      },
+      {
+        "step": 30000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.09241630882024765,
+        "top_token": " the"
+      },
+      {
+        "step": 40000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.06313034892082214,
+        "top_token": " the"
+      },
+      {
+        "step": 50000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.042235080152750015,
+        "top_token": " the"
+      },
+      {
+        "step": 60000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.10395434498786926,
+        "top_token": " the"
+      },
+      {
+        "step": 70000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.056906022131443024,
+        "top_token": " the"
+      },
+      {
+        "step": 80000,
+        "target_rank_in_top8": 3,
+        "target_probability": 0.04889495298266411,
+        "top_token": " the"
+      },
+      {
+        "step": 90000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.06509427726268768,
+        "top_token": " the"
+      },
+      {
+        "step": 100000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.050516292452812195,
+        "top_token": " Paris"
+      },
+      {
+        "step": 110000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.055801067501306534,
+        "top_token": " the"
+      },
+      {
+        "step": 120000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.06486085057258606,
+        "top_token": " Paris"
+      },
+      {
+        "step": 130000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.07360972464084625,
+        "top_token": " Paris"
+      },
+      {
+        "step": 140000,
+        "target_rank_in_top8": 2,
+        "target_probability": 0.07115449756383896,
+        "top_token": " the"
+      },
+      {
+        "step": 143000,
+        "target_rank_in_top8": 1,
+        "target_probability": 0.1121574342250824,
+        "top_token": " Paris"
+      }
+    ]
+  },
+  "total_attention_entries": 353856
+}
