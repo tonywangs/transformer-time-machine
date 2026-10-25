@@ -55,6 +55,8 @@ This temporary job has one container, a four-core CPU limit, an 8 GiB memory lim
 
 ## Reading the display
 
+Desktop windows at least 1,100 × 620 CSS pixels use a single-screen dashboard: prompt, attention, and predictions sit side by side above a reserved playback dock. Charts resize to their panels; crowded token labels stagger rather than scrolling out of view. Smaller or zoomed windows use a readable scrolling layout.
+
 - Predictions always refer to the **next token after the full prompt**. Selecting an earlier query changes only the attention view.
 - Attention is the recorded probability matrix: query rows, key columns, with future positions masked.
 - Concentration is normalized attention entropy. It describes focus, not causal importance.

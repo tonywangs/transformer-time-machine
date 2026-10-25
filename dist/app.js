@@ -105,7 +105,7 @@ function render() {
   $('headLabel').textContent = `Layer ${state.layer + 1} / Head ${state.head + 1}`;
   $('focusValue').textContent = `${(f.concentration[state.layer][state.head] * 100).toFixed(1)}%`;
   document.querySelectorAll('.scene-tab').forEach((b) => { b.setAttribute('aria-selected', String(Number(b.dataset.scene) === state.scene)); b.tabIndex = Number(b.dataset.scene) === state.scene ? 0 : -1; });
-  $('queryTokens').innerHTML = s.tokens.map((t, i) => `<button id="query-${i}" class="query-token" data-query="${i}" aria-pressed="${state.query === i}" aria-label="Inspect token ${i + 1}: ${esc(t)}"><span class="token-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(displayToken(t))}</button>`).join('');
+  $('queryTokens').innerHTML = s.tokens.map((t, i) => `<button id="query-${i}" class="query-token" data-query="${i}" title="Token ${i + 1}: ${esc(t)}" aria-pressed="${state.query === i}" aria-label="Inspect token ${i + 1}: ${esc(t)}"><span class="token-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(displayToken(t))}</button>`).join('');
   renderHeads();
   renderVisualization();
   renderPredictions();
@@ -161,39 +161,53 @@ function renderFlow() {
   const s = scene();
   const row = frame().attention[state.layer][state.head][state.query];
   const svg = $('flowGraph');
-  const available = $('visualization').clientWidth;
+  const available = Math.max(1, $('visualization').clientWidth);
   const widths = s.tokens.map((t) => Math.max(34, Math.min(110, displayToken(t).length * 6.2 + 12)));
   const natural = widths.reduce((a, b) => a + b, 0) + (s.tokens.length - 1) * 9 + 26;
-  const width = Math.max(available, natural);
-  const height = 226;
+  const width = available;
+  const height = Math.max(100, $('visualization').clientHeight || 226);
+  const compact = natural > width;
+  const padding = Math.min(Math.max(...widths) / 2 + 8, width / 4);
+  const spacing = (width - padding * 2) / Math.max(1, s.tokens.length - 1);
+  const bands = compact ? Math.max(1, Math.ceil((Math.max(...widths) + 4) / spacing)) : 1;
+  const labelHeight = compact ? 20 : 25;
+  const labelStride = labelHeight + 5;
+  const labelTop = height - 14 - labelHeight - (bands - 1) * labelStride;
   const surplus = Math.max(0, width - natural);
   const gap = 9 + (s.tokens.length > 1 ? surplus / (s.tokens.length - 1) : 0);
   let cursor = 13 + (s.tokens.length === 1 ? surplus / 2 : 0);
-  const positions = widths.map((w) => { const x = cursor + w / 2; cursor += w + gap; return x; });
+  // Stagger crowded labels instead of pushing real tokens beyond the viewport.
+  const positions = widths.map((w, i) => {
+    if (compact) return padding + i * spacing;
+    const x = cursor + w / 2; cursor += w + gap; return x;
+  });
   const source = positions[state.query];
-  const baseline = 171;
+  const baseline = labelTop - 13;
   const strongest = Math.max(...row);
-  let content = `<defs><pattern id="flowDots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="#29403d"/></pattern></defs><rect x="0" y="16" width="${width}" height="154" fill="url(#flowDots)" opacity=".6"/><line x1="13" x2="${width - 13}" y1="${baseline}" y2="${baseline}" stroke="#304542" stroke-dasharray="2 5"/>`;
+  let content = `<defs><pattern id="flowDots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="#29403d"/></pattern></defs><rect x="0" y="16" width="${width}" height="${Math.max(0, baseline - 16)}" fill="url(#flowDots)" opacity=".6"/><line x1="13" x2="${width - 13}" y1="${baseline}" y2="${baseline}" stroke="#304542" stroke-dasharray="2 5"/>`;
   // Each curve is the actual selected query-to-key observation; no interpolated frames.
   row.forEach((weight, k) => {
     if (k > state.query || weight <= 0 || k === state.query) return;
     const end = positions[k];
     const distance = Math.abs(end - source);
-    const lift = Math.min(155, 25 + distance * .31);
+    const lift = Math.min(baseline - 8, 25 + distance * .31);
     const opacity = .15 + .85 * Math.sqrt(weight / Math.max(strongest, .000001));
     const stroke = 1 + 5 * Math.sqrt(weight);
     content += `<path d="M ${source} ${baseline} C ${source} ${baseline - lift}, ${end} ${baseline - lift}, ${end} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${opacity}" stroke-width="${stroke}" data-weight-key="${k}"><title>${esc(displayToken(s.tokens[state.query]))} to ${esc(displayToken(s.tokens[k]))}: ${percent(weight)}</title></path>`;
   });
-  if (row[state.query] > 0) content += `<path d="M ${source - 5} ${baseline} C ${source - 25} ${baseline - 44}, ${source + 25} ${baseline - 44}, ${source + 5} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${.15 + .85 * Math.sqrt(row[state.query] / Math.max(strongest, .000001))}" stroke-width="${1 + 5 * Math.sqrt(row[state.query])}"/>`;
+  if (row[state.query] > 0) content += `<path d="M ${source - 5} ${baseline} C ${source - 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 5} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${.15 + .85 * Math.sqrt(row[state.query] / Math.max(strongest, .000001))}" stroke-width="${1 + 5 * Math.sqrt(row[state.query])}"/>`;
   positions.forEach((x, i) => {
     const selected = i === state.query;
     const future = i > state.query;
     const w = widths[i];
+    const labelY = labelTop + (i % bands) * labelStride;
     const color = future ? '#213131' : weightColor(Math.sqrt(row[i] || 0), .04);
-    content += `<g class="token-node" data-query="${i}" tabindex="0" role="button" aria-label="Query token ${i + 1}: ${esc(s.tokens[i])}" aria-pressed="${selected}"><circle cx="${x}" cy="${baseline}" r="${future ? 2 : 2 + 5 * Math.sqrt(row[i] || 0)}" fill="${future ? '#364646' : '#cdeba1'}"/><rect x="${x - w / 2}" y="184" width="${w}" height="25" rx="3" fill="${color}" stroke="${selected ? '#d2ee9a' : future ? '#2d3b3b' : '#4b6253'}" stroke-width="${selected ? 1.5 : 1}"/><text x="${x}" y="200" text-anchor="middle" fill="${future ? '#667a76' : row[i] > .25 ? '#102019' : selected ? '#f1f7df' : '#d3dfcc'}" font-size="10">${esc(displayToken(s.tokens[i]))}</text><text x="${x}" y="222" text-anchor="middle" font-size="7" fill="${selected ? '#d2ee9a' : '#66827a'}">${selected ? 'QUERY' : future ? 'FUTURE' : String(i + 1).padStart(2, '0')}</text></g>`;
+    content += `<g class="token-node" data-query="${i}" tabindex="0" role="button" aria-label="Query token ${i + 1}: ${esc(s.tokens[i])}" aria-pressed="${selected}"><circle cx="${x}" cy="${baseline}" r="${future ? 2 : 2 + 5 * Math.sqrt(row[i] || 0)}" fill="${future ? '#364646' : '#cdeba1'}"/><line x1="${x}" y1="${baseline + 6}" x2="${x}" y2="${labelY - 3}" stroke="#4b6253" stroke-opacity=".5"/><rect x="${x - w / 2}" y="${labelY}" width="${w}" height="${labelHeight}" rx="3" fill="${color}" stroke="${selected ? '#d2ee9a' : future ? '#2d3b3b' : '#4b6253'}" stroke-width="${selected ? 1.5 : 1}"/><text x="${x}" y="${labelY + labelHeight / 2 + 3}" text-anchor="middle" fill="${future ? '#667a76' : row[i] > .25 ? '#102019' : selected ? '#f1f7df' : '#d3dfcc'}" font-size="10">${esc(displayToken(s.tokens[i]))}</text><text x="${x}" y="${height - 2}" text-anchor="middle" font-size="7" fill="${selected ? '#d2ee9a' : '#66827a'}">${selected ? 'QUERY' : future ? 'FUTURE' : String(i + 1).padStart(2, '0')}</text></g>`;
   });
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  svg.style.minWidth = `${width}px`;
+  svg.style.minWidth = '0';
+  svg.style.width = '100%';
+  svg.style.height = '100%';
   svg.innerHTML = content;
   svg.setAttribute('aria-label', `Attention from token ${state.query + 1}, ${s.tokens[state.query]}, at layer ${state.layer + 1}, head ${state.head + 1}. Select a token to inspect its attention.`);
 }
@@ -202,7 +216,7 @@ let matrixLayout = null;
 function renderMatrix() {
   const canvas = $('attentionMatrix');
   const wrapper = $('matrixWrap');
-  const size = Math.min(226, wrapper.clientHeight || 226);
+  const size = Math.min(wrapper.clientHeight || 226, Math.max(80, wrapper.clientWidth - 60));
   const n = scene().tokens.length;
   const left = 40;
   const top = 18;
@@ -427,6 +441,17 @@ document.addEventListener('keydown', (event) => {
   if (event.code === 'Space' && !['BUTTON', 'A'].includes(document.activeElement.tagName)) { event.preventDefault(); play(); }
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-let resizeTimer;
-window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (state.data) renderVisualization(); }, 120); });
+let visualizationResizeFrame;
+function resizeVisualization() {
+  cancelAnimationFrame(visualizationResizeFrame);
+  visualizationResizeFrame = requestAnimationFrame(() => {
+    if (state.data && !$('instrument').hidden) renderVisualization();
+  });
+}
+// Layout changes from scene text and viewport height both resize the drawing area.
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(resizeVisualization).observe($('visualization'));
+} else {
+  window.addEventListener('resize', resizeVisualization);
+}
 loadData();

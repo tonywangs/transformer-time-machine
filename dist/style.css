@@ -42,3 +42,170 @@
 .history-peak strong{font:9px/1.7 var(--mono);color:var(--amber)}
 .history-peak:hover{border-color:var(--amber);background:#202a27}
 #probabilityHistory{cursor:pointer}
+
+
+/* The prompt is its own panel, so it can sit beside the model views. */
+.prompt-panel{grid-column:1/-1;min-width:0;padding:25px 30px 0 0}
+@media(max-width:1099px){
+  .instrument-grid{grid-template-columns:minmax(0,1fr) 300px}
+  .prompt-panel{grid-column:1/-1;padding:22px 0 0}
+  .prompt-panel .panel-topline{margin-bottom:12px}
+  .prompt-panel .example-guide{margin-bottom:0}
+  .attention-panel{padding-top:22px}
+  .prediction-panel{padding-top:22px}
+}
+@media(max-width:800px){
+  .instrument-grid{grid-template-columns:1fr}
+  .prompt-panel{padding-top:20px}
+  .attention-panel{padding-top:20px}
+}
+
+/* Reserve space for every panel and the transport dock on laptop displays. */
+@media(min-width:1100px) and (min-height:620px){
+  body{height:100dvh;min-height:620px;display:grid;grid-template-rows:34px minmax(0,1fr)}
+  .masthead{width:100%;max-width:none;margin:0;padding:5px 24px;min-width:0}
+  .wordmark{font-size:9px;letter-spacing:1px;gap:8px}
+  .wordmark svg{width:22px;height:22px}
+  .wordmark-sub{display:none}
+  .masthead-right{gap:22px}
+  .text-button{font-size:10px;padding:3px 0}
+  main{width:100%;max-width:none;min-height:0;margin:0;padding:0 24px 8px;display:grid;grid-template-rows:54px minmax(0,1fr)}
+  .intro{min-width:0;min-height:0;flex-wrap:nowrap;align-items:center;padding:8px 0;gap:24px}
+  h1{font-size:32px;letter-spacing:-1.5px;line-height:1.1}
+  h1 em{display:inline;letter-spacing:-1px}
+  .model-spec{text-align:right;margin:0;padding:0}
+  .spec-name{font-size:11px}
+  .spec-line{font-size:9px;margin-top:4px}
+  #instrument{min-width:0;min-height:0;display:grid;grid-template-rows:38px minmax(0,1fr) 88px}
+  .scene-nav{min-height:0;gap:22px;align-items:center}
+  .scene-nav-label{font-size:8px}
+  .scene-tabs{padding:3px 0;gap:5px;flex-wrap:nowrap}
+  .scene-tab{font-size:11px;padding:5px 12px}
+  .instrument-grid{min-height:0;grid-template-columns:280px minmax(0,1fr) 274px;border-bottom:0}
+  .prompt-panel,.attention-panel,.prediction-panel{min-height:0;min-width:0;padding:12px 16px}
+  .prompt-panel{grid-column:auto;padding-left:0;padding-right:18px}
+  .attention-panel{border-left:1px solid var(--line);display:grid;grid-template-rows:27px 18px minmax(140px,1fr) 22px auto auto;row-gap:3px}
+  .prediction-panel{padding-right:0;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+  .panel-topline{height:23px;min-height:23px;margin:0 0 8px}
+  .attention-panel>.panel-topline{height:27px;margin:0}
+  .eyebrow{font-size:8px;letter-spacing:1.2px}
+  .scene-heading h2{font-size:24px;line-height:1.1;letter-spacing:-.4px}
+  .scene-heading p{font-size:11px;line-height:1.5;margin:8px 0 0;max-width:none}
+  .prompt-line{margin:14px 0 12px;min-height:0;padding:10px 11px;gap:8px;align-items:flex-end}
+  .prompt-line p{font-size:12px;line-height:1.65;overflow-wrap:normal}
+  .next-token-gap{font-size:18px;padding-bottom:1px}
+  .example-guide{margin:0;padding:11px;border-left-width:2px}
+  .example-completions{gap:12px;display:grid;grid-template-columns:1fr}
+  .example-completions>div{gap:4px}
+  .example-completions strong{font-size:15px;line-height:1.2}
+  .example-guide p{font-size:11px;line-height:1.55;margin-top:11px}
+  .small-label{font-size:8px;letter-spacing:.7px}
+  .attention-toolbar>div{gap:7px}
+  .attention-toolbar strong{font-size:10px}
+  .focus-readout>span:last-child{font-size:10px}
+  .visualization{height:auto;min-height:140px;width:100%;align-self:stretch}
+  #flowGraph,.matrix-wrap{height:100%;min-height:0;width:100%}
+  .viz-caption{margin:0;font-size:10px;min-height:18px;gap:8px}
+  .weight-legend{font-size:7px;gap:4px}
+  .token-select{padding-top:6px;min-width:0}
+  .query-tokens{gap:3px;margin-top:5px}
+  .query-token{font-size:10px;padding:4px 5px;min-height:23px}
+  .query-token .token-index{display:none}
+  .heads-section{margin-top:6px;padding-top:6px;gap:12px;align-items:center}
+  .heads-intro{max-width:130px;flex:0 1 130px}
+  .heads-intro h3{font-size:17px;line-height:1.2;margin-bottom:5px}
+  .heads-intro p{font-size:9px;line-height:1.5}
+  .head-axis{font-size:6px;margin-top:7px;letter-spacing:.3px}
+  .heads-grid-wrap{min-width:180px;flex:1 1 230px;max-width:320px}
+  .head-column-labels{font-size:8px;margin-bottom:4px;gap:3px;margin-left:19px}
+  .head-grid{gap:3px}
+  .head-row{gap:3px;grid-template-columns:16px repeat(var(--head-count,8),minmax(0,1fr))}
+  .head-cell{aspect-ratio:auto;min-height:16px;height:16px}
+  .prediction-panel>.panel-topline{margin-bottom:4px}
+  .prediction-panel h2{font-size:22px;line-height:1.15;letter-spacing:-.4px}
+  .prediction-lead{padding:8px 0;border-bottom:1px solid var(--line)}
+  .prediction-lead>.small-label{display:none}
+  .lead-row{margin-top:0;gap:8px}
+  #leadingToken{font-size:30px;line-height:1.15;max-width:190px}
+  #leadingProbability{font-size:12px}
+  .probability-bars{margin:7px 0 9px}
+  .probability-row{grid-template-columns:72px minmax(0,1fr) 45px;gap:8px;margin:6px 0;font-size:10px;line-height:1.15}
+  .probability-value{font-size:9px}
+  .history-panel{padding-top:9px;min-height:0;display:flex;flex-direction:column;flex:1}
+  .history-title{gap:8px;min-height:29px}
+  .history-title h3{font-size:17px;margin-top:3px}
+  #targetProbability{font-size:13px}
+  #probabilityHistory{height:auto;min-height:65px;max-height:180px;flex:1;margin-top:3px}
+  .history-axis{font-size:7px;margin-top:0}
+  .history-peak{margin-top:8px;padding:7px 9px;gap:3px;font-size:9px;line-height:1.3}
+  .history-peak strong{font-size:9px;line-height:1.4}
+  .history-note{font-size:9px;line-height:1.4;margin-top:7px}
+  .timeline-panel{position:relative;bottom:auto;z-index:5;border-top:1px solid var(--line);border-bottom:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:34px 23px 12px;column-gap:24px;row-gap:0;padding:9px 0 8px;background:var(--bg);backdrop-filter:none}
+  .timeline-top{display:contents}
+  .timeline-title{grid-column:1;grid-row:1;display:flex;align-items:center;gap:10px}
+  #stepNumber{font-size:28px;line-height:1}
+  #checkpointCount{display:inline;font-size:8px}
+  .transport{grid-column:3;grid-row:1;gap:7px}
+  .timeline-options{grid-column:2;grid-row:1;justify-content:center;flex-wrap:nowrap;gap:18px;margin:0}
+  .timeline-select-label{gap:7px;font-size:9px}
+  .timeline-select-label select{font-size:10px;padding:5px 7px;min-height:28px}
+  .sampling-note{display:none}
+  .timeline-track{grid-column:1/-1;grid-row:2;margin-top:4px}
+  .timeline-bottom{grid-column:1/-1;grid-row:3;font-size:8px}
+  .timeline-bottom span:nth-child(2){font-size:8px}
+  .page-footer{display:none}
+  .loading-state,.error-state{min-height:0;align-self:center;padding:40px 20px}
+}
+@media(min-width:1100px) and (min-height:620px) and (max-height:700px){
+  .instrument-grid{grid-template-columns:280px minmax(0,1fr) 260px}
+  .prompt-panel,.attention-panel,.prediction-panel{padding-top:9px;padding-bottom:9px}
+  .panel-topline{margin-bottom:6px}
+  .scene-heading h2{font-size:23px}
+  .scene-heading p{line-height:1.4;margin-top:7px}
+  .prompt-line{margin:11px 0 9px;padding:8px 10px}
+  .prompt-line p{font-size:11px;line-height:1.55}
+  .example-guide{padding:9px}
+  .example-completions{gap:9px}
+  .example-completions>div{flex-direction:row;align-items:baseline;justify-content:space-between;gap:10px}
+  .example-completions strong{font-size:14px;text-align:right}
+  .example-guide p{line-height:1.4;margin-top:9px}
+  .heads-intro h3{font-size:16px}
+  .heads-intro p{font-size:9px}
+  .head-axis{margin-top:5px}
+  .prediction-panel h2{font-size:21px}
+  .prediction-lead{padding:6px 0}
+  .probability-row{margin:5px 0}
+  .history-panel{padding-top:7px}
+  .history-note{font-size:8px;margin-top:5px}
+}
+
+/* Keep the complete record visible even in a short laptop browser window. */
+@media(min-width:1100px) and (min-height:620px){
+  .prediction-panel h2{display:none}
+  .query-token{font-size:0;min-width:27px;min-height:25px;padding:4px}
+  .query-token .token-index{display:inline;font-size:10px;color:inherit;margin:0}
+}
+@media(min-width:1100px) and (min-height:620px) and (max-height:700px){
+  main{grid-template-rows:48px minmax(0,1fr)}
+  .prediction-lead{padding:4px 0}
+  #leadingToken{font-size:28px}
+  .probability-bars{margin:5px 0 6px}
+  .probability-row{margin:3px 0}
+  .history-title{min-height:22px}
+  .history-title>div{display:flex;align-items:center;gap:8px}
+  .history-title h3{margin:0}
+  .history-peak{padding:6px 8px}
+}
+@media(min-width:1100px) and (min-height:620px) and (max-height:700px){
+  .attention-panel{grid-template-rows:27px 18px minmax(120px,1fr) 20px auto auto;row-gap:2px}
+  .visualization{min-height:120px}
+  .token-select{padding-top:4px}
+  .query-tokens{margin-top:4px}
+  .query-token{min-height:23px}
+}
+@media(min-width:1100px) and (min-height:620px){
+  .prompt-line:has(.sequence-line){display:block;position:relative}
+  .prompt-line:has(.sequence-line) p{font-size:11px}
+  .prompt-line:has(.sequence-line) .next-token-gap{position:absolute;right:10px;bottom:8px;font-size:16px}
+  .head-axis{font-size:7px}
+}

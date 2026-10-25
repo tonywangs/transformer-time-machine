@@ -27,3 +27,11 @@ For `Once upon a`, ` time` is the top next-token guess at step 2,000, loses that
 For the color sequence, ` purple` peaks at about 7.80% at step 2,000 and ends at 0.14%. For the factual prompt, ` Paris` peaks at about 0.85% at step 60,000. Neither is the top next token at any recorded checkpoint. A model preferring ` the` after the factual prompt could still begin a longer answer; immediate token rank is not a full-answer evaluation.
 
 These are curated prompt observations from one small model trajectory, not a discovery about general capability acquisition. Attention concentration does not establish head importance or causal explanation. Peaks are maxima over the recorded samples, not a claim about unobserved training steps. This release has neither custom prompt inference nor interpolated model states.
+
+## Single-screen dashboard revision
+
+The desktop UI reserves layout rows for the header, prompt tabs, three simultaneous panels, and playback dock. Browser checks at 1,100 × 620, 1,280 × 650, 1,366 × 768, and 1,440 × 900 CSS pixels confirmed document dimensions equal the viewport and no vertical overflow inside the prompt, attention, or prediction panels. At the smallest size, all 11 color-token labels, all 48 head controls, the prediction list, and history fit above the dock. The color cycle remains two distinct lines. No page scaling or overflow clipping is used to obtain the fit.
+
+The attention SVG now uses its panel's actual dimensions and staggers crowded labels. A ResizeObserver redraws SVG/canvas geometry when available space changes. Matrix switching, token/head selection, step selection, play/pause, and resizing passed browser checks with no console errors. The 390-pixel phone layout and a wide window shorter than 620 pixels retain readable scrolling without horizontal page overflow.
+
+This is a presentation change. The 38-checkpoint observations, their checksum, and extraction/replay code are unchanged.

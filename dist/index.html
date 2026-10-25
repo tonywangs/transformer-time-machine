@@ -29,26 +29,29 @@
       <nav class="scene-nav" aria-label="Choose an example"><span class="scene-nav-label">THE PROMPT</span><div id="sceneTabs" class="scene-tabs" role="tablist"></div></nav>
 
       <section class="instrument-grid">
-        <div class="attention-panel">
-          <div class="panel-topline"><span class="eyebrow">01 / TRY AN EXAMPLE</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
+        <section class="prompt-panel" aria-label="Prompt and completion">
+          <div class="panel-topline"><span class="eyebrow">01 / THE PROMPT</span></div>
           <div class="scene-heading"><h2 id="sceneTitle"></h2><p id="sceneDescription"></p></div>
           <div class="prompt-line"><p id="promptText"></p><span class="next-token-gap" aria-label="Next token to predict">→ ?</span></div>
           <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div><div><span class="small-label">MODEL’S TOP GUESS HERE</span><strong id="exampleGuess"></strong></div></div><p id="exampleObservation"></p></div>
-          <p class="attention-explainer"><strong>Explore the attention weights.</strong> The lines below show how one head weights the tokens in this prompt. They don’t explain the prediction on their own.</p>
+        </section>
+
+        <div class="attention-panel">
+          <div class="panel-topline"><span class="eyebrow">02 / ATTENTION</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
           <div class="attention-toolbar"><div><span class="small-label">INSPECTING</span><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label">LAST-TOKEN FOCUS</span><span id="focusValue"></span></div></div>
           <div class="visualization" id="visualization"><svg id="flowGraph" role="img" aria-label="Attention from the selected token to earlier tokens"></svg><div class="matrix-wrap" id="matrixWrap" hidden><canvas id="attentionMatrix" aria-label="Attention matrix. Rows are query tokens and columns are key tokens." role="img"></canvas><div id="matrixTip" class="matrix-tip" hidden></div></div></div>
           <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High attention</span></div>
           <div class="token-select"><span class="small-label">QUERY TOKEN <span class="quiet">/ click to inspect</span></span><div id="queryTokens" class="query-tokens" aria-label="Select query token"></div></div>
 
-          <section class="heads-section"><div class="heads-intro"><h3>Every head, at a glance.</h3><p>Brighter squares focus on fewer tokens.<br>Focus is not importance.</p><span class="head-axis">ROWS: LAYERS · COLUMNS: HEADS<br>Labels start at 1.</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
+          <section class="heads-section"><div class="heads-intro"><h3>Attention heads</h3><p>Brighter squares focus on fewer tokens.<br>Focus is not importance.</p><span class="head-axis">ROWS: LAYERS · COLUMNS: HEADS<br>Labels start at 1.</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
         </div>
 
         <aside class="prediction-panel">
-          <div class="panel-topline"><span class="eyebrow">02 / TOP EIGHT GUESSES</span><span class="small-cross" aria-hidden="true">↗</span></div>
+          <div class="panel-topline"><span class="eyebrow">03 / NEXT TOKEN</span><span class="small-cross" aria-hidden="true">↗</span></div>
           <h2>The model’s next guess.</h2>
           <div class="prediction-lead"><span class="small-label">MOST LIKELY NEXT TOKEN</span><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
           <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
-          <div class="history-panel"><div class="history-title"><div><span class="small-label">PROBABILITY OF OUR COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button><p class="history-note">Click the chart to jump. Dots are equally spaced checkpoints; training gaps vary. This completion’s probability is not an accuracy score.</p></div>
+          <div class="history-panel"><div class="history-title"><div><span class="small-label">COMPLETION CHANCE</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button><p class="history-note">Click the chart to jump. Checkpoints are evenly spaced here; training gaps vary.</p></div>
         </aside>
       </section>
 
@@ -63,7 +66,7 @@
           <p class="sampling-note" id="samplingNote">One tick per snapshot. Training gaps vary.</p>
         </div>
         <div class="timeline-track"><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint" aria-describedby="samplingNote"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div>
-        <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Use ← → to travel · every frame is recorded</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
+        <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Recorded checkpoints · training gaps vary</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
       </section>
       <footer class="page-footer"><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>
     </div>
