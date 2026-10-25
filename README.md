@@ -1,5 +1,7 @@
 # Transformer Time Machine
 
+[Open the live demo](https://transformer-time-machine.vercel.app/)
+
 An interactive, recorded-data view of Pythia's training. Scrub checkpoints while the same prompt stays fixed; inspect actual attention and next-token probabilities.
 
 The first dataset targets **Pythia-70M-deduped**, eight checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
@@ -51,7 +53,7 @@ See [the trace contract](docs/data-contract.md) for tensor axes and semantics.
 
 ## Deploy to Vercel
 
-This is a static site. `vercel.json` selects the Other framework preset, skips installation and builds, and publishes `dist/`. Import this GitHub repository into Vercel, or run `vercel --prod` from its root. No environment variables or secrets are required.
+This is a static site. `vercel.json` selects the Other framework preset, skips installation and builds, and publishes `dist/`. Import this GitHub repository into Vercel, or run `vercel --prod` from its root. No environment variables or secrets are required. The connected Vercel project deploys changes pushed to `main`.
 
 Only files under `dist/` are served. Model extraction is a separate Python workflow and never runs during deployment.
 

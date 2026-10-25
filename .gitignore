@@ -16,3 +16,5 @@ hf-cache/
 *.safetensors
 *.pt
 *.pth
+.vercel
+.env*
