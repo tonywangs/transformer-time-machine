@@ -1,0 +1,9 @@
+.git
+.openai
+.venv
+node_modules
+__pycache__
+.env
+.env.*
+.cache
+hf-cache

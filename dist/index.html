@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101a1c">
+  <meta name="description" content="Rewind a language model's training. Explore recorded attention patterns and next-token predictions across real model checkpoints.">
+  <title>Transformer Time Machine</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="page-grain" aria-hidden="true"></div>
+  <header class="masthead">
+    <a class="wordmark" href="./" aria-label="Transformer Time Machine home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22M5 25h22M9 7c0 6 14 12 14 18M23 7c0 6-14 12-14 18"/><circle cx="16" cy="16" r="2"/></svg><span>MODEL OBSERVATORY<span class="wordmark-sub">FIELD NOTE № 001</span></span></a>
+    <div class="masthead-right"><span class="live-label"><i></i> REAL CHECKPOINTS</span><button class="text-button" id="aboutButton">About the data <span aria-hidden="true">↗</span></button></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div><div class="eyebrow">A SMALL MODEL. A LONG MEMORY.</div><h1>Transformer <em>Time Machine</em></h1><p class="intro-copy">Rewind one model’s training. Watch its attention shift—and its next word change.</p></div>
+      <div class="model-spec" id="modelSpec"><span class="spec-name">A recorded experiment</span><span class="spec-line">Loading model details</span></div>
+    </section>
+
+    <div id="loadingState" class="loading-state" role="status"><span class="loading-orbit" aria-hidden="true"></span><h2>Opening the time machine</h2><p>Loading the recorded model observations.</p></div>
+    <div id="errorState" class="error-state" hidden role="alert"><span class="eyebrow">DATA UNAVAILABLE</span><h2>The observations haven’t arrived.</h2><p id="errorMessage">The trace file could not be loaded.</p><button class="primary-button" id="retryButton">Try again <span aria-hidden="true">↻</span></button><p class="quiet">This instrument only displays recorded model outputs.</p></div>
+
+    <div id="instrument" hidden>
+      <nav class="scene-nav" aria-label="Choose an example"><span class="scene-nav-label">THE PROMPT</span><div id="sceneTabs" class="scene-tabs" role="tablist"></div></nav>
+
+      <section class="instrument-grid">
+        <div class="attention-panel">
+          <div class="panel-topline"><span class="eyebrow">01 / WHERE IT LOOKS</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
+          <div class="scene-heading"><h2 id="sceneTitle"></h2><p id="sceneDescription"></p></div>
+          <div class="prompt-line"><span class="prompt-mark" aria-hidden="true">“</span><p id="promptText"></p><span class="prompt-mark close" aria-hidden="true">”</span></div>
+          <div class="attention-toolbar"><div><span class="small-label">INSPECTING</span><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label">LAST-TOKEN FOCUS</span><span id="focusValue"></span></div></div>
+          <div class="visualization" id="visualization"><svg id="flowGraph" role="img" aria-label="Attention from the selected token to earlier tokens"></svg><div class="matrix-wrap" id="matrixWrap" hidden><canvas id="attentionMatrix" aria-label="Attention matrix. Rows are query tokens and columns are key tokens." role="img"></canvas><div id="matrixTip" class="matrix-tip" hidden></div></div></div>
+          <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High attention</span></div>
+          <div class="token-select"><span class="small-label">QUERY TOKEN <span class="quiet">/ click to inspect</span></span><div id="queryTokens" class="query-tokens" aria-label="Select query token"></div></div>
+
+          <section class="heads-section"><div class="heads-intro"><h3>Every head, at a glance.</h3><p>Brighter squares focus on fewer tokens.<br>Focus is not importance.</p><span class="head-axis">ROWS: LAYERS · COLUMNS: HEADS<br>Labels start at 1.</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
+        </div>
+
+        <aside class="prediction-panel">
+          <div class="panel-topline"><span class="eyebrow">02 / WHAT COMES NEXT</span><span class="small-cross" aria-hidden="true">↗</span></div>
+          <h2>A word in the making.</h2><p class="panel-description">The next-token predictions after the full prompt.</p>
+          <div class="prediction-lead"><span class="small-label">MOST LIKELY NEXT TOKEN</span><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
+          <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
+          <div class="history-panel"><div class="history-title"><div><span class="small-label">FOLLOW ONE COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><p class="history-note">Probability across the recorded checkpoints. This is one possible completion, not an accuracy score.</p></div>
+          <div class="reading-note"><span class="note-symbol" aria-hidden="true">✳</span><p><strong>Attention is a clue, not a thought.</strong> These weights show how a head mixes information between tokens. They don’t fully explain the model’s answer.</p></div>
+        </aside>
+      </section>
+
+      <section class="timeline-panel" aria-label="Training checkpoint timeline"><div class="timeline-top"><div class="timeline-title"><span class="small-label">TRAINING STEP</span><strong id="stepNumber"></strong><span id="checkpointCount"></span></div><div class="transport"><button id="previousButton" class="icon-button" aria-label="Previous checkpoint" title="Previous checkpoint (left arrow)">←</button><button id="playButton" class="play-button" aria-label="Play checkpoints"><span id="playIcon" aria-hidden="true">▶</span><span id="playLabel">Play training</span></button><button id="nextButton" class="icon-button" aria-label="Next checkpoint" title="Next checkpoint (right arrow)">→</button></div></div><div class="timeline-track"><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div><div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Discrete observations · use ← → to travel</span><span id="timelineEnd">FINAL CHECKPOINT</span></div></section>
+      <footer class="page-footer"><p>Same architecture. Same prompt. Different moments in training.</p><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>
+    </div>
+  </main>
+
+  <dialog id="provenanceDialog" aria-labelledby="provenanceTitle"><div class="dialog-top"><span class="eyebrow">THE OBSERVATION RECORD</span><button class="icon-button close-button" id="closeDialog" aria-label="Close experiment details">×</button></div><h2 id="provenanceTitle">Nothing here is imagined.</h2><p class="dialog-intro">These are recorded forward passes through real model checkpoints. The timeline moves between observations; it does not invent the moments in between.</p><div id="provenanceContent"></div><div class="dialog-actions"><a href="data/traces.json" download="transformer-time-machine-traces.json" class="primary-button">Download the observations <span aria-hidden="true">↓</span></a></div></dialog>
+  <div id="screenReaderStatus" class="sr-only" role="status" aria-live="polite"></div>
+</body>
+</html>

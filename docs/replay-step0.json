@@ -1,0 +1,56 @@
+{
+  "valid": true,
+  "model": "EleutherAI/pythia-70m-deduped",
+  "step": 0,
+  "model_commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+  "tokenizer_commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+  "trace_sha256": "38136584c548324f0655d36a2f151aae8679cd410d7e868fa882dc32dedaf2ad",
+  "replay_script_sha256": "369a842b950f1542f9782e49034509cacb22412365a7ef37d01ff5238b1c3dc5",
+  "device": "cpu",
+  "dtype": "float32",
+  "attention_implementation": "eager",
+  "torch_version": "2.8.0",
+  "transformers_version": "4.56.2",
+  "local_files_only": true,
+  "attention_tolerance": 6e-07,
+  "probability_tolerance": 1e-07,
+  "scenes": [
+    {
+      "scene": "echo",
+      "prompt_tokens": 11,
+      "tokenization_and_top_ids_match": true,
+      "attention_entries_checked": 5808,
+      "max_raw_attention_error": 5.364418029785156e-07,
+      "max_rounded_attention_error": 0.0,
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0
+    },
+    {
+      "scene": "story",
+      "prompt_tokens": 3,
+      "tokenization_and_top_ids_match": true,
+      "attention_entries_checked": 432,
+      "max_raw_attention_error": 5.066394805908203e-07,
+      "max_rounded_attention_error": 0.0,
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0
+    },
+    {
+      "scene": "capital",
+      "prompt_tokens": 5,
+      "tokenization_and_top_ids_match": true,
+      "attention_entries_checked": 1200,
+      "max_raw_attention_error": 5.066394805908203e-07,
+      "max_rounded_attention_error": 0.0,
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0
+    }
+  ],
+  "max_errors": {
+    "max_raw_attention_error": 5.364418029785156e-07,
+    "max_rounded_attention_error": 0.0,
+    "max_top_probability_error": 0.0,
+    "target_probability_error": 0.0
+  },
+  "elapsed_seconds": 0.995
+}
