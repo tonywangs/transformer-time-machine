@@ -65,7 +65,7 @@
           <label class="timeline-select-label" for="playbackSpeed">Speed <select id="playbackSpeed" aria-label="Playback speed" title="At 1×, each recorded checkpoint stays on screen for 1.2 seconds"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
           <p class="sampling-note" id="samplingNote">One tick per snapshot. Training gaps vary.</p>
         </div>
-        <div class="timeline-track"><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint" aria-describedby="samplingNote"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div>
+        <div class="timeline-track"><div id="timelineRail" class="timeline-rail" aria-hidden="true"><span class="timeline-fill"></span><span class="timeline-thumb"></span></div><span id="timelinePreview" class="timeline-preview" aria-hidden="true" hidden></span><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint" aria-describedby="samplingNote"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div>
         <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Recorded checkpoints · training gaps vary</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
       </section>
       <footer class="page-footer"><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>

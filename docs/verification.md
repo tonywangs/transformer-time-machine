@@ -35,3 +35,14 @@ The desktop UI reserves layout rows for the header, prompt tabs, three simultane
 The attention SVG now uses its panel's actual dimensions and staggers crowded labels. A ResizeObserver redraws SVG/canvas geometry when available space changes. Matrix switching, token/head selection, step selection, play/pause, and resizing passed browser checks with no console errors. The 390-pixel phone layout and a wide window shorter than 620 pixels retain readable scrolling without horizontal page overflow.
 
 This is a presentation change. The 38-checkpoint observations, their checksum, and extraction/replay code are unchanged.
+
+
+## Motion and microinteractions
+
+Playback now uses one elapsed-time animation-frame loop with a continuous visual playhead and a separate integer observation index. Browser samples during 0.5× playback showed the playhead progressing from 40.77% to 41.75% across approximately 0.88 seconds while the displayed step remained 5,000 and the leading probability remained 4.48%. Pausing freezes progress; resume and speed changes preserve the fractional interval. Seeking stops playback and settles onto the selected checkpoint. The endpoint stops exactly at the final recorded observation.
+
+Prediction rows retain token identity as their ranks change, using short positional transitions. Head buttons, query controls, and SVG nodes are retained across updates. Numeric readouts always use recorded values; only their presentation animates. Exact-zero attention paths remain invisible. Reduced-motion settings disable animated interpolation, including JavaScript transitions, while playback continues to visit recorded observations.
+
+Browser checks covered playback, changing speed, final-stop behavior, keyboard scrubbing and its accessible value, switching prompts/views/heads/query tokens, and opening About while playing. The 1,100 × 620 dashboard retained zero document/panel overflow, and the 390-pixel mobile fallback retained zero horizontal overflow. No console errors or warnings were observed. Deterministic transport regression checks can be run with `node scripts/test-playback.cjs`.
+
+The recorded dataset and extraction/replay scripts are unchanged; dataset SHA-256 remains `874e2b2786d982cf0a8e22122df28bca5551e2f0ba3dd38aad28284579160266`.

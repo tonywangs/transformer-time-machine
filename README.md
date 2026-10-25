@@ -16,6 +16,8 @@ From this directory:
 python3 -m http.server 8765 --bind 127.0.0.1 --directory dist
 ```
 
+Run `node scripts/test-playback.cjs` for deterministic playback regression checks.
+
 Open `http://127.0.0.1:8765`. The site loads `dist/data/traces.json`; missing data produces an error, not synthetic values. No JavaScript build or npm install is required.
 
 ## Reproduce the observations
@@ -61,7 +63,8 @@ Desktop windows at least 1,100 × 620 CSS pixels use a single-screen dashboard: 
 - Attention is the recorded probability matrix: query rows, key columns, with future positions masked.
 - Concentration is normalized attention entropy. It describes focus, not causal importance.
 - A target such as ` Paris` is an illustrative completion. Its probability is not an accuracy score, and need not increase during training.
-- Playback visits discrete, unevenly spaced recorded steps. No intermediate model states are synthesized.
+- Playback visits discrete, unevenly spaced recorded steps. The playhead travels smoothly between them; printed probabilities and training steps change only at recorded observations. Bar lengths and attention colors briefly transition for readability. No intermediate model states are synthesized.
+- Pause freezes the playhead in place; resume and speed changes preserve its progress. Reduced-motion preferences disable interpolated movement and transitions.
 - The exact-step menu jumps to any recorded checkpoint. Playback speed changes how long each observation stays on screen; it does not represent training time.
 - The history chart is clickable. Its shortcut jumps to the tracked completion's highest probability among the recorded checkpoints, which is not necessarily the highest point between them.
 - The model is small and pretrained; it is not a chat assistant. These three handpicked prompts cannot support general conclusions about learning.

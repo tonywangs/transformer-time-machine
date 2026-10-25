@@ -2,7 +2,62 @@
 'use strict';
 
 const $ = (id) => document.getElementById(id);
-const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, timer: null, playbackSpeed: 1 };
+const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, playbackSpeed: 1 };
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+const transport = { position: 0, raf: null, lastTime: null, seek: null };
+const motionAnimations = new WeakMap();
+function settle(element, keyframes = [{ opacity: .45, transform: 'translateY(3px)' }, { opacity: 1, transform: 'translateY(0)' }], duration = 220) {
+  motionAnimations.get(element)?.cancel();
+  if (motionPreference.matches || !element.animate) return;
+  const animation = element.animate(keyframes, { duration, easing: 'cubic-bezier(.22,1,.36,1)' });
+  motionAnimations.set(element, animation);
+}
+function updateReadout(id, text) {
+  const element = $(id);
+  if (element.textContent === text) return;
+  const populated = element.textContent.length > 0;
+  element.textContent = text;
+  if (populated) settle(element);
+}
+// Preserve SVG nodes so attention styles can transition and keyboard focus survives updates.
+function reconcileSvg(parent, markup) {
+  const template = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  template.innerHTML = markup;
+  const key = (node) => node.getAttribute('data-motion-key') || (node.hasAttribute('data-query') ? `token-${node.getAttribute('data-query')}` : node.id);
+  function sync(target, source) {
+    const old = [...target.children];
+    [...source.children].forEach((next, index) => {
+      const id = key(next);
+      let current = id ? old.find((node) => key(node) === id) : old[index];
+      if (!current || current.tagName !== next.tagName || (!id && key(current))) current = next.cloneNode(true);
+      else {
+        [...current.attributes].forEach((a) => { if (!next.hasAttribute(a.name)) current.removeAttribute(a.name); });
+        [...next.attributes].forEach((a) => { if (current.getAttribute(a.name) !== a.value) current.setAttribute(a.name, a.value); });
+        if (next.children.length) sync(current, next);
+        else if (current.textContent !== next.textContent) current.textContent = next.textContent;
+      }
+      if (target.children[index] !== current) target.insertBefore(current, target.children[index] || null);
+    });
+    while (target.children.length > source.children.length) target.lastElementChild.remove();
+  }
+  sync(parent, template);
+}
+function updateSelectionIndicators() {
+  const tabs = $('sceneTabs');
+  const tab = tabs.querySelector('[aria-selected="true"]');
+  const segment = $('flowButton').parentElement;
+  const selected = state.view === 'flow' ? $('flowButton') : $('matrixButton');
+  if (tab) {
+    tabs.style.setProperty('--tab-left', `${tab.offsetLeft}px`);
+    tabs.style.setProperty('--tab-top', `${tab.offsetTop}px`);
+    tabs.style.setProperty('--tab-width', `${tab.offsetWidth}px`);
+    tabs.style.setProperty('--tab-height', `${tab.offsetHeight}px`);
+    tabs.classList.add('has-selection-indicator');
+  }
+  segment.style.setProperty('--segment-x', `${selected.offsetLeft}px`);
+  segment.style.setProperty('--segment-width', `${selected.offsetWidth}px`);
+  segment.classList.add('has-selection-indicator');
+}
 const exampleOrder = ['story', 'echo', 'capital'];
 const exampleCopy = {
   story: { tab: 'Finish a phrase', question: 'Once upon a… what?', explanation: '“Time” is the familiar continuation. Rewind training to see when it appears among the model’s guesses.', reference: 'Familiar completion' },
@@ -62,6 +117,7 @@ async function loadData() {
     state.data = { ...data, scenes: [...data.scenes].sort((a, b) => order(a.id) - order(b.id)) };
     state.scene = 0;
     state.frame = data.checkpoints.length - 1;
+    transport.position = state.frame;
     state.layer = Math.min(2, data.model.layers - 1);
     state.head = 0;
     state.query = scene().tokens.length - 1;
@@ -105,7 +161,11 @@ function render() {
   $('headLabel').textContent = `Layer ${state.layer + 1} / Head ${state.head + 1}`;
   $('focusValue').textContent = `${(f.concentration[state.layer][state.head] * 100).toFixed(1)}%`;
   document.querySelectorAll('.scene-tab').forEach((b) => { b.setAttribute('aria-selected', String(Number(b.dataset.scene) === state.scene)); b.tabIndex = Number(b.dataset.scene) === state.scene ? 0 : -1; });
-  $('queryTokens').innerHTML = s.tokens.map((t, i) => `<button id="query-${i}" class="query-token" data-query="${i}" title="Token ${i + 1}: ${esc(t)}" aria-pressed="${state.query === i}" aria-label="Inspect token ${i + 1}: ${esc(t)}"><span class="token-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(displayToken(t))}</button>`).join('');
+  if ($('queryTokens').dataset.scene !== s.id) {
+    $('queryTokens').innerHTML = s.tokens.map((t, i) => `<button id="query-${i}" class="query-token" data-query="${i}" title="Token ${i + 1}: ${esc(t)}" aria-label="Inspect token ${i + 1}: ${esc(t)}"><span class="token-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(displayToken(t))}</button>`).join('');
+    $('queryTokens').dataset.scene = s.id;
+  }
+  $('queryTokens').querySelectorAll('button').forEach((button, i) => button.setAttribute('aria-pressed', String(state.query === i)));
   renderHeads();
   renderVisualization();
   renderPredictions();
@@ -125,7 +185,7 @@ function renderExample(s, f) {
   $('referenceLabel').textContent = copy?.reference || 'Completion to track';
   $('referenceCompletion').textContent = s.target_label.trim();
   const top = f.top_tokens[0];
-  $('exampleGuess').textContent = `“${top.token.trim() || displayToken(top.token)}” · ${percent(top.probability)}`;
+  updateReadout('exampleGuess', `“${top.token.trim() || displayToken(top.token)}” · ${percent(top.probability)}`);
   const rank = f.top_tokens.findIndex((t) => s.target_token_ids.includes(t.id));
   const target = s.target_label.trim();
   const snapshot = rank === 0
@@ -141,7 +201,16 @@ function renderExample(s, f) {
 }
 
 function renderHeads() {
-  $('headGrid').innerHTML = frame().concentration.map((row, l) => `<div class="head-row"><span class="head-row-label" aria-hidden="true">${l + 1}</span>${row.map((c, h) => `<button id="head-${l}-${h}" class="head-cell" data-layer="${l}" data-head="${h}" style="background:${weightColor(c)}" aria-label="Layer ${l + 1}, head ${h + 1}, focus ${(c * 100).toFixed(1)} percent" aria-pressed="${state.layer === l && state.head === h}" title="Layer ${l + 1} · Head ${h + 1} · ${(c * 100).toFixed(1)}% focus"></button>`).join('')}</div>`).join('');
+  if (!$('headGrid').children.length) {
+    $('headGrid').innerHTML = frame().concentration.map((row, l) => `<div class="head-row"><span class="head-row-label" aria-hidden="true">${l + 1}</span>${row.map((_, h) => `<button id="head-${l}-${h}" class="head-cell" data-layer="${l}" data-head="${h}"></button>`).join('')}</div>`).join('');
+  }
+  frame().concentration.forEach((row, l) => row.forEach((c, h) => {
+    const cell = $(`head-${l}-${h}`);
+    cell.style.background = weightColor(c);
+    cell.setAttribute('aria-label', `Layer ${l + 1}, head ${h + 1}, focus ${(c * 100).toFixed(1)} percent`);
+    cell.setAttribute('aria-pressed', String(state.layer === l && state.head === h));
+    cell.title = `Layer ${l + 1} · Head ${h + 1} · ${(c * 100).toFixed(1)}% focus`;
+  }));
 }
 
 function renderVisualization() {
@@ -152,6 +221,7 @@ function renderVisualization() {
   $('flowButton').setAttribute('aria-pressed', String(state.view === 'flow'));
   $('matrixButton').setAttribute('aria-pressed', String(state.view === 'matrix'));
   if (state.view === 'flow') renderFlow(); else renderMatrix();
+  updateSelectionIndicators();
   const row = frame().attention[state.layer][state.head][state.query];
   const maxIndex = row.indexOf(Math.max(...row));
   $('attentionDetail').textContent = `${displayToken(scene().tokens[state.query])} → ${displayToken(scene().tokens[maxIndex])}  ·  ${percent(row[maxIndex])} attention`;
@@ -187,15 +257,15 @@ function renderFlow() {
   let content = `<defs><pattern id="flowDots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="#29403d"/></pattern></defs><rect x="0" y="16" width="${width}" height="${Math.max(0, baseline - 16)}" fill="url(#flowDots)" opacity=".6"/><line x1="13" x2="${width - 13}" y1="${baseline}" y2="${baseline}" stroke="#304542" stroke-dasharray="2 5"/>`;
   // Each curve is the actual selected query-to-key observation; no interpolated frames.
   row.forEach((weight, k) => {
-    if (k > state.query || weight <= 0 || k === state.query) return;
+    if (k > state.query || k === state.query) return;
     const end = positions[k];
     const distance = Math.abs(end - source);
     const lift = Math.min(baseline - 8, 25 + distance * .31);
-    const opacity = .15 + .85 * Math.sqrt(weight / Math.max(strongest, .000001));
+    const opacity = weight > 0 ? .15 + .85 * Math.sqrt(weight / Math.max(strongest, .000001)) : 0;
     const stroke = 1 + 5 * Math.sqrt(weight);
-    content += `<path d="M ${source} ${baseline} C ${source} ${baseline - lift}, ${end} ${baseline - lift}, ${end} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${opacity}" stroke-width="${stroke}" data-weight-key="${k}"><title>${esc(displayToken(s.tokens[state.query]))} to ${esc(displayToken(s.tokens[k]))}: ${percent(weight)}</title></path>`;
+    content += `<path class="attention-link" data-motion-key="edge-${k}" d="M ${source} ${baseline} C ${source} ${baseline - lift}, ${end} ${baseline - lift}, ${end} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${opacity}" stroke-width="${stroke}" data-weight-key="${k}"><title>${esc(displayToken(s.tokens[state.query]))} to ${esc(displayToken(s.tokens[k]))}: ${percent(weight)}</title></path>`;
   });
-  if (row[state.query] > 0) content += `<path d="M ${source - 5} ${baseline} C ${source - 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 5} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${.15 + .85 * Math.sqrt(row[state.query] / Math.max(strongest, .000001))}" stroke-width="${1 + 5 * Math.sqrt(row[state.query])}"/>`;
+  content += `<path class="attention-link" data-motion-key="self" d="M ${source - 5} ${baseline} C ${source - 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 5} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${row[state.query] > 0 ? .15 + .85 * Math.sqrt(row[state.query] / Math.max(strongest, .000001)) : 0}" stroke-width="${1 + 5 * Math.sqrt(row[state.query])}"/>`;
   positions.forEach((x, i) => {
     const selected = i === state.query;
     const future = i > state.query;
@@ -208,13 +278,16 @@ function renderFlow() {
   svg.style.minWidth = '0';
   svg.style.width = '100%';
   svg.style.height = '100%';
-  svg.innerHTML = content;
+  reconcileSvg(svg, content);
   svg.setAttribute('aria-label', `Attention from token ${state.query + 1}, ${s.tokens[state.query]}, at layer ${state.layer + 1}, head ${state.head + 1}. Select a token to inspect its attention.`);
 }
 
 let matrixLayout = null;
 function renderMatrix() {
   const canvas = $('attentionMatrix');
+  const snapshot = `${state.scene}:${state.frame}:${state.layer}:${state.head}:${state.query}`;
+  if (canvas.dataset.snapshot && canvas.dataset.snapshot !== snapshot) settle(canvas, [{ opacity: .6 }, { opacity: 1 }], 180);
+  canvas.dataset.snapshot = snapshot;
   const wrapper = $('matrixWrap');
   const size = Math.min(wrapper.clientHeight || 226, Math.max(80, wrapper.clientWidth - 60));
   const n = scene().tokens.length;
@@ -257,13 +330,41 @@ function renderMatrix() {
 function renderPredictions() {
   const tokens = frame().top_tokens.slice(0, 8);
   const leading = tokens[0];
-  $('leadingToken').textContent = displayToken(leading.token);
+  updateReadout('leadingToken', displayToken(leading.token));
   $('leadingToken').title = `Token ID ${leading.id}: ${JSON.stringify(leading.token)}`;
-  $('leadingProbability').textContent = percent(leading.probability);
+  updateReadout('leadingProbability', percent(leading.probability));
   const maximum = Math.max(...tokens.map((t) => t.probability));
-  $('probabilityBars').innerHTML = tokens.map((t) => `<div class="probability-row" title="Token ${t.id}: ${esc(JSON.stringify(t.token))}; probability ${percent(t.probability)}"><span class="probability-token">${esc(displayToken(t.token))}</span><div class="probability-bar-track" aria-hidden="true"><div class="probability-bar" style="width:${maximum ? (t.probability / maximum * 100) : 0}%"></div></div><span class="probability-value">${percent(t.probability)}</span></div>`).join('');
+  const list = $('probabilityBars');
+  const oldRows = new Map([...list.children].map((row) => [Number(row.dataset.token), { row, top: row.getBoundingClientRect().top }]));
+  for (const [id, { row }] of oldRows) if (!tokens.some((token) => token.id === id)) row.remove();
+  const entering = [];
+  tokens.forEach((token, index) => {
+    let row = oldRows.get(token.id)?.row;
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'probability-row';
+      row.dataset.token = token.id;
+      row.innerHTML = `<span class="probability-token"></span><div class="probability-bar-track" aria-hidden="true"><div class="probability-bar" style="width:0%"></div></div><span class="probability-value"></span>`;
+      entering.push(row);
+    }
+    row.title = `Token ${token.id}: ${JSON.stringify(token.token)}; probability ${percent(token.probability)}`;
+    row.querySelector('.probability-token').textContent = displayToken(token.token);
+    row.querySelector('.probability-value').textContent = percent(token.probability);
+    if (list.children[index] !== row) list.insertBefore(row, list.children[index] || null);
+  });
+  // FLIP keeps a token's identity attached to its bar as rankings change.
+  const nextTops = new Map([...list.children].map((row) => [row, row.getBoundingClientRect().top]));
+  tokens.forEach((token, index) => {
+    const row = list.children[index];
+    row.querySelector('.probability-bar').style.width = `${maximum ? token.probability / maximum * 100 : 0}%`;
+    if (entering.includes(row)) settle(row, [{ opacity: 0, transform: 'translateX(6px)' }, { opacity: 1, transform: 'translateX(0)' }]);
+    else {
+      const dy = oldRows.get(token.id).top - nextTops.get(row);
+      if (Math.abs(dy) > .5) settle(row, [{ transform: `translateY(${dy}px)` }, { transform: 'translateY(0)' }], 240);
+    }
+  });
   $('targetLabel').textContent = `“${scene().target_label}”`;
-  $('targetProbability').textContent = percent(frame().target_probability);
+  updateReadout('targetProbability', percent(frame().target_probability));
 }
 
 function renderHistory() {
@@ -275,7 +376,7 @@ function renderHistory() {
   const points = values.map((p, i) => `${x(i)},${y(p)}`).join(' ');
   const currentX = x(state.frame);
   const currentY = y(values[state.frame]);
-  $('probabilityHistory').innerHTML = `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8bd7b" stop-opacity=".16"/><stop offset="1" stop-color="#e8bd7b" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="311" y2="105" stroke="#304144"/><line x1="9" y1="62" x2="311" y2="62" stroke="#304144" stroke-dasharray="2 5"/><text x="9" y="10" fill="#78938b" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} 311,105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="#e8bd7b" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="#e8bd7b" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="#e8bd7b" stroke-opacity=".4" stroke-dasharray="2 3"/><circle cx="${currentX}" cy="${currentY}" r="4" fill="#e8bd7b" stroke="#101a1c" stroke-width="2"/>`;
+  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8bd7b" stop-opacity=".16"/><stop offset="1" stop-color="#e8bd7b" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="311" y2="105" stroke="#304144"/><line x1="9" y1="62" x2="311" y2="62" stroke="#304144" stroke-dasharray="2 5"/><text x="9" y="10" fill="#78938b" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} 311,105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="#e8bd7b" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="#e8bd7b" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="#e8bd7b" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="#e8bd7b" stroke="#101a1c" stroke-width="2"/>`);
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
   $('historyStart').textContent = `STEP ${compactStep(state.data.checkpoints[0].step)}`;
   $('historyEnd').textContent = `STEP ${compactStep(state.data.checkpoints.at(-1).step)}`;
@@ -287,28 +388,79 @@ function renderHistory() {
 }
 
 function renderTimeline() {
-  $('stepNumber').textContent = number.format(frame().step);
+  updateReadout('stepNumber', number.format(frame().step));
   $('checkpointCount').textContent = `${state.frame + 1} / ${state.data.checkpoints.length} observations`;
   $('checkpointSlider').value = state.frame;
   $('checkpointSelect').value = String(state.frame);
   $('checkpointSlider').setAttribute('aria-valuetext', `Training step ${number.format(frame().step)}, checkpoint ${state.frame + 1} of ${state.data.checkpoints.length}`);
-  $('checkpointSlider').style.setProperty('--progress', `${state.frame / Math.max(1, state.data.checkpoints.length - 1) * 100}%`);
+  paintPlayhead();
+  [...$('timelineTicks').children].forEach((tick, i) => { tick.classList.toggle('is-past', i < state.frame); tick.classList.toggle('is-current', i === state.frame); });
   $('previousButton').disabled = state.frame === 0;
   $('nextButton').disabled = state.frame === state.data.checkpoints.length - 1;
   $('playButton').disabled = state.data.checkpoints.length < 2;
 }
 
-function setFrame(index, stopPlayback = true) {
+function paintPlayhead() {
+  const position = motionPreference.matches ? state.frame : transport.position;
+  const progress = position / Math.max(1, (state.data?.checkpoints.length || 1) - 1);
+  $('timelineRail').style.setProperty('--playhead', `${progress * 100}%`);
+  $('timelineRail').style.setProperty('--playhead-scale', progress);
+}
+function cancelTransport() {
+  cancelAnimationFrame(transport.raf);
+  transport.raf = null;
+  transport.lastTime = null;
+  transport.seek = null;
+}
+function seekPlayhead(index, immediate = false) {
+  cancelTransport();
+  if (immediate || motionPreference.matches || Math.abs(index - transport.position) < .001) {
+    transport.position = index;
+    paintPlayhead();
+    return;
+  }
+  transport.seek = { from: transport.position, to: index, start: null, duration: 360 };
+  transport.raf = requestAnimationFrame(tickTransport);
+}
+function tickTransport(now) {
+  transport.raf = null;
+  if (transport.seek) {
+    const seek = transport.seek;
+    if (seek.start === null) seek.start = now;
+    const t = clamp((now - seek.start) / seek.duration, 0, 1);
+    transport.position = seek.from + (seek.to - seek.from) * (1 - Math.pow(1 - t, 3));
+    paintPlayhead();
+    if (t < 1) { transport.raf = requestAnimationFrame(tickTransport); return; }
+    transport.seek = null;
+    transport.lastTime = now;
+  }
+  if (!state.playing) return;
+  if (transport.lastTime === null) transport.lastTime = now;
+  const elapsed = now - transport.lastTime;
+  transport.lastTime = now;
+  const last = state.data.checkpoints.length - 1;
+  transport.position = Math.min(last, transport.position + elapsed / (1200 / state.playbackSpeed));
+  const observedFrame = Math.floor(transport.position + 1e-9);
+  if (observedFrame !== state.frame) {
+    state.frame = observedFrame;
+    render();
+  }
+  paintPlayhead();
+  if (transport.position >= last) { pause(); return; }
+  transport.raf = requestAnimationFrame(tickTransport);
+}
+function setFrame(index, immediate = false) {
   if (!state.data) return;
-  if (stopPlayback) pause();
-  state.frame = clamp(index, 0, state.data.checkpoints.length - 1);
+  pause();
+  state.frame = clamp(Math.round(index), 0, state.data.checkpoints.length - 1);
+  seekPlayhead(state.frame, immediate);
   render();
-  if (!state.playing) $('screenReaderStatus').textContent = `Training step ${number.format(frame().step)}. Most likely next token: ${frame().top_tokens[0].token}, ${percent(frame().top_tokens[0].probability)}.`;
+  $('screenReaderStatus').textContent = `Training step ${number.format(frame().step)}. Most likely next token: ${frame().top_tokens[0].token}, ${percent(frame().top_tokens[0].probability)}.`;
 }
 function pause() {
-  clearInterval(state.timer);
-  state.timer = null;
+  cancelTransport();
   state.playing = false;
+  document.querySelector('.timeline-panel').classList.remove('is-playing');
   $('playIcon').textContent = '▶';
   $('playLabel').textContent = 'Play training';
   $('playButton').setAttribute('aria-label', 'Play checkpoints');
@@ -316,26 +468,32 @@ function pause() {
 function play() {
   if (!state.data || state.data.checkpoints.length < 2) return;
   if (state.playing) { pause(); return; }
+  // Finish an interrupted seek before continuing, or smoothly rewind at the endpoint.
   if (state.frame >= state.data.checkpoints.length - 1) setFrame(0);
+  else if (transport.position < state.frame || transport.position >= state.frame + 1) seekPlayhead(state.frame);
   state.playing = true;
+  document.querySelector('.timeline-panel').classList.add('is-playing');
   $('playIcon').textContent = 'Ⅱ';
   $('playLabel').textContent = 'Pause';
   $('playButton').setAttribute('aria-label', 'Pause checkpoints');
-  schedulePlayback();
+  if (transport.raf === null) transport.raf = requestAnimationFrame(tickTransport);
 }
-function schedulePlayback() {
-  clearInterval(state.timer);
-  state.timer = setInterval(() => {
-    if (state.frame >= state.data.checkpoints.length - 1) { pause(); return; }
-    setFrame(state.frame + 1, false);
-    if (state.frame === state.data.checkpoints.length - 1) pause();
-  }, 1200 / state.playbackSpeed);
-}
+
+motionPreference.addEventListener('change', () => {
+  if (motionPreference.matches) {
+    document.getAnimations().forEach((animation) => animation.cancel());
+    if (transport.seek) {
+      transport.position = state.frame;
+      transport.seek = null;
+    }
+  }
+  paintPlayhead();
+});
 
 function buildProvenance() {
   const { model: m, provenance: p, checkpoints } = state.data;
   const notes = (p.notes || []).map((note) => `<li>${esc(note)}</li>`).join('');
-  $('provenanceContent').innerHTML = `<section class="provenance-section"><h3>MODEL</h3><dl><dt>Repository</dt><dd><a href="${esc(safeUrl(m.source_url))}" target="_blank" rel="noopener noreferrer">${esc(m.id)} ↗</a></dd><dt>Architecture</dt><dd>${m.layers} layers · ${m.heads} heads · ${esc(m.hidden_size)} hidden dimensions</dd><dt>Parameters</dt><dd>${esc(typeof m.parameters === 'number' ? number.format(m.parameters) : m.parameters)}</dd></dl></section><section class="provenance-section"><h3>HOW TO READ THIS</h3><p>Flow curves and matrix cells display attention weights from a recorded forward pass. The head grid summarizes those weights as concentration. A query can attend to itself and earlier tokens; future tokens are masked. Layer, head, and token labels start at 1.</p><p>The head grid always measures focus for the final prompt token, even when another query is selected. Focus is one minus normalized attention entropy—not a measure of head importance. Probability bars are scaled relative to the top token; the printed percentages are absolute probabilities. History and timeline positions are evenly spaced observations, not equal amounts of training.</p><p>“·” marks a space, “↵” a newline, and “⇥” a tab. Tokens can be word fragments. Attention alone does not establish a causal explanation of an output.</p></section><section class="provenance-section"><h3>EXTRACTION RECORD</h3><dl><dt>Extracted</dt><dd>${esc(p.extracted_at)}</dd><dt>Device / precision</dt><dd>${esc(p.device)} / ${esc(p.dtype)}</dd><dt>PyTorch</dt><dd>${esc(p.torch_version)}</dd><dt>Transformers</dt><dd>${esc(p.transformers_version)}</dd><dt>Extractor SHA-256</dt><dd>${esc(p.extractor_sha256)}</dd></dl>${notes ? `<ul>${notes}</ul>` : ''}</section><section class="provenance-section"><h3>IMMUTABLE CHECKPOINT SOURCES</h3><div class="checkpoint-list">${checkpoints.map((c) => `<div class="checkpoint-source"><span>${number.format(c.step)}</span><a href="${esc(safeUrl(c.source_url))}" target="_blank" rel="noopener noreferrer" title="${esc(c.commit_sha)}">${esc(c.revision)} · ${esc(c.commit_sha.slice(0, 12))} ↗</a></div>`).join('')}</div></section>`;
+  $('provenanceContent').innerHTML = `<section class="provenance-section"><h3>MODEL</h3><dl><dt>Repository</dt><dd><a href="${esc(safeUrl(m.source_url))}" target="_blank" rel="noopener noreferrer">${esc(m.id)} ↗</a></dd><dt>Architecture</dt><dd>${m.layers} layers · ${m.heads} heads · ${esc(m.hidden_size)} hidden dimensions</dd><dt>Parameters</dt><dd>${esc(typeof m.parameters === 'number' ? number.format(m.parameters) : m.parameters)}</dd></dl></section><section class="provenance-section"><h3>HOW TO READ THIS</h3><p>Flow curves and matrix cells display attention weights from a recorded forward pass. The head grid summarizes those weights as concentration. A query can attend to itself and earlier tokens; future tokens are masked. Layer, head, and token labels start at 1.</p><p>The head grid always measures focus for the final prompt token, even when another query is selected. Focus is one minus normalized attention entropy—not a measure of head importance. Probability bars are scaled relative to the top token; the printed percentages are absolute probabilities. History and timeline positions are evenly spaced observations, not equal amounts of training. The playhead glides between checkpoints; printed values update only when a recorded checkpoint is reached. Bar lengths and attention colors briefly transition for readability.</p><p>“·” marks a space, “↵” a newline, and “⇥” a tab. Tokens can be word fragments. Attention alone does not establish a causal explanation of an output.</p></section><section class="provenance-section"><h3>EXTRACTION RECORD</h3><dl><dt>Extracted</dt><dd>${esc(p.extracted_at)}</dd><dt>Device / precision</dt><dd>${esc(p.device)} / ${esc(p.dtype)}</dd><dt>PyTorch</dt><dd>${esc(p.torch_version)}</dd><dt>Transformers</dt><dd>${esc(p.transformers_version)}</dd><dt>Extractor SHA-256</dt><dd>${esc(p.extractor_sha256)}</dd></dl>${notes ? `<ul>${notes}</ul>` : ''}</section><section class="provenance-section"><h3>IMMUTABLE CHECKPOINT SOURCES</h3><div class="checkpoint-list">${checkpoints.map((c) => `<div class="checkpoint-source"><span>${number.format(c.step)}</span><a href="${esc(safeUrl(c.source_url))}" target="_blank" rel="noopener noreferrer" title="${esc(c.commit_sha)}">${esc(c.revision)} · ${esc(c.commit_sha.slice(0, 12))} ↗</a></div>`).join('')}</div></section>`;
 }
 
 function openProvenance() {
@@ -350,9 +508,11 @@ $('sceneTabs').addEventListener('click', (event) => {
   const button = event.target.closest('[data-scene]');
   if (!button) return;
   pause();
+  if (state.scene === Number(button.dataset.scene)) return;
   state.scene = Number(button.dataset.scene);
   state.query = scene().tokens.length - 1;
   setFrame(state.frame);
+  document.querySelectorAll('.prompt-panel,.prediction-panel,.visualization').forEach((panel) => settle(panel, undefined, 240));
 });
 $('sceneTabs').addEventListener('keydown', (event) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || !state.data) return;
@@ -381,8 +541,14 @@ $('flowGraph').addEventListener('pointerover', (event) => {
   const key = Number(node.dataset.query);
   $('attentionDetail').textContent = key > state.query ? 'Future token · hidden by the causal mask' : `${displayToken(scene().tokens[state.query])} → ${displayToken(scene().tokens[key])}  ·  ${percent(frame().attention[state.layer][state.head][state.query][key])} attention`;
 });
-$('flowButton').addEventListener('click', () => { state.view = 'flow'; renderVisualization(); });
-$('matrixButton').addEventListener('click', () => { state.view = 'matrix'; renderVisualization(); });
+function setView(view) {
+  if (state.view === view) return;
+  state.view = view;
+  renderVisualization();
+  settle(view === 'flow' ? $('flowGraph') : $('matrixWrap'));
+}
+$('flowButton').addEventListener('click', () => setView('flow'));
+$('matrixButton').addEventListener('click', () => setView('matrix'));
 $('attentionMatrix').addEventListener('pointermove', (event) => {
   if (!matrixLayout) return;
   const r = event.currentTarget.getBoundingClientRect();
@@ -418,13 +584,26 @@ $('probabilityHistory').addEventListener('click', (event) => {
   setFrame(Math.round(fraction * (state.data.checkpoints.length - 1)));
 });
 $('peakProbability').addEventListener('click', (event) => setFrame(Number(event.currentTarget.dataset.frame)));
-$('checkpointSlider').addEventListener('input', (event) => setFrame(Number(event.target.value)));
+$('checkpointSlider').addEventListener('input', (event) => setFrame(Number(event.target.value), true));
+$('checkpointSlider').addEventListener('pointermove', (event) => {
+  if (!state.data || event.buttons) { $('timelinePreview').hidden = true; return; }
+  const rect = event.currentTarget.getBoundingClientRect();
+  const fraction = clamp((event.clientX - rect.left - 6) / (rect.width - 12), 0, 1);
+  const index = Math.round(fraction * (state.data.checkpoints.length - 1));
+  const preview = $('timelinePreview');
+  preview.textContent = `Step ${number.format(state.data.checkpoints[index].step)}`;
+  preview.hidden = false;
+  const left = 6 + index / (state.data.checkpoints.length - 1) * (rect.width - 12);
+  preview.style.left = `${clamp(left, preview.offsetWidth / 2, rect.width - preview.offsetWidth / 2)}px`;
+});
+$('checkpointSlider').addEventListener('pointerleave', () => { $('timelinePreview').hidden = true; });
+$('checkpointSlider').addEventListener('pointerdown', () => { pause(); $('timelinePreview').hidden = true; });
 $('checkpointSelect').addEventListener('change', (event) => setFrame(Number(event.target.value)));
 $('playbackSpeed').addEventListener('change', (event) => {
   const speed = Number(event.target.value);
   if (![0.5, 1, 2, 4].includes(speed)) return;
   state.playbackSpeed = speed;
-  if (state.playing) schedulePlayback();
+  // The next animation frame uses this speed without resetting its fractional position.
 });
 $('previousButton').addEventListener('click', () => setFrame(state.frame - 1));
 $('nextButton').addEventListener('click', () => setFrame(state.frame + 1));

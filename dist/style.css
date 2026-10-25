@@ -209,3 +209,111 @@
   .prompt-line:has(.sequence-line) .next-token-gap{position:absolute;right:10px;bottom:8px;font-size:16px}
   .head-axis{font-size:7px}
 }
+
+/* Small, purposeful movements keep the instrument responsive without competing with its data. */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-spring:cubic-bezier(.2,.8,.2,1);
+  --motion-fast:150ms;
+  --motion-medium:220ms;
+  --motion-slow:420ms;
+}
+button,a,input,select{outline-color:var(--mint)}
+.scene-tab,.segmented button,.query-token,.icon-button,.play-button,.primary-button,.text-button,.history-peak,.timeline-select-label select{
+  transition:background-color var(--motion-fast) ease,border-color var(--motion-fast) ease,color var(--motion-fast) ease,box-shadow var(--motion-medium) ease,transform var(--motion-medium) var(--ease-out),opacity var(--motion-fast) ease;
+}
+.scene-tabs,.segmented{position:relative;isolation:isolate}
+.scene-tabs:before,.segmented:before{
+  content:"";position:absolute;left:0;z-index:0;pointer-events:none;
+  transition:transform var(--motion-slow) var(--ease-out),width var(--motion-slow) var(--ease-out),height var(--motion-medium) var(--ease-out),opacity var(--motion-fast) ease;
+}
+.scene-tabs:before{
+  top:var(--tab-top,10px);width:var(--tab-width,0px);height:var(--tab-height,30px);
+  transform:translateX(var(--tab-left,0px));border:1px solid #526349;border-radius:4px;
+  background:linear-gradient(135deg,#29382d,#233029);box-shadow:inset 0 1px 0 #d2ee9a0c;
+}
+.segmented:before{
+  top:2px;bottom:2px;width:var(--segment-width,0px);transform:translateX(var(--segment-x,2px));
+  border-radius:2px;background:#31413e;box-shadow:0 1px 3px #0002;
+}
+.scene-tabs:not(.has-selection-indicator):before,.segmented:not(.has-selection-indicator):before{opacity:0}
+.scene-tab,.segmented button{position:relative;z-index:1}
+.scene-tabs.has-selection-indicator .scene-tab[aria-selected=true]{border-color:transparent;background:transparent}
+.segmented.has-selection-indicator button.active{background:transparent}
+.scene-tab .tab-number{transition:opacity var(--motion-medium) ease}
+.scene-tab[aria-selected=true] .tab-number{opacity:.9}
+.segmented button:hover{color:var(--ink)}
+.play-button,.primary-button{box-shadow:inset 0 1px 0 #fff3,0 1px 2px #0002}
+#playIcon{display:inline-flex;align-items:center;justify-content:center;width:9px;height:12px;flex-shrink:0}
+#playLabel{display:inline-block;min-width:72px;text-align:left}
+.timeline-panel.is-playing .play-button{background:#d9f1aa;box-shadow:inset 0 1px 0 #fff4,0 0 0 3px #d2ee9a0a}
+.text-button>span,.primary-button>span,.history-peak>span>span{transition:transform var(--motion-medium) var(--ease-out)}
+.head-cell{
+  transition:background-color var(--motion-medium) ease,border-color var(--motion-fast) ease,box-shadow var(--motion-medium) ease,transform var(--motion-fast) var(--ease-out);
+}
+.head-cell[aria-pressed=true]{box-shadow:0 0 0 3px #d2ee9a0a}
+.head-cell:after{transition:opacity var(--motion-fast) ease,transform var(--motion-medium) var(--ease-out)}
+.query-token[aria-pressed=true]{box-shadow:inset 0 1px 0 #d2ee9a0d}
+#flowGraph .token-node rect{
+  transition:fill var(--motion-medium) ease,stroke var(--motion-fast) ease,stroke-width var(--motion-fast) ease;
+}
+#flowGraph .token-node circle{
+  transition:r var(--motion-medium) var(--ease-out),fill var(--motion-medium) ease;
+}
+#flowGraph .token-node text{transition:fill var(--motion-medium) ease}
+#flowGraph path[data-weight-key],#flowGraph .attention-link{transition:stroke-opacity var(--motion-medium) ease,stroke-width var(--motion-medium) ease}
+.probability-row{position:relative;border-radius:2px;transition:background-color var(--motion-fast) ease}
+.probability-bar-track{overflow:hidden;border-radius:1px}
+.probability-bar{
+  border-radius:1px;transition:width 240ms var(--ease-out),background-color var(--motion-medium) ease;
+}
+.probability-token,.probability-value{transition:color var(--motion-fast) ease}
+#leadingProbability,#targetProbability,#focusValue,.probability-value{font-variant-numeric:tabular-nums}
+#probabilityHistory{border-radius:4px;transition:background-color var(--motion-medium) ease}
+.matrix-tip{border:1px solid #f0f2e71c}
+.timeline-ticks i{transition:background-color var(--motion-medium) ease,opacity var(--motion-medium) ease}
+.timeline-ticks i.is-past{background:#9db57e;opacity:.8}
+.timeline-ticks i.is-current{background:var(--mint);opacity:1;box-shadow:0 0 4px #d2ee9a33}
+.wordmark svg{transition:stroke var(--motion-medium) ease,opacity var(--motion-medium) ease}
+.provenance-section a{transition:color var(--motion-fast) ease,text-decoration-color var(--motion-fast) ease;text-decoration-color:#d2ee9a66}
+dialog[open]{animation:dialog-arrive 280ms var(--ease-out) both}
+dialog[open]::backdrop{animation:backdrop-arrive 220ms ease both}
+@keyframes dialog-arrive{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes backdrop-arrive{from{opacity:0}to{opacity:1}}
+@media(hover:hover) and (pointer:fine){
+  .play-button:hover,.primary-button:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 #fff4,0 3px 8px #0002}
+  .icon-button:hover:not(:disabled){background:#d2ee9a08;transform:translateY(-1px)}
+  .query-token:hover{background:#d2ee9a08;transform:translateY(-1px)}
+  .head-cell:hover{transform:translateY(-1px);box-shadow:0 2px 5px #0004;z-index:1}
+  .history-peak:hover{box-shadow:inset 2px 0 0 var(--amber)}
+  .text-button:hover>span,.primary-button:hover>span{transform:translate(2px,-1px)}
+  .probability-row:hover{background:#d2ee9a05}
+  .probability-row:hover .probability-token,.probability-row:hover .probability-value{color:var(--ink)}
+  #probabilityHistory:hover{background:#e8bd7b04}
+  .wordmark:hover svg{stroke:#ecf9cf}
+  .provenance-section a:hover{text-decoration-color:var(--mint)}
+}
+.scene-tab:active,.segmented button:active{transform:translateY(1px);transition-duration:80ms}
+.play-button:active,.primary-button:active,.icon-button:active:not(:disabled){transform:translateY(1px) scale(.98);box-shadow:inset 0 1px 3px #0002;transition-duration:80ms}
+.query-token:active,.head-cell:active{transform:scale(.96);transition-duration:80ms}
+@media(prefers-reduced-motion:reduce){
+  :root{--motion-fast:0ms;--motion-medium:0ms;--motion-slow:0ms}
+  .play-button,.primary-button,.icon-button,.query-token,.head-cell,.scene-tab,.segmented button,.text-button>span,.primary-button>span{transform:none!important}
+}
+
+/* The native range retains keyboard semantics; this separate playhead can travel between ticks. */
+.timeline-rail{position:absolute;left:6px;right:6px;top:8px;height:2px;background:#3d5350;pointer-events:none}
+.timeline-fill{position:absolute;inset:0;background:var(--mint);transform:scaleX(var(--playhead-scale,1));transform-origin:left center}
+.timeline-thumb{position:absolute;left:var(--playhead,100%);top:50%;width:11px;height:19px;transform:translate(-50%,-50%);border:3px solid var(--bg);border-radius:3px;background:var(--mint);box-shadow:0 0 0 1px var(--mint);transition:box-shadow 180ms ease,background 180ms ease}
+#checkpointSlider{opacity:0}
+.timeline-track:has(#checkpointSlider:focus-visible) .timeline-thumb{box-shadow:0 0 0 1px var(--mint),0 0 0 5px var(--bg),0 0 0 7px var(--mint)}
+.timeline-track:hover .timeline-thumb,.timeline-panel.is-playing .timeline-thumb{box-shadow:0 0 0 1px var(--mint),0 0 0 4px #d2ee9a12}
+.timeline-track:has(#checkpointSlider:active) .timeline-thumb{background:#fff7d5;box-shadow:0 0 0 1px #fff7d5,0 0 0 5px #d2ee9a18}
+.timeline-preview{position:absolute;z-index:6;bottom:29px;transform:translateX(-50%);pointer-events:none;background:#e4efd8;color:#17251c;border:1px solid #f0f2e71c;border-radius:4px;padding:5px 8px;font:9px/1.4 var(--mono);white-space:nowrap;box-shadow:0 4px 18px #0003;animation:preview-arrive 120ms ease both}
+@keyframes preview-arrive{from{opacity:0;translate:0 2px}to{opacity:1;translate:0 0}}
+.history-current{transition:cx 240ms var(--ease-out),cy 240ms var(--ease-out)}
+#stepNumber,#leadingToken,#leadingProbability,#targetProbability{display:inline-block}
+@media(forced-colors:active){
+  #checkpointSlider{opacity:1}
+  .timeline-rail{display:none}
+}
