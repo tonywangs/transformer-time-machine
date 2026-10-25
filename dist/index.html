@@ -18,7 +18,7 @@
 
   <main>
     <section class="intro">
-      <div><div class="eyebrow">A SMALL MODEL. A LONG MEMORY.</div><h1>Transformer <em>Time Machine</em></h1><p class="intro-copy">Give a model an unfinished phrase. Rewind its training to see how its next guess changes.</p></div>
+      <div><h1>Transformer <em>Time Machine</em></h1></div>
       <div class="model-spec" id="modelSpec"><span class="spec-name">A recorded experiment</span><span class="spec-line">Loading model details</span></div>
     </section>
 
@@ -45,11 +45,10 @@
 
         <aside class="prediction-panel">
           <div class="panel-topline"><span class="eyebrow">02 / TOP EIGHT GUESSES</span><span class="small-cross" aria-hidden="true">↗</span></div>
-          <h2>The model’s next guess.</h2><p class="panel-description">The next-token predictions after the full prompt.</p>
+          <h2>The model’s next guess.</h2>
           <div class="prediction-lead"><span class="small-label">MOST LIKELY NEXT TOKEN</span><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
           <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
           <div class="history-panel"><div class="history-title"><div><span class="small-label">PROBABILITY OF OUR COMPLETION</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button><p class="history-note">Click the chart to jump. Dots are equally spaced checkpoints; training gaps vary. This completion’s probability is not an accuracy score.</p></div>
-          <div class="reading-note"><span class="note-symbol" aria-hidden="true">✳</span><p><strong>Attention is a clue, not a thought.</strong> These weights show how a head mixes information between tokens. They don’t fully explain the model’s answer.</p></div>
         </aside>
       </section>
 
@@ -66,7 +65,7 @@
         <div class="timeline-track"><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint" aria-describedby="samplingNote"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div>
         <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Use ← → to travel · every frame is recorded</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
       </section>
-      <footer class="page-footer"><p>Same architecture. Same prompt. Different moments in training.</p><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>
+      <footer class="page-footer"><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>
     </div>
   </main>
 
