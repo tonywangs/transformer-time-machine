@@ -74,3 +74,5 @@ a local replay transport: model switching, checkpoint preservation, cached
 revisits, failure labeling, all 24 layers, 32-token Flow/Matrix, light/dark themes,
 1100×620 with no page scrolling, and 390px mobile with no horizontal overflow.
 The replay transport is test-only and is not deployed.
+
+Production verification: the browser completed and exported a new Pythia 1B run through Vercel and Modal. All 38 frames exactly matched the operator run for token probabilities, attention, and concentration. See [the production verification record](model-production-verification.json).

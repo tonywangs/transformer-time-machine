@@ -1,0 +1,16 @@
+{
+  "source": "Production browser export through Vercel /api/analyze and authenticated Modal GPU inference",
+  "deployment_commit": "4aac5f9fd9003d270f856a7321af67060fb28ec1",
+  "model": "EleutherAI/pythia-1b-deduped",
+  "prompt": "The quick brown fox jumps over the",
+  "tokens": 7,
+  "frames": 38,
+  "inference_seconds": 124.822,
+  "all_observation_values_exactly_match_operator_run": true,
+  "record_sha256": "d32ea0de7bd5ca7f796b3be6521ffd3e82f02235e2a7379f58aa0311e09513cd",
+  "final_top_token": {
+    "id": 22658,
+    "token": " lazy",
+    "probability": 0.9865568280220032
+  }
+}
