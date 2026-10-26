@@ -109,6 +109,9 @@ test('playhead moves continuously while model observations remain discrete', h =
   for (let i = 1; i <= 5; i += 1) {
     h.tick(200);
     near(h.transport.position, i / 6);
+    const chartX = 9 + (i / 6) / 37 * (640 - 18);
+    near(h.element('historyPlayhead').attributes.x1, chartX);
+    near(h.element('historyPlayhead').attributes.x2, chartX);
     assert.equal(h.state.frame, 0);
     assert.equal(h.renderedFrames.length, 0);
   }

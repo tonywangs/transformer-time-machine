@@ -588,8 +588,9 @@ function renderHistory() {
   const points = values.map((p, i) => `${x(i)},${y(p)}`).join(' ');
   const currentX = x(state.frame);
   const currentY = y(values[state.frame]);
-  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="${palette.historyGrid}"/><line x1="9" y1="${middle}" x2="${right}" y2="${middle}" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,${bottom} ${points} ${right},${bottom}" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 1.35}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="${bottom}" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="3" fill="${palette.history}" stroke="${palette.background}" stroke-width="1.3"/>`);
+  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="${palette.historyGrid}"/><line x1="9" y1="${middle}" x2="${right}" y2="${middle}" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,${bottom} ${points} ${right},${bottom}" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 1.35}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line id="historyPlayhead" x1="${currentX}" y1="18" x2="${currentX}" y2="${bottom}" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="3" fill="${palette.history}" stroke="${palette.background}" stroke-width="1.3"/>`);
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
+  paintPlayhead();
   $('historyStart').textContent = `${compactStep(state.data.checkpoints[0].step)}`;
   $('historyEnd').textContent = `${compactStep(state.data.checkpoints.at(-1).step)}`;
   const peakIndex = values.indexOf(Math.max(...values));
@@ -617,6 +618,12 @@ function paintPlayhead() {
   const progress = position / Math.max(1, (state.data?.checkpoints.length || 1) - 1);
   $('timelineRail').style.setProperty('--playhead', `${progress * 100}%`);
   $('timelineRail').style.setProperty('--playhead-scale', progress);
+  const historyPlayhead = $('historyPlayhead');
+  if (historyPlayhead) {
+    const x = 9 + progress * (Math.max(100, $('probabilityHistory').clientWidth || 320) - 18);
+    historyPlayhead.setAttribute('x1', x);
+    historyPlayhead.setAttribute('x2', x);
+  }
 }
 function cancelTransport() {
   cancelAnimationFrame(transport.raf);
