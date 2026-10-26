@@ -476,11 +476,12 @@ function renderFlow() {
 }
 
 let matrixLayout = null;
+let matrixAnimation = null;
+let matrixDisplay = null;
 function renderMatrix() {
   const canvas = $('attentionMatrix');
-  const snapshot = `${state.scene}:${state.frame}:${state.layer}:${state.head}:${state.query}`;
-  if (canvas.dataset.snapshot && canvas.dataset.snapshot !== snapshot) settle(canvas, [{ opacity: .6 }, { opacity: 1 }], 180);
-  canvas.dataset.snapshot = snapshot;
+  cancelAnimationFrame(matrixAnimation);
+  matrixAnimation = null;
   const wrapper = $('matrixWrap');
   const size = Math.min(wrapper.clientHeight || 226, Math.max(80, wrapper.clientWidth - 60));
   const n = scene().tokens.length;
@@ -490,16 +491,23 @@ function renderMatrix() {
   const cell = gridSize / n;
   const width = gridSize + left + 50;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = width * dpr;
-  canvas.height = size * dpr;
+  if (canvas.width !== Math.floor(width * dpr)) canvas.width = width * dpr;
+  if (canvas.height !== Math.floor(size * dpr)) canvas.height = size * dpr;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${size}px`;
   const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, width, size);
-  const matrix = frame().attention[state.layer][state.head];
-  matrix.forEach((row, q) => row.forEach((value, k) => {
-    ctx.fillStyle = k > q ? palette.matrixMask : weightColor(Math.sqrt(value));
+  const target = frame().attention[state.layer][state.head].map(row => row.map(value => Math.sqrt(value)));
+  const from = matrixDisplay?.length === n ? matrixDisplay : target;
+  const changing = from.some((row, q) => row.some((value, k) => Math.abs(value - target[q][k]) > .00001));
+  const start = performance.now();
+  function paint(now) {
+    const progress = motionPreference.matches || !changing ? 1 : Math.min(1, (now - start) / 220);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    matrixDisplay = target.map((row, q) => row.map((value, k) => from[q][k] + (value - from[q][k]) * eased));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, size);
+    matrixDisplay.forEach((row, q) => row.forEach((value, k) => {
+    ctx.fillStyle = k > q ? palette.matrixMask : weightColor(value);
     ctx.fillRect(left + k * cell, top + q * cell, Math.max(1, cell - .7), Math.max(1, cell - .7));
   }));
   ctx.strokeStyle = palette.selected;
@@ -516,6 +524,9 @@ function renderMatrix() {
   ctx.fillStyle = palette.axis; ctx.textAlign = 'left';
   ctx.fillText('FUTURE', left + gridSize - 28, top + 14);
   ctx.fillText('MASKED', left + gridSize - 28, top + 25);
+    matrixAnimation = progress < 1 ? requestAnimationFrame(paint) : null;
+  }
+  paint(start);
   matrixLayout = { left, top, cell, n, width, height: size };
   $('matrixTip').hidden = true;
 }

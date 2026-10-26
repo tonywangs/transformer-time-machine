@@ -1,0 +1,25 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const vm=require('node:vm');
+const fs=require('node:fs');
+test('matrix colors blend continuously, including interrupted transitions and reduced motion',()=>{
+  const source=fs.readFileSync('dist/app.js','utf8');
+  let now=0, queued, weights=[[1,0],[.25,.75]], reduced=false;
+  let resets=0;
+  const ctx=new Proxy({}, {get:(_,key)=>()=>{},set:()=>true});
+  const canvas={style:{},getContext:()=>ctx,_width:0,_height:0};
+  for(const key of ['width','height']) Object.defineProperty(canvas,key,{get(){return this['_'+key]},set(v){resets++;this['_'+key]=Math.floor(v)}});
+  const elements={attentionMatrix:canvas,matrixWrap:{clientHeight:200,clientWidth:300},matrixTip:{hidden:false}};
+  const sandbox={$:id=>elements[id],window:{devicePixelRatio:1},performance:{now:()=>now},cancelAnimationFrame:()=>{queued=null},requestAnimationFrame:fn=>{queued=fn;return 1},frame:()=>({attention:[[weights]]}),scene:()=>({tokens:['a','b']}),state:{layer:0,head:0,query:1},motionPreference:{get matches(){return reduced}},palette:{},weightColor:p=>p};
+  vm.createContext(sandbox);
+  vm.runInContext(source.slice(source.indexOf('let matrixLayout = null;'),source.indexOf('function renderPredictions()')),sandbox);
+  const render=()=>vm.runInContext('renderMatrix()',sandbox);
+  const value=()=>vm.runInContext('matrixDisplay[1][0]',sandbox);
+  render(); assert.equal(value(),.5); const initialResets=resets;
+  weights=[[1,0],[1,0]];render();assert.equal(value(),.5);assert.equal(resets,initialResets);
+  const tick=t=>{now=t;const callback=queued;queued=null;callback(now)};
+  tick(110);assert.ok(value()>.5&&value()<1);
+  const interrupted=value();weights=[[1,0],[0,1]];render();assert.equal(value(),interrupted);
+  tick(330);assert.equal(value(),0);assert.equal(queued,null);
+  reduced=true;weights=[[1,0],[1,0]];render();assert.equal(value(),1);
+});
