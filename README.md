@@ -2,13 +2,21 @@
 
 [Open the live demo](https://transformer-time-machine.vercel.app/)
 
-An interactive, recorded-data view of Pythia's training. Scrub checkpoints while the same prompt stays fixed; inspect actual attention and next-token probabilities.
+An interactive view of Pythia's training. Choose an example or type your own short prompt, then scrub checkpoints to inspect actual attention and next-token probabilities.
 
 The dataset covers **Pythia-70M-deduped**, 38 checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
 
 The factual example completes “The capital of France is the city of” with “ Paris”. It was selected for a visible success through a [documented candidate screen](docs/fact-candidate-screen.json): 16 initial prompts, then eight Paris-format variants. The original “The capital of France is” did not put Paris first at any sampled checkpoint. This wording change illustrates prompt sensitivity; it is not a general factual-accuracy result.
 
 The observations are extracted and verified. See the [verification record](docs/verification.md), including independent checkpoint replays.
+
+## Your own prompt
+
+Choose **Your prompt**, type an unfinished phrase, and press **Analyze**. A bounded Modal CPU worker evaluates the exact input at all 38 immutable checkpoints. Once the full run arrives, the same timeline, attention heads, Flow/Matrix views, and playback work on your observations. Nothing is generated while typing, and an incomplete run never replaces the previous result.
+
+Custom prompts support up to 32 tokenizer tokens and 400 characters; overlong prompts are rejected rather than truncated. The history tracks the **final checkpoint's most likely next token** across training. This is not a correct-answer label. Pythia is a small pretrained completion model, not a chat assistant.
+
+The first run after inactivity may take a minute. Cancel stops the job; failures leave existing examples usable. About the data downloads the currently displayed custom experiment, including its prompt, tokens, probabilities, attention, runtime metadata, and immutable checkpoint sources. Custom observations stay in browser memory for this visit. Server access expires after an hour; expired records are cleaned on later requests and otherwise follow Modal Dict retention. See [the service contract and limits](docs/custom-api.md) and [the Vercel proxy setup](docs/custom-prompt-proxy.md).
 
 ## Preview
 
@@ -18,9 +26,9 @@ From this directory:
 python3 -m http.server 8765 --bind 127.0.0.1 --directory dist
 ```
 
-Run `node scripts/test-playback.cjs` for deterministic playback regression checks.
+Run `node scripts/test-playback.cjs`, `node scripts/test-custom-runner.cjs`, and `node scripts/test-proxy.cjs` for playback, experiment lifecycle, and server boundary checks. `python scripts/test_custom_service.py` tests the backend without account access (the tensor checks also need PyTorch).
 
-Open `http://127.0.0.1:8765`. The site loads `dist/data/traces.json`; missing data produces an error, not synthetic values. No JavaScript build or npm install is required.
+Open `http://127.0.0.1:8765`. This static preview loads the three recorded examples; custom inference needs the configured `/api/analyze` Vercel function. Missing data or an unavailable API produces an error, not synthetic values. No JavaScript build or npm install is required.
 
 ## Reproduce the observations
 
@@ -77,9 +85,9 @@ See [the trace contract](docs/data-contract.md) for tensor axes and semantics.
 
 ## Deploy to Vercel
 
-This is a static site. `vercel.json` selects the Other framework preset, skips installation and builds, and publishes `dist/`. Import this GitHub repository into Vercel, or run `vercel --prod` from its root. No environment variables or secrets are required. The connected Vercel project deploys changes pushed to `main`.
+`vercel.json` selects the Other framework preset, skips installation and builds, publishes `dist/`, and enables the Node function in `api/analyze.js`. Import this GitHub repository into Vercel, or run `vercel --prod` from its root. The connected Vercel project deploys changes pushed to `main`.
 
-Only files under `dist/` are served. Model extraction is a separate Python workflow and never runs during deployment.
+The recorded examples need no credentials. Custom prompts require the separately deployed `scripts/serve_custom.py` Modal service and server-only `TTM_MODAL_URL` and `TTM_API_KEY` variables. The same key must be in Modal's `transformer-time-machine-api` secret. Never expose the key to browser code. The service scales to zero, permits one worker, limits job duration and admission, and has a fixed expiry. Model weights are baked into its private worker image, never Vercel assets. See the setup documents above.
 
 ## Source and attribution
 

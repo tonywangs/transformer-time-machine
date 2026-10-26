@@ -17,6 +17,7 @@
     })();
   </script>
   <link rel="stylesheet" href="style.css">
+  <script src="custom-runner.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -42,6 +43,13 @@
         <section class="prompt-panel" aria-label="Prompt and completion">
           <div class="panel-topline"><span class="eyebrow">01 / THE PROMPT</span></div>
           <div class="scene-heading"><h2 id="sceneTitle"></h2><p id="sceneDescription"></p></div>
+          <form id="customPromptForm" class="custom-prompt-form" hidden aria-busy="false">
+            <label class="custom-prompt-label" for="customPromptInput">Your prompt</label>
+            <textarea id="customPromptInput" name="prompt" rows="3" maxlength="400" aria-label="Your prompt" aria-describedby="customPromptHint customPromptStatus" placeholder="The best thing about science is" spellcheck="false" required></textarea>
+            <p id="customPromptHint" class="custom-prompt-hint">Up to 32 tokens · 38 checkpoints</p>
+            <div class="custom-prompt-actions"><button id="analyzePromptButton" class="primary-button" type="submit">Analyze <span aria-hidden="true">↗</span></button><button id="cancelPromptButton" class="text-button" type="button" hidden>Cancel</button></div>
+            <p id="customPromptStatus" class="custom-prompt-status" role="status" aria-live="polite" aria-atomic="true"></p>
+          </form>
           <div class="prompt-line"><p id="promptText"></p><span class="next-token-gap" aria-label="Next token to predict">→ ?</span></div>
           <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div><div><span class="small-label">MODEL’S TOP GUESS HERE</span><strong id="exampleGuess"></strong></div></div><p id="exampleObservation"></p></div>
         </section>
@@ -49,7 +57,7 @@
         <div class="attention-panel">
           <div class="panel-topline"><span class="eyebrow">02 / ATTENTION</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
           <div class="attention-toolbar"><div><span class="small-label">INSPECTING</span><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label">LAST-TOKEN FOCUS</span><span id="focusValue"></span></div></div>
-          <div class="visualization" id="visualization"><svg id="flowGraph" role="img" aria-label="Attention from the selected token to earlier tokens"></svg><div class="matrix-wrap" id="matrixWrap" hidden><canvas id="attentionMatrix" aria-label="Attention matrix. Rows are query tokens and columns are key tokens." role="img"></canvas><div id="matrixTip" class="matrix-tip" hidden></div></div></div>
+          <div class="visualization" id="visualization"><div class="custom-pending-note" id="customPendingNote" hidden>Previous result · new prompt is being analyzed</div><svg id="flowGraph" role="img" aria-label="Attention from the selected token to earlier tokens"></svg><div class="matrix-wrap" id="matrixWrap" hidden><canvas id="attentionMatrix" aria-label="Attention matrix. Rows are query tokens and columns are key tokens." role="img"></canvas><div id="matrixTip" class="matrix-tip" hidden></div></div></div>
           <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High attention</span></div>
           <div class="token-select"><span class="small-label">QUERY TOKEN <span class="quiet">/ click to inspect</span></span><div id="queryTokens" class="query-tokens" aria-label="Select query token"></div></div>
 

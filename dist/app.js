@@ -1,4 +1,4 @@
-/* Recorded observations only. No model outputs are generated in this client. */
+/* Real observations only: bundled examples or completed server-side forward passes. */
 'use strict';
 
 const $ = (id) => document.getElementById(id);
@@ -24,6 +24,7 @@ const palettes = {
 };
 let palette = palettes[document.documentElement.dataset.theme] || palettes.light;
 const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, playbackSpeed: 1 };
+const custom = { selected: false, sceneIndex: null, busy: false, status: '', statusKind: '' };
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const transport = { position: 0, raf: null, lastTime: null, seek: null };
 const motionAnimations = new WeakMap();
@@ -151,6 +152,113 @@ function validateData(data) {
   });
 }
 
+function renderCustomUI() {
+  const panel = document.querySelector('.prompt-panel');
+  $('customPromptForm').hidden = !custom.selected;
+  if (custom.selected) panel.dataset.customMode = scene().custom ? 'result' : 'draft';
+  else delete panel.dataset.customMode;
+  $('customPromptForm').setAttribute('aria-busy', String(custom.busy));
+  $('customPromptInput').readOnly = custom.busy;
+  $('analyzePromptButton').disabled = custom.busy || !$('customPromptInput').value.trim();
+  $('analyzePromptButton').textContent = custom.busy ? 'Analyzing…' : 'Analyze';
+  $('cancelPromptButton').hidden = !custom.busy;
+  $('customPromptStatus').textContent = custom.status;
+  $('customPromptStatus').dataset.state = custom.statusKind;
+  const draftDiffers = custom.selected && (!scene().custom || $('customPromptInput').value !== scene().prompt);
+  $('customPendingNote').hidden = !custom.selected || (!custom.busy && !draftDiffers);
+  $('customPendingNote').textContent = scene().custom
+    ? custom.busy ? 'Previous result · analysis in progress' : 'Draft changed · Analyze to update'
+    : `Showing example: ${exampleCopy[scene().id]?.tab || scene().title}`;
+  $('customPendingNote').title = `Currently displayed prompt: ${scene().prompt}`;
+  $('customPendingNote').setAttribute('aria-label', `${$('customPendingNote').textContent}. Currently displayed prompt: ${scene().prompt}`);
+}
+
+async function experimentRequest(body) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 35000);
+  try {
+    const response = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal, cache: 'no-store' });
+    let result;
+    try { result = await response.json(); } catch (_) { throw new Error('The experiment server is unavailable. Please try again.'); }
+    if (!response.ok) {
+      const error = new Error(typeof result.error === 'string' ? result.error : 'The experiment could not be started. Please try again.');
+      error.permanent = response.status >= 400 && response.status < 500;
+      throw error;
+    }
+    return result;
+  } catch (error) {
+    if (error.name === 'AbortError') throw new Error('The experiment server is taking too long to respond.');
+    throw error;
+  } finally { clearTimeout(timeout); }
+}
+
+const experiment = new PromptExperiment({
+  request: experimentRequest,
+  onProgress(result) {
+    custom.busy = true;
+    custom.statusKind = '';
+    const completed = Math.min(result.total, Math.max(0, result.completed || 0));
+    custom.status = result.status === 'starting' ? 'Starting your experiment…'
+      : result.status === 'queued' ? 'Waking the model… first runs can take a minute.'
+      : completed === result.total ? 'Receiving the observations…'
+      : `${completed} / ${result.total} checkpoints measured`;
+    renderCustomUI();
+  },
+  onComplete(result) {
+    // Validate a full, dense record before making any of it selectable.
+    validateData({ ...state.data, scenes: [result] });
+    const previousWasCustom = custom.selected;
+    custom.busy = false;
+    custom.statusKind = 'success';
+    custom.status = `${result.tokens.length} tokens · all ${result.frames.length} checkpoints ready`;
+    if (custom.sceneIndex === null) {
+      custom.sceneIndex = state.data.scenes.length;
+      state.data.scenes.push(result);
+    } else state.data.scenes[custom.sceneIndex] = result;
+    if (previousWasCustom) {
+      pause();
+      state.scene = custom.sceneIndex;
+      state.frame = result.frames.length - 1;
+      transport.position = state.frame;
+      state.query = result.tokens.length - 1;
+      const focus = result.frames.at(-1).concentration[state.layer];
+      state.head = focus.indexOf(Math.max(...focus));
+      render();
+      settle($('visualization'));
+    } else renderCustomUI();
+    $('scene-custom').title = 'Your experiment is ready';
+    $('screenReaderStatus').textContent = 'Your prompt is ready across all 38 checkpoints.';
+  },
+  onError(message) {
+    custom.busy = false;
+    custom.statusKind = 'error';
+    custom.status = message;
+    renderCustomUI();
+  }
+});
+
+$('customPromptForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!state.data || custom.busy) return;
+  pause();
+  custom.busy = true;
+  experiment.start($('customPromptInput').value, state.data.checkpoints);
+});
+$('customPromptInput').addEventListener('input', () => {
+  if (!custom.busy) { custom.status = ''; custom.statusKind = ''; }
+  renderCustomUI();
+});
+$('cancelPromptButton').addEventListener('click', () => {
+  experiment.cancel();
+  custom.busy = false;
+  custom.status = 'Cancelled. Your previous observations are still here.';
+  custom.statusKind = '';
+  renderCustomUI();
+});
+window.addEventListener('pagehide', () => {
+  if (experiment.job) navigator.sendBeacon('/api/analyze', new Blob([JSON.stringify({ action: 'cancel', job_id: experiment.job })], { type: 'application/json' }));
+});
+
 async function loadData() {
   pause();
   $('loadingState').hidden = false;
@@ -189,7 +297,7 @@ async function loadData() {
 function initDataUI() {
   const m = state.data.model;
   $('modelSpec').innerHTML = `<span class="spec-name">${esc(m.label || m.id)}</span><span class="spec-line">${esc(typeof m.parameters === 'number' ? `${Math.round(m.parameters / 1e6)}M parameters` : m.parameters)} · ${m.layers} layers · ${m.heads} heads</span>`;
-  $('sceneTabs').innerHTML = state.data.scenes.map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${i === state.scene}" aria-controls="instrument" data-scene="${i}"><span class="tab-number">0${i + 1}</span>${esc(exampleCopy[s.id]?.tab || s.title)}</button>`).join('');
+  $('sceneTabs').innerHTML = state.data.scenes.filter((s) => !s.custom).map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${!custom.selected && i === state.scene}" aria-controls="instrument" data-scene="${i}"><span class="tab-number">0${i + 1}</span>${esc(exampleCopy[s.id]?.tab || s.title)}</button>`).join('') + '<button class="scene-tab" id="scene-custom" role="tab" aria-selected="false" aria-controls="instrument" data-custom="true"><span class="tab-number">04</span>Your prompt</button>';
   $('checkpointSlider').max = state.data.checkpoints.length - 1;
   const tickStride = Math.max(1, Math.ceil((state.data.checkpoints.length - 1) / 16));
   $('timelineTicks').innerHTML = state.data.checkpoints.map((_, i, checkpoints) => `<i class="${i % tickStride === 0 || i === checkpoints.length - 1 ? 'major-tick' : 'minor-tick'}"></i>`).join('');
@@ -211,10 +319,15 @@ function render() {
   renderExample(s, f);
   $('headLabel').textContent = `Layer ${state.layer + 1} / Head ${state.head + 1}`;
   $('focusValue').textContent = `${(f.concentration[state.layer][state.head] * 100).toFixed(1)}%`;
-  document.querySelectorAll('.scene-tab').forEach((b) => { b.setAttribute('aria-selected', String(Number(b.dataset.scene) === state.scene)); b.tabIndex = Number(b.dataset.scene) === state.scene ? 0 : -1; });
+  document.querySelectorAll('.scene-tab').forEach((b) => {
+    const selected = b.dataset.custom ? custom.selected : !custom.selected && Number(b.dataset.scene) === state.scene;
+    b.setAttribute('aria-selected', String(selected)); b.tabIndex = selected ? 0 : -1;
+  });
+  renderCustomUI();
   if ($('queryTokens').dataset.scene !== s.id) {
     $('queryTokens').innerHTML = s.tokens.map((t, i) => `<button id="query-${i}" class="query-token" data-query="${i}" title="Token ${i + 1}: ${esc(t)}" aria-label="Inspect token ${i + 1}: ${esc(t)}"><span class="token-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(displayToken(t))}</button>`).join('');
     $('queryTokens').dataset.scene = s.id;
+    $('queryTokens').classList.toggle('has-many-tokens', s.tokens.length > 12);
   }
   $('queryTokens').querySelectorAll('button').forEach((button, i) => button.setAttribute('aria-pressed', String(state.query === i)));
   renderHeads();
@@ -233,17 +346,17 @@ function renderExample(s, f) {
   if (s.id === 'echo') {
     $('promptText').innerHTML = `<span class="sequence-line">${esc(s.tokens.slice(0, 6).join(''))}</span><span class="sequence-line">${esc(s.tokens.slice(6).join(''))}</span>`;
   } else $('promptText').textContent = s.prompt;
-  $('referenceLabel').textContent = copy?.reference || 'Completion to track';
-  $('referenceCompletion').textContent = s.target_label.trim();
+  $('referenceLabel').textContent = s.custom ? 'Final checkpoint’s top guess' : copy?.reference || 'Completion to track';
+  $('referenceCompletion').textContent = s.target_label.trim() || displayToken(s.target_label);
   const top = f.top_tokens[0];
   updateReadout('exampleGuess', `“${top.token.trim() || displayToken(top.token)}” · ${percent(top.probability)}`);
   const rank = f.top_tokens.findIndex((t) => s.target_token_ids.includes(t.id));
-  const target = s.target_label.trim();
+  const target = s.target_label.trim() || displayToken(s.target_label);
   const snapshot = rank === 0
     ? `At step ${number.format(f.step)}, “${target}” is the top guess (${percent(f.target_probability)}).`
     : `At step ${number.format(f.step)}, “${target}” gets ${percent(f.target_probability)}${rank < 0 ? ' and is outside the top eight guesses' : ` and ranks #${rank + 1}`}.`;
   const wins = s.frames.filter((item) => s.target_token_ids.includes(item.top_tokens[0].id)).length;
-  const note = s.id === 'echo' && wins === 0
+  const note = s.custom ? 'Tracked across training; not a correctness score.' : s.id === 'echo' && wins === 0
     ? `None of these ${s.frames.length} checkpoints chooses “${target}” as its top next token. This example shows an unreliable continuation.`
     : s.id === 'capital'
       ? 'Watch how its rank changes across the recorded checkpoints.'
@@ -283,10 +396,16 @@ function renderFlow() {
   const row = frame().attention[state.layer][state.head][state.query];
   const svg = $('flowGraph');
   const available = Math.max(1, $('visualization').clientWidth);
-  const widths = s.tokens.map((t) => Math.max(34, Math.min(110, displayToken(t).length * 6.2 + 12)));
+  const height = Math.max(100, $('visualization').clientHeight || 226);
+  // Dense prompts use numbered nodes; the query strip and tooltips retain every exact token.
+  const widest = Math.max(...s.tokens.map((t) => Math.max(34, Math.min(110, displayToken(t).length * 6.2 + 12))));
+  const potentialSpacing = (available - Math.min(widest + 16, available / 2)) / Math.max(1, s.tokens.length - 1);
+  const textBands = Math.ceil((widest + 4) / Math.max(1, potentialSpacing));
+  const numbered = s.tokens.length > 12 || textBands > Math.max(1, Math.floor((height - 65) / 25));
+  const labels = s.tokens.map((t, i) => numbered ? String(i + 1) : displayToken(t).length > 15 ? `${displayToken(t).slice(0, 14)}…` : displayToken(t));
+  const widths = labels.map((label) => Math.max(numbered ? 21 : 34, Math.min(110, label.length * 6.2 + 12)));
   const natural = widths.reduce((a, b) => a + b, 0) + (s.tokens.length - 1) * 9 + 26;
   const width = available;
-  const height = Math.max(100, $('visualization').clientHeight || 226);
   const compact = natural > width;
   const padding = Math.min(Math.max(...widths) / 2 + 8, width / 4);
   const spacing = (width - padding * 2) / Math.max(1, s.tokens.length - 1);
@@ -323,7 +442,7 @@ function renderFlow() {
     const w = widths[i];
     const labelY = labelTop + (i % bands) * labelStride;
     const color = future ? palette.masked : weightColor(Math.sqrt(row[i] || 0), .04);
-    content += `<g class="token-node" data-query="${i}" tabindex="0" role="button" aria-label="Query token ${i + 1}: ${esc(s.tokens[i])}" aria-pressed="${selected}"><circle cx="${x}" cy="${baseline}" r="${future ? 2 : palette.nodeBase + palette.nodeRadius * Math.sqrt(row[i] || 0)}" fill="${future ? palette.maskedDot : palette.flow}"/><line x1="${x}" y1="${baseline + 6}" x2="${x}" y2="${labelY - 3}" stroke="${palette.stem}" stroke-opacity=".5"/><rect x="${x - w / 2}" y="${labelY}" width="${w}" height="${labelHeight}" rx="3" fill="${color}" stroke="${selected ? palette.selected : future ? palette.maskedBorder : palette.stem}" stroke-width="${selected ? 1.5 : 1}"/><text x="${x}" y="${labelY + labelHeight / 2 + 3}" text-anchor="middle" fill="${future ? palette.maskedText : tokenInk(color)}" font-size="10">${esc(displayToken(s.tokens[i]))}</text><text x="${x}" y="${height - 2}" text-anchor="middle" font-size="7" fill="${selected ? palette.selected : palette.axis}">${selected ? 'QUERY' : future ? 'FUTURE' : String(i + 1).padStart(2, '0')}</text></g>`;
+    content += `<g class="token-node" data-query="${i}" tabindex="0" role="button" aria-label="Query token ${i + 1}: ${esc(s.tokens[i])}" aria-pressed="${selected}"><title>${i + 1}: ${esc(displayToken(s.tokens[i]))}</title><circle cx="${x}" cy="${baseline}" r="${future ? 2 : palette.nodeBase + palette.nodeRadius * Math.sqrt(row[i] || 0)}" fill="${future ? palette.maskedDot : palette.flow}"/><line x1="${x}" y1="${baseline + 6}" x2="${x}" y2="${labelY - 3}" stroke="${palette.stem}" stroke-opacity=".5"/><rect x="${x - w / 2}" y="${labelY}" width="${w}" height="${labelHeight}" rx="3" fill="${color}" stroke="${selected ? palette.selected : future ? palette.maskedBorder : palette.stem}" stroke-width="${selected ? 1.5 : 1}"/><text x="${x}" y="${labelY + labelHeight / 2 + 3}" text-anchor="middle" fill="${future ? palette.maskedText : tokenInk(color)}" font-size="10">${esc(labels[i])}</text><text x="${x}" y="${height - 2}" text-anchor="middle" font-size="7" fill="${selected ? palette.selected : palette.axis}">${selected ? (numbered ? '↑' : 'QUERY') : numbered ? '' : future ? 'FUTURE' : String(i + 1).padStart(2, '0')}</text></g>`;
   });
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.style.minWidth = '0';
@@ -541,8 +660,10 @@ motionPreference.addEventListener('change', () => {
   paintPlayhead();
 });
 
+let observationDownload = null;
 function buildProvenance() {
-  const { model: m, provenance: p, checkpoints } = state.data;
+  const { model: m, checkpoints } = state.data;
+  const p = scene().custom ? scene().provenance : state.data.provenance;
   const notes = (p.notes || []).map((note) => `<li>${esc(note)}</li>`).join('');
   $('provenanceContent').innerHTML = `<section class="provenance-section"><h3>MODEL</h3><dl><dt>Repository</dt><dd><a href="${esc(safeUrl(m.source_url))}" target="_blank" rel="noopener noreferrer">${esc(m.id)} ↗</a></dd><dt>Architecture</dt><dd>${m.layers} layers · ${m.heads} heads · ${esc(m.hidden_size)} hidden dimensions</dd><dt>Parameters</dt><dd>${esc(typeof m.parameters === 'number' ? number.format(m.parameters) : m.parameters)}</dd></dl></section><section class="provenance-section"><h3>HOW TO READ THIS</h3><p>Flow curves and matrix cells display attention weights from a recorded forward pass. The head grid summarizes those weights as concentration. A query can attend to itself and earlier tokens; future tokens are masked. Layer, head, and token labels start at 1.</p><p>The head grid always measures focus for the final prompt token, even when another query is selected. Focus is one minus normalized attention entropy—not a measure of head importance. Probability bars are scaled relative to the top token; the printed percentages are absolute probabilities. History and timeline positions are evenly spaced observations, not equal amounts of training. The playhead glides between checkpoints; printed values update only when a recorded checkpoint is reached. Bar lengths and attention colors briefly transition for readability.</p><p>The factual sentence was selected from a <a href="https://github.com/tonywangs/transformer-time-machine/blob/main/docs/fact-candidate-screen.json" target="_blank" rel="noopener noreferrer">documented prompt screen ↗</a>. The original “The capital of France is” never put Paris first in these checkpoints; the city-name wording gives different predictions. This curated example is not a general knowledge benchmark.</p><p>“·” marks a space, “↵” a newline, and “⇥” a tab. Tokens can be word fragments. Attention alone does not establish a causal explanation of an output.</p></section><section class="provenance-section"><h3>EXTRACTION RECORD</h3><dl><dt>Extracted</dt><dd>${esc(p.extracted_at)}</dd><dt>Device / precision</dt><dd>${esc(p.device)} / ${esc(p.dtype)}</dd><dt>PyTorch</dt><dd>${esc(p.torch_version)}</dd><dt>Transformers</dt><dd>${esc(p.transformers_version)}</dd><dt>Extractor SHA-256</dt><dd>${esc(p.extractor_sha256)}</dd></dl>${notes ? `<ul>${notes}</ul>` : ''}</section><section class="provenance-section"><h3>IMMUTABLE CHECKPOINT SOURCES</h3><div class="checkpoint-list">${checkpoints.map((c) => `<div class="checkpoint-source"><span>${number.format(c.step)}</span><a href="${esc(safeUrl(c.source_url))}" target="_blank" rel="noopener noreferrer" title="${esc(c.commit_sha)}">${esc(c.revision)} · ${esc(c.commit_sha.slice(0, 12))} ↗</a></div>`).join('')}</div></section>`;
 }
@@ -551,25 +672,42 @@ function openProvenance() {
   if (!state.data) {
     $('provenanceContent').innerHTML = '<p class="quiet">The model’s provenance will appear here once its recorded observations have loaded.</p>';
   }
+  if (state.data) {
+    buildProvenance();
+    const link = document.querySelector('.dialog-actions a');
+    if (observationDownload) URL.revokeObjectURL(observationDownload);
+    observationDownload = null;
+    if (scene().custom) {
+      const record = { schema_version: 1, model: state.data.model, checkpoints: state.data.checkpoints, provenance: scene().provenance, scenes: [scene()] };
+      observationDownload = URL.createObjectURL(new Blob([JSON.stringify(record)], { type: 'application/json' }));
+    }
+    link.href = observationDownload || 'data/traces.json';
+    link.download = scene().custom ? 'my-prompt-observations.json' : 'transformer-time-machine-traces.json';
+  }
   pause();
   $('provenanceDialog').showModal();
 }
 
 $('sceneTabs').addEventListener('click', (event) => {
-  const button = event.target.closest('[data-scene]');
+  const button = event.target.closest('[data-scene],[data-custom]');
   if (!button) return;
   pause();
-  if (state.scene === Number(button.dataset.scene)) return;
-  state.scene = Number(button.dataset.scene);
+  custom.selected = Boolean(button.dataset.custom);
+  if (custom.selected) {
+    if (custom.sceneIndex !== null) state.scene = custom.sceneIndex;
+  } else state.scene = Number(button.dataset.scene);
   state.query = scene().tokens.length - 1;
   setFrame(state.frame);
   document.querySelectorAll('.prompt-panel,.prediction-panel,.visualization').forEach((panel) => settle(panel, undefined, 240));
+  if (custom.selected && custom.sceneIndex === null) $('customPromptInput').focus({ preventScroll: true });
 });
 $('sceneTabs').addEventListener('keydown', (event) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || !state.data) return;
   event.preventDefault(); event.stopPropagation();
-  let index = event.key === 'Home' ? 0 : event.key === 'End' ? state.data.scenes.length - 1 : (state.scene + (event.key === 'ArrowRight' ? 1 : -1) + state.data.scenes.length) % state.data.scenes.length;
-  $(`scene-${index}`).click(); $(`scene-${index}`).focus();
+  const tabs = [...$('sceneTabs').querySelectorAll('button')];
+  const current = tabs.indexOf(event.target.closest('button'));
+  const index = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+  tabs[index].click(); tabs[index].focus();
 });
 $('headGrid').addEventListener('click', (event) => {
   const button = event.target.closest('[data-layer]');

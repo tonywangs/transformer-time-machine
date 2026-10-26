@@ -3,5 +3,10 @@
   "framework": null,
   "buildCommand": "",
   "installCommand": "",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "functions": {
+    "api/analyze.js": {
+      "maxDuration": 60
+    }
+  }
 }

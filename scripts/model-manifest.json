@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "model": {
+    "id": "EleutherAI/pythia-70m-deduped",
+    "label": "pythia-70m-deduped",
+    "parameters": 70426624,
+    "layers": 6,
+    "heads": 8,
+    "hidden_size": 512,
+    "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped"
+  },
+  "tokenizer_commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+  "checkpoints": [
+    {
+      "step": 0,
+      "revision": "step0",
+      "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c913ae980de9355947d0bf73f9f10d580eb79301"
+    },
+    {
+      "step": 1,
+      "revision": "step1",
+      "commit_sha": "848a201ce294e935990bb51ebc33303e99e68d9a",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/848a201ce294e935990bb51ebc33303e99e68d9a"
+    },
+    {
+      "step": 2,
+      "revision": "step2",
+      "commit_sha": "c768e58a7272538eddcb9b61ff4ade3bdacffde0",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c768e58a7272538eddcb9b61ff4ade3bdacffde0"
+    },
+    {
+      "step": 4,
+      "revision": "step4",
+      "commit_sha": "8bfc5bfef2821a6a3171fd9a10daf0146544f7d5",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/8bfc5bfef2821a6a3171fd9a10daf0146544f7d5"
+    },
+    {
+      "step": 8,
+      "revision": "step8",
+      "commit_sha": "822f6ed830257d5b441e76af7473dfab5e62eb89",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/822f6ed830257d5b441e76af7473dfab5e62eb89"
+    },
+    {
+      "step": 16,
+      "revision": "step16",
+      "commit_sha": "0fa5dee90709dab5afa11bf0bccc4d33077028df",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/0fa5dee90709dab5afa11bf0bccc4d33077028df"
+    },
+    {
+      "step": 32,
+      "revision": "step32",
+      "commit_sha": "ed1aebc4a522472ab4d05fc86d8933ec2512ae56",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/ed1aebc4a522472ab4d05fc86d8933ec2512ae56"
+    },
+    {
+      "step": 64,
+      "revision": "step64",
+      "commit_sha": "667f52d8964a899fdd6a3ffc849c9baab40b1b04",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/667f52d8964a899fdd6a3ffc849c9baab40b1b04"
+    },
+    {
+      "step": 128,
+      "revision": "step128",
+      "commit_sha": "3e35d2c0fa0f58f1a1925a0a984b8293d3282c4c",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/3e35d2c0fa0f58f1a1925a0a984b8293d3282c4c"
+    },
+    {
+      "step": 256,
+      "revision": "step256",
+      "commit_sha": "bcc1ad8c88daf49cf9b2e812b66bb35f6a689734",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/bcc1ad8c88daf49cf9b2e812b66bb35f6a689734"
+    },
+    {
+      "step": 512,
+      "revision": "step512",
+      "commit_sha": "2d7e43cf2b420873c7d37e8c4b716980e802beaa",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/2d7e43cf2b420873c7d37e8c4b716980e802beaa"
+    },
+    {
+      "step": 1000,
+      "revision": "step1000",
+      "commit_sha": "66bac1f7ae4b7faa77c34ee6a50d41cd09579a88",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/66bac1f7ae4b7faa77c34ee6a50d41cd09579a88"
+    },
+    {
+      "step": 2000,
+      "revision": "step2000",
+      "commit_sha": "2393bd86ad71646d9c3486d42ce500b455732101",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/2393bd86ad71646d9c3486d42ce500b455732101"
+    },
+    {
+      "step": 3000,
+      "revision": "step3000",
+      "commit_sha": "12739b6409c77fab143337b487fadf0092981250",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/12739b6409c77fab143337b487fadf0092981250"
+    },
+    {
+      "step": 4000,
+      "revision": "step4000",
+      "commit_sha": "bc237540ffd28d4711cf7e7340109b0b83a86584",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/bc237540ffd28d4711cf7e7340109b0b83a86584"
+    },
+    {
+      "step": 5000,
+      "revision": "step5000",
+      "commit_sha": "dded41feea06c23ff3e04640e6aad2db57541e66",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/dded41feea06c23ff3e04640e6aad2db57541e66"
+    },
+    {
+      "step": 6000,
+      "revision": "step6000",
+      "commit_sha": "9a503353be21e58e4f99f4fcdac93846d6111e26",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/9a503353be21e58e4f99f4fcdac93846d6111e26"
+    },
+    {
+      "step": 7000,
+      "revision": "step7000",
+      "commit_sha": "bc4d01ade475265c5f0de3d2dcea779d7098f4a3",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/bc4d01ade475265c5f0de3d2dcea779d7098f4a3"
+    },
+    {
+      "step": 8000,
+      "revision": "step8000",
+      "commit_sha": "4598d7147359dbd639be7ff6147170a1ad9867b4",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/4598d7147359dbd639be7ff6147170a1ad9867b4"
+    },
+    {
+      "step": 9000,
+      "revision": "step9000",
+      "commit_sha": "960445dcfefbe7d41d88dfb9a8043dc629a4637a",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/960445dcfefbe7d41d88dfb9a8043dc629a4637a"
+    },
+    {
+      "step": 10000,
+      "revision": "step10000",
+      "commit_sha": "c890c8f6d8f86c36b2af66c3012a14ef1d35d3f3",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c890c8f6d8f86c36b2af66c3012a14ef1d35d3f3"
+    },
+    {
+      "step": 12000,
+      "revision": "step12000",
+      "commit_sha": "c29c2101e850ae26c8de9266870e98592c2dd83a",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c29c2101e850ae26c8de9266870e98592c2dd83a"
+    },
+    {
+      "step": 15000,
+      "revision": "step15000",
+      "commit_sha": "c093415bee44c38c268a2da9d0fd2b1e92637c17",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c093415bee44c38c268a2da9d0fd2b1e92637c17"
+    },
+    {
+      "step": 20000,
+      "revision": "step20000",
+      "commit_sha": "0033238d0da429c5e7682de70ec150832614269c",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/0033238d0da429c5e7682de70ec150832614269c"
+    },
+    {
+      "step": 25000,
+      "revision": "step25000",
+      "commit_sha": "27cdeb32277bdad8beefb33f02595a786174c232",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/27cdeb32277bdad8beefb33f02595a786174c232"
+    },
+    {
+      "step": 30000,
+      "revision": "step30000",
+      "commit_sha": "99a3b9276df1b106541f92e264d8ebfe157b885c",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/99a3b9276df1b106541f92e264d8ebfe157b885c"
+    },
+    {
+      "step": 40000,
+      "revision": "step40000",
+      "commit_sha": "24e7a0eec6367f5a8dae271e4edbdb1cb349797c",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/24e7a0eec6367f5a8dae271e4edbdb1cb349797c"
+    },
+    {
+      "step": 50000,
+      "revision": "step50000",
+      "commit_sha": "4ceae74815ab627f679bb2f12254f3df07dd17de",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/4ceae74815ab627f679bb2f12254f3df07dd17de"
+    },
+    {
+      "step": 60000,
+      "revision": "step60000",
+      "commit_sha": "160dd19c0e19a989a2405b828594dbce28fcb1a8",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/160dd19c0e19a989a2405b828594dbce28fcb1a8"
+    },
+    {
+      "step": 70000,
+      "revision": "step70000",
+      "commit_sha": "d740c5fdd31da1cc6d90de094b8940c88e837110",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/d740c5fdd31da1cc6d90de094b8940c88e837110"
+    },
+    {
+      "step": 80000,
+      "revision": "step80000",
+      "commit_sha": "ae5be6a76ec2b1277a2d45cea6ccc41f0b32994a",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/ae5be6a76ec2b1277a2d45cea6ccc41f0b32994a"
+    },
+    {
+      "step": 90000,
+      "revision": "step90000",
+      "commit_sha": "d3743322635a9cdd226657f9f0346447e9276c07",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/d3743322635a9cdd226657f9f0346447e9276c07"
+    },
+    {
+      "step": 100000,
+      "revision": "step100000",
+      "commit_sha": "231686882de4b3ecccc766582980d6ee327892ca",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/231686882de4b3ecccc766582980d6ee327892ca"
+    },
+    {
+      "step": 110000,
+      "revision": "step110000",
+      "commit_sha": "c9bc94f8a8c4714421650b0cea83ff834d5f7865",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/c9bc94f8a8c4714421650b0cea83ff834d5f7865"
+    },
+    {
+      "step": 120000,
+      "revision": "step120000",
+      "commit_sha": "a79fb5aa1672882fa09b351b47a5a68fe51ac337",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/a79fb5aa1672882fa09b351b47a5a68fe51ac337"
+    },
+    {
+      "step": 130000,
+      "revision": "step130000",
+      "commit_sha": "500120b52db0f9663acfa80ae49ba04c1d92e849",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/500120b52db0f9663acfa80ae49ba04c1d92e849"
+    },
+    {
+      "step": 140000,
+      "revision": "step140000",
+      "commit_sha": "db4837f47fc25643b1e21f53672a84acef5d0cf7",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/db4837f47fc25643b1e21f53672a84acef5d0cf7"
+    },
+    {
+      "step": 143000,
+      "revision": "step143000",
+      "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+      "source_url": "https://huggingface.co/EleutherAI/pythia-70m-deduped/tree/9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb"
+    }
+  ]
+}
