@@ -45,6 +45,7 @@ function harness() {
       clientWidth: 640,
       clientHeight: 240,
       attributes: {},
+      getBoundingClientRect() { return {width:640,height:240}; },
       setAttribute(name, value) { this.attributes[name] = value; },
       classList: { add() {}, remove() {} },
       style: { properties: {}, setProperty(name, value) { this.properties[name] = value; } }
@@ -76,6 +77,7 @@ function harness() {
       tokens: [' a', ' b', ' c'],
       frames: Array.from({ length: 38 }, (_, i) => ({
         step: i * 1000,
+        target_probability: i / 37,
         top_tokens: [{ token: ' example', probability: .1 }],
         attention: [[[[1, 0, 0], [0, 1, 0], [0, .25, .75]]]]
       }))
@@ -112,6 +114,8 @@ test('playhead moves continuously while model observations remain discrete', h =
     const chartX = 9 + (i / 6) / 37 * (640 - 18);
     near(h.element('historyPlayhead').attributes.x1, chartX);
     near(h.element('historyPlayhead').attributes.x2, chartX);
+    near(h.element('historyDot').attributes.cx, chartX);
+    near(h.element('historyDot').attributes.cy, 230 - (i / 6) / 37 * 211);
     assert.equal(h.state.frame, 0);
     assert.equal(h.renderedFrames.length, 0);
   }

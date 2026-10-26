@@ -311,7 +311,7 @@ dialog[open]::backdrop{animation:backdrop-arrive 220ms ease both}
 .timeline-track:has(#checkpointSlider:active) .timeline-thumb{background:#fff7d5;box-shadow:0 0 0 1px #fff7d5,0 0 0 5px #d2ee9a18}
 .timeline-preview{position:absolute;z-index:6;bottom:29px;transform:translateX(-50%);pointer-events:none;background:#e4efd8;color:#17251c;border:1px solid #f0f2e71c;border-radius:4px;padding:5px 8px;font:9px/1.4 var(--mono);white-space:nowrap;box-shadow:0 4px 18px #0003;animation:preview-arrive 120ms ease both}
 @keyframes preview-arrive{from{opacity:0;translate:0 2px}to{opacity:1;translate:0 0}}
-.history-current{transition:cx 240ms var(--ease-out),cy 240ms var(--ease-out)}
+.history-current{transition:none}
 #stepNumber,#leadingToken,#leadingProbability,#targetProbability{display:inline-block}
 @media(forced-colors:active){
   #checkpointSlider{opacity:1}
@@ -545,3 +545,8 @@ html[data-theme="light"] #customPromptInput[aria-invalid=true]{border-color:var(
 
 /* A single, quiet serif for the title. */
 h1,h1 em{font-family:var(--serif);font-weight:400;font-style:normal;letter-spacing:-1px}
+
+/* Keep select chevrons inset consistently across browsers. */
+.timeline-select-label{position:relative}
+.timeline-select-label:after{content:"";position:absolute;right:12px;top:50%;width:5px;height:5px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.timeline-select-label select{appearance:none;-webkit-appearance:none;padding-right:32px;padding-left:11px}
