@@ -199,8 +199,8 @@ const experiment = new PromptExperiment({
     custom.statusKind = '';
     const completed = Math.min(result.total, Math.max(0, result.completed || 0));
     custom.status = result.status === 'starting' ? 'Starting your experiment…'
-      : result.status === 'queued' ? 'Waking the model… first runs can take a minute.'
-      : completed === result.total ? 'Receiving the observations…'
+      : result.status === 'queued' ? 'Waking the model… first runs take a minute or two.'
+      : completed === result.total ? `Loading views · ${Math.min(result.total, (result.index ?? 0) + 1)} / ${result.total}`
       : `${completed} / ${result.total} checkpoints measured`;
     renderCustomUI();
   },
@@ -210,7 +210,7 @@ const experiment = new PromptExperiment({
     const previousWasCustom = custom.selected;
     custom.busy = false;
     custom.statusKind = 'success';
-    custom.status = `${result.tokens.length} tokens · all ${result.frames.length} checkpoints ready`;
+    custom.status = `${result.tokens.length} token${result.tokens.length === 1 ? '' : 's'} · all ${result.frames.length} checkpoints ready`;
     if (custom.sceneIndex === null) {
       custom.sceneIndex = state.data.scenes.length;
       state.data.scenes.push(result);

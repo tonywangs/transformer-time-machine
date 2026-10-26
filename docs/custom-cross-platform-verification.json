@@ -1,0 +1,232 @@
+{
+  "purpose": "Independent cross-platform comparison; not a same-runtime numerical replay certificate.",
+  "prompt": "The opposite of hot is",
+  "live_trace_sha256": "7056298f5fc48b5af8ecea8c80d927eba111bd94c74dfda6da9448c9b54e0bdd",
+  "local_reference_sha256": "bb6c1342dcbee1216994dddd700d672174c65921f238392a331098efde7c0300",
+  "independent_reference_script_sha256": "6a08bb476277d9937fd124afaa7ec19fa35fe4622a5a12cae0e8f638755876a3",
+  "identity_checks": {
+    "schema_version_1": true,
+    "one_scene": true,
+    "exact_prompt": true,
+    "prompt_token_ids": true,
+    "decoded_tokens": true,
+    "target_token_ids": true,
+    "target_label": true,
+    "model_metadata": true,
+    "checkpoint_manifest": true,
+    "manifest_sha256": true,
+    "tokenizer_revision": true,
+    "all_38_frames_in_order": true
+  },
+  "full_live_trace_structural_checks": {
+    "valid": true,
+    "frames": 38,
+    "heads_per_frame": 48,
+    "attention_entries": 45600,
+    "all_values_finite_and_bounded": true,
+    "causal_mask_exact": true,
+    "max_attention_row_sum_error_after_rounding": 2.0000000000575113e-06
+  },
+  "local_runtime": {
+    "python": "3.12.14",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "torch": "2.8.0",
+    "transformers": "4.56.2",
+    "device": "cpu",
+    "dtype": "float32",
+    "attention_implementation": "eager",
+    "num_threads": 4,
+    "eval_mode": true,
+    "inference_mode": true,
+    "use_cache": false,
+    "add_special_tokens": false,
+    "local_files_only": true,
+    "wall_seconds": 1.718
+  },
+  "live_runtime": {
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "device": "cpu",
+    "dtype": "float32",
+    "torch_version": "2.8.0+cpu",
+    "transformers_version": "4.56.2",
+    "environment": {
+      "attention_implementation": "eager",
+      "eval_mode": true,
+      "inference_mode": true,
+      "use_cache": false,
+      "num_threads": 4,
+      "seed": 0,
+      "add_special_tokens": false
+    }
+  },
+  "original_replay_tolerances": {
+    "attention": 6e-07,
+    "probability": 1e-07
+  },
+  "cross_platform_strict_replay_pass": false,
+  "comparisons": [
+    {
+      "step": 0,
+      "top_8_ordered_ids_match": true,
+      "top_8_decoded_tokens_match": true,
+      "attention_shape": [
+        6,
+        8,
+        5,
+        5
+      ],
+      "attention_entries_compared": 1200,
+      "max_absolute_attention_difference": 8.557929992436542e-07,
+      "mean_absolute_attention_difference": 1.494415537518316e-07,
+      "max_attention_difference_by_layer": [
+        6.02703094432222e-07,
+        8.557929992436542e-07,
+        7.863235473859476e-07,
+        7.077808379940542e-07,
+        7.736444473382953e-07,
+        8.283157348909498e-07
+      ],
+      "max_attention_difference_location_zero_based": [
+        1,
+        3,
+        1,
+        0
+      ],
+      "entries_exceeding_original_attention_tolerance": 31,
+      "max_top_8_probability_difference": 1.2078089639544487e-09,
+      "target_probability_difference": 1.0459189070388675e-11,
+      "live_top_token": {
+        "id": 5187,
+        "token": "inese",
+        "probability": 0.00022464865469373763
+      },
+      "local_top_token": {
+        "id": 5187,
+        "token": "inese",
+        "probability": 0.00022464850917458534
+      },
+      "passes_original_same_runtime_attention_tolerance": false,
+      "passes_original_same_runtime_probability_tolerance": true
+    },
+    {
+      "step": 143000,
+      "top_8_ordered_ids_match": true,
+      "top_8_decoded_tokens_match": true,
+      "attention_shape": [
+        6,
+        8,
+        5,
+        5
+      ],
+      "attention_entries_compared": 1200,
+      "max_absolute_attention_difference": 0.0013673992958068704,
+      "mean_absolute_attention_difference": 6.148080115394503e-06,
+      "max_attention_difference_by_layer": [
+        4.408946990941409e-06,
+        4.596752166796669e-06,
+        5.500713348371988e-06,
+        1.9700191497773467e-05,
+        0.00029968752288822564,
+        0.0013673992958068704
+      ],
+      "max_attention_difference_location_zero_based": [
+        5,
+        0,
+        1,
+        0
+      ],
+      "entries_exceeding_original_attention_tolerance": 239,
+      "max_top_8_probability_difference": 4.379451274871826e-05,
+      "target_probability_difference": 4.379451274871826e-05,
+      "live_top_token": {
+        "id": 253,
+        "token": " the",
+        "probability": 0.19162645936012268
+      },
+      "local_top_token": {
+        "id": 253,
+        "token": " the",
+        "probability": 0.1916702538728714
+      },
+      "passes_original_same_runtime_attention_tolerance": false,
+      "passes_original_same_runtime_probability_tolerance": false
+    }
+  ],
+  "local_numeric_diagnostics": {
+    "local_build": "PyTorch built with:\n  - GCC 4.2\n  - C++ Version: 201703\n  - clang 15.0.0\n  - OpenMP 201811\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: NO AVX\n  - Build settings: BLAS_INFO=accelerate, BUILD_TYPE=Release, COMMIT_SHA=a1cb3cc05d46d198467bebbb6e8fba50a325d4e7, CXX_COMPILER=/usr/bin/c++, CXX_FLAGS= -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_PYTORCH_QNNPACK -DAT_BUILD_ARM_VEC256_WITH_SLEEF -DUSE_XNNPACK -DUSE_PYTORCH_METAL_EXPORT -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -DUSE_COREML_DELEGATE -O2 -fPIC -DC10_NODEPRECATED -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=braced-scalar-init -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wvla-extension -Wsuggest-override -Wnewline-eof -Winconsistent-missing-override -Winconsistent-missing-destructor-override -Wno-pass-failed -Wno-error=old-style-cast -Wconstant-conversion -Qunused-arguments -faligned-new -fno-math-errno -fno-trapping-math -Werror=format -DUSE_MPS -Wno-missing-braces, LAPACK_INFO=accelerate, TORCH_VERSION=2.8.0, USE_CUDA=OFF, USE_CUDNN=OFF, USE_CUSPARSELT=OFF, USE_EIGEN_FOR_BLAS=ON, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, USE_XCCL=OFF, USE_XPU=OFF, \n",
+    "matmul_precision": "highest",
+    "runs": [
+      {
+        "name": "float32-repeat",
+        "threads": 4,
+        "dtype": "torch.float32",
+        "top_probability": 0.1916702538728714,
+        "comparisons": {
+          "live_linux_float32": {
+            "top8_ids_match": true,
+            "max_top_probability_difference": 4.379451274871826e-05,
+            "max_attention_difference": 0.0013673992958068704,
+            "mean_attention_difference": 6.148080115394503e-06
+          },
+          "previous_mac_float32": {
+            "top8_ids_match": true,
+            "max_top_probability_difference": 0.0,
+            "max_attention_difference": 0.0,
+            "mean_attention_difference": 0.0
+          }
+        },
+        "seconds": 0.96
+      },
+      {
+        "name": "float32-one-thread",
+        "threads": 1,
+        "dtype": "torch.float32",
+        "top_probability": 0.1916702538728714,
+        "comparisons": {
+          "live_linux_float32": {
+            "top8_ids_match": true,
+            "max_top_probability_difference": 4.379451274871826e-05,
+            "max_attention_difference": 0.0013673992958068704,
+            "mean_attention_difference": 6.148080115394503e-06
+          },
+          "previous_mac_float32": {
+            "top8_ids_match": true,
+            "max_top_probability_difference": 0.0,
+            "max_attention_difference": 0.0,
+            "mean_attention_difference": 0.0
+          }
+        },
+        "seconds": 0.012
+      },
+      {
+        "name": "float64",
+        "threads": 4,
+        "dtype": "torch.float64",
+        "top_probability": 0.19162441712341677,
+        "comparisons": {
+          "live_linux_float32": {
+            "top8_ids_match": true,
+            "max_top_probability_difference": 1.555315980077826e-05,
+            "max_attention_difference": 0.0006846131887436047,
+            "mean_attention_difference": 1.7456001955685017e-06
+          },
+          "previous_mac_float32": {
+            "top8_ids_match": true,
+            "max_top_probability_difference": 4.583674945463079e-05,
+            "max_attention_difference": 0.000770866870880127,
+            "mean_attention_difference": 4.650231048876673e-06
+          }
+        },
+        "seconds": 0.047
+      }
+    ]
+  },
+  "interpretation": [
+    "The prompt, tokens, pinned revisions, and ordered top-eight guesses agree at both independently recomputed checkpoints.",
+    "The ARM macOS and x86 Linux float32 results do not satisfy the existing same-runtime replay tolerances. No tolerance was loosened to call this comparison a pass.",
+    "Repeating the local float32 run and changing local thread count from four to one reproduced its attention and probabilities exactly.",
+    "Converting the local model to float64 changes the outputs and brings its top probability closer to the Linux result. This is diagnostic evidence of numerical sensitivity, not a replacement ground truth or proof of which operation differs.",
+    "Small early-layer differences grow through the trained layers. Platform-specific floating-point kernels are a plausible explanation; an independent Linux replay is needed to test the serving implementation at the original tolerance."
+  ],
+  "official_numerical_accuracy_reference": "https://docs.pytorch.org/docs/2.8/notes/numerical_accuracy.html"
+}

@@ -11,7 +11,9 @@ separate inference function has one container, 4 CPU cores, 16 GiB RAM, a
 180-second execution timeout, no retries, and no minimum warm containers. Its
 image contains all 38 checkpoint snapshots from `scripts/model-manifest.json`;
 all loads use immutable commit hashes and local files only. Models remain cached
-in RAM while that worker is alive. HTTP status polls never load model weights.
+in RAM while that worker is alive. The worker stays warm for two minutes after
+a run, so playing the timeline does not immediately discard its model cache.
+It then scales to zero. HTTP status polls never load model weights.
 
 ## Requests and responses
 

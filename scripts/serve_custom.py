@@ -354,7 +354,7 @@ worker_image = (base_image
 
 
 @app.function(image=worker_image, cpu=(4, 4), memory=(16384, 16384), timeout=JOB_TIMEOUT,
-              max_containers=1, min_containers=0, retries=0, scaledown_window=20,
+              max_containers=1, min_containers=0, retries=0, scaledown_window=120,
               serialized=True, include_source=False)
 def analyze(job_id):
     run_job(job_id, get_store())

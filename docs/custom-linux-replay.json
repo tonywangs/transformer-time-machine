@@ -1,0 +1,127 @@
+{
+  "checked_at": "2026-10-26T00:33:12.200283+00:00",
+  "input_sha256": "7056298f5fc48b5af8ecea8c80d927eba111bd94c74dfda6da9448c9b54e0bdd",
+  "worker_image": "im-qqa6UpADhPLaJKjhlhf4LQ",
+  "method": "Independent direct transformers forward passes; no custom-service model or observation helpers imported.",
+  "prompt": "The opposite of hot is",
+  "token_count": 5,
+  "token_ids_match": true,
+  "token_strings_match": true,
+  "target_token_ids": [
+    253
+  ],
+  "tokenizer_commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+  "tolerances": {
+    "attention": 6e-07,
+    "probability": 1e-07,
+    "concentration": 6e-07
+  },
+  "runtime": {
+    "python": "3.11.10",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "cpu_model": "unknown",
+    "torch": "2.8.0+cpu",
+    "torch_build": "PyTorch built with:\n  - GCC 13.3\n  - C++ Version: 201703\n  - Intel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n  - Intel(R) MKL-DNN v3.7.1 (Git Hash 8d263e693366ef8db40acc569cc7d8edf644556d)\n  - OpenMP 201511 (a.k.a. OpenMP 4.5)\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: AVX2\n  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, COMMIT_SHA=a1cb3cc05d46d198467bebbb6e8fba50a325d4e7, CXX_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/c++, CXX_FLAGS= -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -DC10_NODEPRECATED -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -faligned-new -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-dangling-reference -Wno-error=dangling-reference -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.8.0, USE_CUDA=0, USE_CUDNN=OFF, USE_CUSPARSELT=OFF, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, USE_XCCL=OFF, USE_XPU=OFF, \n",
+    "transformers": "4.56.2",
+    "num_threads": 4,
+    "device": "cpu",
+    "dtype": "float32",
+    "mkldnn_enabled": true,
+    "matmul_precision": "highest"
+  },
+  "checkpoints": [
+    {
+      "step": 0,
+      "commit_sha": "c913ae980de9355947d0bf73f9f10d580eb79301",
+      "top_token_ids_match": true,
+      "actual_top_token_ids": [
+        5187,
+        37134,
+        30236,
+        757,
+        26156,
+        30041,
+        15616,
+        26191
+      ],
+      "expected_top_token_ids": [
+        5187,
+        37134,
+        30236,
+        757,
+        26156,
+        30041,
+        15616,
+        26191
+      ],
+      "max_attention_error": 4.999980926512215e-07,
+      "mean_attention_error": 1.3581738909080692e-07,
+      "max_attention_error_by_layer": [
+        4.97159957868476e-07,
+        4.996948242408372e-07,
+        4.917964935291508e-07,
+        4.981765747147371e-07,
+        4.999980926512215e-07,
+        4.933109283566939e-07
+      ],
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0,
+      "actual_target_probability": 5.289632554195123e-06,
+      "recorded_target_probability": 5.289632554195123e-06,
+      "max_concentration_error": 0.0,
+      "attention_values_checked": 1200,
+      "finite": true,
+      "causal_mask_max": 0.0,
+      "max_attention_row_sum_error": 1.1920928955078125e-07,
+      "passed": true
+    },
+    {
+      "step": 143000,
+      "commit_sha": "9a7c847e93250c8f24d4b7e7134dbf369e8fc9cb",
+      "top_token_ids_match": true,
+      "actual_top_token_ids": [
+        253,
+        247,
+        326,
+        417,
+        281,
+        2032,
+        752,
+        671
+      ],
+      "expected_top_token_ids": [
+        253,
+        247,
+        326,
+        417,
+        281,
+        2032,
+        752,
+        671
+      ],
+      "max_attention_error": 4.991264342946167e-07,
+      "mean_attention_error": 1.1328202689612103e-07,
+      "max_attention_error_by_layer": [
+        4.985423088105234e-07,
+        4.777737557886373e-07,
+        4.978766441343652e-07,
+        4.991264342946167e-07,
+        4.934914007317278e-07,
+        4.96750771999362e-07
+      ],
+      "max_top_probability_error": 0.0,
+      "target_probability_error": 0.0,
+      "actual_target_probability": 0.19162645936012268,
+      "recorded_target_probability": 0.19162645936012268,
+      "max_concentration_error": 0.0,
+      "attention_values_checked": 1200,
+      "finite": true,
+      "causal_mask_max": 0.0,
+      "max_attention_row_sum_error": 1.7881393432617188e-07,
+      "passed": true,
+      "final_argmax_target_matches": true
+    }
+  ],
+  "passed": true,
+  "wall_seconds": 3.941
+}
