@@ -481,3 +481,26 @@ html[data-theme="light"] #customPromptInput[aria-invalid=true]{border-color:var(
 .model-picker select:focus-visible,#layerPage:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
 #layerPage{font-size:9px;padding:4px 5px;margin-top:5px;max-width:150px}
 .head-row[hidden]{display:none!important}
+
+/* Quiet instrument: labels identify controls; interpretation lives in Notes. */
+.scene-heading[hidden],.example-completions>div[hidden]{display:none!important}
+.masthead-right{gap:18px}
+.theme-toggle{min-width:28px;justify-content:center}
+.panel-topline .eyebrow,.token-select>.small-label,.timeline-title>.small-label{letter-spacing:.5px;text-transform:none}
+.example-guide{background:transparent!important;border:0!important;padding:8px 0!important;margin-top:4px}
+.example-completions{display:block}
+.example-completions>div{display:flex;align-items:baseline;justify-content:space-between}
+.example-completions strong{font-weight:400}
+.history-peak{display:flex;align-items:baseline;justify-content:space-between;gap:12px;background:transparent!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0;padding:9px 0!important}
+.history-peak strong{font-weight:400;font-size:inherit}
+.heads-intro{max-width:110px}
+.head-axis{letter-spacing:0;text-transform:none}
+.custom-prompt-label.sr-only{margin:0}
+@media(min-width:1100px) and (min-height:620px){
+  .heads-intro{flex-basis:110px}
+  .prompt-line{margin-top:12px;padding-top:13px;padding-bottom:13px}
+  .prompt-line p{font-size:13px}
+  .history-title h3{font-size:17px}
+}
+
+.history-peak{flex-direction:row}

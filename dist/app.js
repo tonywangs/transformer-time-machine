@@ -178,6 +178,7 @@ function renderCustomUI() {
   $('presetStatus').textContent = custom.status;
   $('presetStatus').dataset.state = custom.statusKind;
   const modelDiffers = state.data.model.id !== modelCatalog?.[selectedModel]?.model.id;
+  if ($('displayedModel')) $('displayedModel').textContent = modelDiffers ? `Viewing ${state.data.model.label.replace('-deduped', '')}` : `${state.data.model.layers} layers · ${state.data.model.heads} heads`;
   const draftDiffers = custom.selected && (modelDiffers || !scene().custom || $('customPromptInput').value !== scene().prompt);
   $('customPendingNote').hidden = !modelLoading && !modelDiffers && (!custom.selected || (!custom.busy && !draftDiffers));
   $('customPendingNote').textContent = modelDiffers ? `Still showing ${state.data.model.label.replace('-deduped', '')} · ${modelLoading || custom.busy ? 'loading selected model' : 'Selected model unavailable'}` : scene().custom
@@ -234,7 +235,7 @@ const experiment = new PromptExperiment({
     custom.selected = true;
     custom.busy = false;
     custom.statusKind = 'success';
-    custom.status = `${result.tokens.length} token${result.tokens.length === 1 ? '' : 's'} · all ${result.frames.length} checkpoints ready`;
+    custom.status = '';
     state.layer = Math.min(state.layer, result.model.layers - 1);
     state.frame = custom.resumeFrame ?? result.frames.length - 1;
     custom.resumeFrame = null;
@@ -322,16 +323,16 @@ async function loadData() {
 
 function initDataUI() {
   const m = state.data.model;
-  if (!$('modelSelect')) $('modelSpec').innerHTML = `<label class="model-picker"><span class="small-label">MODEL</span><select id="modelSelect" aria-label="Pythia model size">${Object.entries(modelCatalog).map(([key, manifest]) => `<option value="${key}" ${key === selectedModel ? 'selected' : ''}>Pythia ${key.toUpperCase()}</option>`).join('')}</select></label><span class="spec-line" id="displayedModel">Viewing ${esc(m.label.replace('-deduped', ''))} · ${m.layers} layers · ${m.heads} heads</span>`;
-  $('displayedModel').textContent = `Viewing ${m.label.replace('-deduped', '')} · ${m.layers} layers · ${m.heads} heads`;
-  if (!$('sceneTabs').children.length) $('sceneTabs').innerHTML = bundledData.scenes.map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${!custom.selected && i === state.scene}" aria-controls="instrument" data-scene="${i}"><span class="tab-number">0${i + 1}</span>${esc(exampleCopy[s.id]?.tab || s.title)}</button>`).join('') + '<button class="scene-tab" id="scene-custom" role="tab" aria-selected="false" aria-controls="instrument" data-custom="true"><span class="tab-number">04</span>Your prompt</button>';
+  if (!$('modelSelect')) $('modelSpec').innerHTML = `<label class="model-picker"><select id="modelSelect" aria-label="Pythia model size">${Object.entries(modelCatalog).map(([key, manifest]) => `<option value="${key}" ${key === selectedModel ? 'selected' : ''}>Pythia ${key.toUpperCase()}</option>`).join('')}</select></label><span class="spec-line" id="displayedModel">Viewing ${esc(m.label.replace('-deduped', ''))} · ${m.layers} layers · ${m.heads} heads</span>`;
+  $('displayedModel').textContent = `${m.layers} layers · ${m.heads} heads`;
+  if (!$('sceneTabs').children.length) $('sceneTabs').innerHTML = bundledData.scenes.map((s, i) => `<button class="scene-tab" id="scene-${i}" role="tab" aria-selected="${!custom.selected && i === state.scene}" aria-controls="instrument" data-scene="${i}">${esc(exampleCopy[s.id]?.tab || s.title)}</button>`).join('') + '<button class="scene-tab" id="scene-custom" role="tab" aria-selected="false" aria-controls="instrument" data-custom="true">Your prompt</button>';
   $('checkpointSlider').max = state.data.checkpoints.length - 1;
   const tickStride = Math.max(1, Math.ceil((state.data.checkpoints.length - 1) / 16));
   $('timelineTicks').innerHTML = state.data.checkpoints.map((_, i, checkpoints) => `<i class="${i % tickStride === 0 || i === checkpoints.length - 1 ? 'major-tick' : 'minor-tick'}"></i>`).join('');
   $('checkpointSelect').innerHTML = state.data.checkpoints.map((checkpoint, i) => `<option value="${i}">Step ${number.format(checkpoint.step)}</option>`).join('');
   $('playbackSpeed').value = String(state.playbackSpeed);
-  $('timelineStart').textContent = `STEP ${number.format(state.data.checkpoints[0].step)}`;
-  $('timelineEnd').textContent = `STEP ${number.format(state.data.checkpoints.at(-1).step)}`;
+  $('timelineStart').textContent = `${number.format(state.data.checkpoints[0].step)}`;
+  $('timelineEnd').textContent = `${number.format(state.data.checkpoints.at(-1).step)}`;
   $('headColumnLabels').style.gridTemplateColumns = `repeat(${m.heads},1fr)`;
   $('headColumnLabels').innerHTML = Array.from({ length: m.heads }, (_, i) => `<span>${i + 1}</span>`).join('');
   $('headGrid').style.setProperty('--head-count', m.heads);
@@ -346,7 +347,7 @@ function render() {
   const s = scene();
   const f = frame();
   renderExample(s, f);
-  $('headLabel').textContent = `Layer ${state.layer + 1} / Head ${state.head + 1}`;
+  $('headLabel').textContent = `Layer ${state.layer + 1} · Head ${state.head + 1}`;
   $('focusValue').textContent = `${(f.concentration[state.layer][state.head] * 100).toFixed(1)}%`;
   document.querySelectorAll('.scene-tab').forEach((b) => {
     const selected = b.dataset.custom ? custom.selected : !custom.selected && bundledData.scenes[Number(b.dataset.scene)]?.id === activeTab;
@@ -369,28 +370,14 @@ function render() {
 
 function renderExample(s, f) {
   const copy = exampleCopy[s.id];
-  $('sceneTitle').textContent = copy?.question || s.title;
-  $('sceneDescription').textContent = copy?.explanation || s.description;
   // Line breaks group the existing color tokens; no tokens are added to the input.
   if (s.id === 'echo') {
     $('promptText').innerHTML = `<span class="sequence-line">${esc(s.tokens.slice(0, 6).join(''))}</span><span class="sequence-line">${esc(s.tokens.slice(6).join(''))}</span>`;
   } else $('promptText').textContent = s.prompt;
-  $('referenceLabel').textContent = s.custom ? 'Final checkpoint’s top guess' : copy?.reference || 'Completion to track';
+  $('referenceLabel').textContent = s.custom ? 'Tracking' : 'Reference';
+  $('referenceLabel').title = s.custom ? 'The final checkpoint’s top guess, tracked across training; not a correct-answer label.' : copy?.reference || 'Expected continuation';
   $('referenceCompletion').textContent = s.target_label.trim() || displayToken(s.target_label);
-  const top = f.top_tokens[0];
-  updateReadout('exampleGuess', `“${top.token.trim() || displayToken(top.token)}” · ${percent(top.probability)}`);
-  const rank = f.top_tokens.findIndex((t) => s.target_token_ids.includes(t.id));
-  const target = s.target_label.trim() || displayToken(s.target_label);
-  const snapshot = rank === 0
-    ? `At step ${number.format(f.step)}, “${target}” is the top guess (${percent(f.target_probability)}).`
-    : `At step ${number.format(f.step)}, “${target}” gets ${percent(f.target_probability)}${rank < 0 ? ' and is outside the top eight guesses' : ` and ranks #${rank + 1}`}.`;
-  const wins = s.frames.filter((item) => s.target_token_ids.includes(item.top_tokens[0].id)).length;
-  const note = s.custom ? 'Tracked across training; not a correctness score.' : s.id === 'echo' && wins === 0
-    ? `None of these ${s.frames.length} checkpoints chooses “${target}” as its top next token. This example shows an unreliable continuation.`
-    : s.id === 'capital'
-      ? 'Watch how its rank changes across the recorded checkpoints.'
-      : 'Press Play training to watch the guesses change. Progress can reverse between checkpoints.';
-  $('exampleObservation').textContent = `${snapshot} ${note}`;
+
 }
 
 function renderHeads() {
@@ -565,7 +552,7 @@ function renderPredictions() {
       if (Math.abs(dy) > .5) settle(row, [{ transform: `translateY(${dy}px)` }, { transform: 'translateY(0)' }], 240);
     }
   });
-  $('targetLabel').textContent = `“${scene().target_label}”`;
+  $('targetLabel').textContent = `P(“${scene().target_label.trim() || displayToken(scene().target_label)}”)`;
   updateReadout('targetProbability', percent(frame().target_probability));
 }
 
@@ -580,12 +567,12 @@ function renderHistory() {
   const currentY = y(values[state.frame]);
   reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="311" y2="105" stroke="${palette.historyGrid}"/><line x1="9" y1="62" x2="311" y2="62" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} 311,105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="${palette.history}" stroke="${palette.background}" stroke-width="2"/>`);
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
-  $('historyStart').textContent = `STEP ${compactStep(state.data.checkpoints[0].step)}`;
-  $('historyEnd').textContent = `STEP ${compactStep(state.data.checkpoints.at(-1).step)}`;
+  $('historyStart').textContent = `${compactStep(state.data.checkpoints[0].step)}`;
+  $('historyEnd').textContent = `${compactStep(state.data.checkpoints.at(-1).step)}`;
   const peakIndex = values.indexOf(Math.max(...values));
   const peak = scene().frames[peakIndex];
   $('peakProbability').dataset.frame = peakIndex;
-  $('peakProbability').innerHTML = `<span>Highest recorded chance <span aria-hidden="true">↗</span></span><strong>“${esc(scene().target_label.trim())}” · ${percent(peak.target_probability)} · Step ${number.format(peak.step)}</strong>`;
+  $('peakProbability').innerHTML = `<span>Peak</span><strong>${percent(peak.target_probability)} · ${compactStep(peak.step)} <span aria-hidden="true">↗</span></strong>`;
   $('peakProbability').setAttribute('aria-label', `Jump to highest recorded chance of ${scene().target_label.trim()}: ${percent(peak.target_probability)}, step ${number.format(peak.step)}`);
 }
 
@@ -697,7 +684,8 @@ function buildProvenance() {
   const { model: m, checkpoints } = state.data;
   const p = scene().custom ? scene().provenance : state.data.provenance;
   const notes = (p.notes || []).map((note) => `<li>${esc(note)}</li>`).join('');
-  $('provenanceContent').innerHTML = `<section class="provenance-section"><h3>MODEL</h3><dl><dt>Repository</dt><dd><a href="${esc(safeUrl(m.source_url))}" target="_blank" rel="noopener noreferrer">${esc(m.id)} ↗</a></dd><dt>Architecture</dt><dd>${m.layers} layers · ${m.heads} heads · ${esc(m.hidden_size)} hidden dimensions</dd><dt>Parameters</dt><dd>${esc(typeof m.parameters === 'number' ? number.format(m.parameters) : m.parameters)}</dd></dl></section><section class="provenance-section"><h3>HOW TO READ THIS</h3><p>Flow curves and matrix cells display attention weights from a recorded forward pass. The head grid summarizes those weights as concentration. A query can attend to itself and earlier tokens; future tokens are masked. Layer, head, and token labels start at 1.</p><p>The head grid always measures focus for the final prompt token, even when another query is selected. Focus is one minus normalized attention entropy—not a measure of head importance. Probability bars are scaled relative to the top token; the printed percentages are absolute probabilities. History and timeline positions are evenly spaced observations, not equal amounts of training. The playhead glides between checkpoints; printed values update only when a recorded checkpoint is reached. Bar lengths and attention colors briefly transition for readability.</p><p>The bundled 70M factual sentence was selected from a <a href="https://github.com/tonywangs/transformer-time-machine/blob/main/docs/fact-candidate-screen.json" target="_blank" rel="noopener noreferrer">documented prompt screen ↗</a>. The original 70M prompt “The capital of France is” never put Paris first in those checkpoints; the city-name wording gives different predictions. This curated example is not a general knowledge benchmark.</p><p>“·” marks a space, “↵” a newline, and “⇥” a tab. Tokens can be word fragments. Attention alone does not establish a causal explanation of an output.</p></section><section class="provenance-section"><h3>EXTRACTION RECORD</h3><dl><dt>Extracted</dt><dd>${esc(p.extracted_at)}</dd><dt>Device / precision</dt><dd>${esc(p.device)} / ${esc(p.dtype)}</dd><dt>PyTorch</dt><dd>${esc(p.torch_version)}</dd><dt>Transformers</dt><dd>${esc(p.transformers_version)}</dd><dt>Extractor SHA-256</dt><dd>${esc(p.extractor_sha256)}</dd></dl>${notes ? `<ul>${notes}</ul>` : ''}</section><section class="provenance-section"><h3>IMMUTABLE CHECKPOINT SOURCES</h3><div class="checkpoint-list">${checkpoints.map((c) => `<div class="checkpoint-source"><span>${number.format(c.step)}</span><a href="${esc(safeUrl(c.source_url))}" target="_blank" rel="noopener noreferrer" title="${esc(c.commit_sha)}">${esc(c.revision)} · ${esc(c.commit_sha.slice(0, 12))} ↗</a></div>`).join('')}</div></section>`;
+  const promptNote = exampleCopy[scene().id]?.explanation || 'The tracked token is the final checkpoint’s top guess, not a correct-answer label. Your exact prompt, including spaces, is used at every checkpoint.';
+  $('provenanceContent').innerHTML = `<section class="provenance-section"><h3>PROMPT</h3><p>${esc(promptNote)}</p></section><section class="provenance-section"><h3>MODEL</h3><dl><dt>Repository</dt><dd><a href="${esc(safeUrl(m.source_url))}" target="_blank" rel="noopener noreferrer">${esc(m.id)} ↗</a></dd><dt>Architecture</dt><dd>${m.layers} layers · ${m.heads} heads · ${esc(m.hidden_size)} hidden dimensions</dd><dt>Parameters</dt><dd>${esc(typeof m.parameters === 'number' ? number.format(m.parameters) : m.parameters)}</dd></dl></section><section class="provenance-section"><h3>HOW TO READ THIS</h3><p>Flow curves and matrix cells display attention weights from a recorded forward pass. The head grid summarizes those weights as concentration. A query can attend to itself and earlier tokens; future tokens are masked. Layer, head, and token labels start at 1.</p><p>The head grid always measures focus for the final prompt token, even when another query is selected. Focus is one minus normalized attention entropy—not a measure of head importance. Probability bars are scaled relative to the top token; the printed percentages are absolute probabilities. History and timeline positions are evenly spaced observations, not equal amounts of training. The playhead glides between checkpoints; printed values update only when a recorded checkpoint is reached. Bar lengths and attention colors briefly transition for readability.</p><p>The bundled 70M factual sentence was selected from a <a href="https://github.com/tonywangs/transformer-time-machine/blob/main/docs/fact-candidate-screen.json" target="_blank" rel="noopener noreferrer">documented prompt screen ↗</a>. The original 70M prompt “The capital of France is” never put Paris first in those checkpoints; the city-name wording gives different predictions. This curated example is not a general knowledge benchmark.</p><p>“·” marks a space, “↵” a newline, and “⇥” a tab. Tokens can be word fragments. Attention alone does not establish a causal explanation of an output.</p></section><section class="provenance-section"><h3>EXTRACTION RECORD</h3><dl><dt>Extracted</dt><dd>${esc(p.extracted_at)}</dd><dt>Device / precision</dt><dd>${esc(p.device)} / ${esc(p.dtype)}</dd><dt>PyTorch</dt><dd>${esc(p.torch_version)}</dd><dt>Transformers</dt><dd>${esc(p.transformers_version)}</dd><dt>Extractor SHA-256</dt><dd>${esc(p.extractor_sha256)}</dd></dl>${notes ? `<ul>${notes}</ul>` : ''}</section><section class="provenance-section"><h3>IMMUTABLE CHECKPOINT SOURCES</h3><div class="checkpoint-list">${checkpoints.map((c) => `<div class="checkpoint-source"><span>${number.format(c.step)}</span><a href="${esc(safeUrl(c.source_url))}" target="_blank" rel="noopener noreferrer" title="${esc(c.commit_sha)}">${esc(c.revision)} · ${esc(c.commit_sha.slice(0, 12))} ↗</a></div>`).join('')}</div></section>`;
 }
 
 function openProvenance() {

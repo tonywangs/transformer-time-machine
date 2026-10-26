@@ -23,8 +23,8 @@
 <body>
   <div class="page-grain" aria-hidden="true"></div>
   <header class="masthead">
-    <a class="wordmark" href="./" aria-label="Transformer Time Machine home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22M5 25h22M9 7c0 6 14 12 14 18M23 7c0 6-14 12-14 18"/><circle cx="16" cy="16" r="2"/></svg><span>MODEL OBSERVATORY<span class="wordmark-sub">FIELD NOTE № 001</span></span></a>
-    <div class="masthead-right"><span class="live-label"><i></i> REAL CHECKPOINTS</span><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><g class="theme-sun"><circle cx="10" cy="10" r="3.2"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4"/></g><g class="theme-moon"><path d="M15.9 12.7A6.4 6.4 0 0 1 7.3 4.1a6.4 6.4 0 1 0 8.6 8.6Z"/></g></svg><span id="themeLabel">Light</span></button><button class="text-button" id="aboutButton">About the data <span aria-hidden="true">↗</span></button></div>
+    <a class="wordmark" href="./" aria-label="Transformer Time Machine home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22M5 25h22M9 7c0 6 14 12 14 18M23 7c0 6-14 12-14 18"/><circle cx="16" cy="16" r="2"/></svg></a>
+    <div class="masthead-right"><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><g class="theme-sun"><circle cx="10" cy="10" r="3.2"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4"/></g><g class="theme-moon"><path d="M15.9 12.7A6.4 6.4 0 0 1 7.3 4.1a6.4 6.4 0 1 0 8.6 8.6Z"/></g></svg><span id="themeLabel" class="sr-only">Light</span></button><button class="text-button" id="aboutButton">Notes</button></div>
   </header>
 
   <main>
@@ -37,61 +37,60 @@
     <div id="errorState" class="error-state" hidden role="alert"><span class="eyebrow">DATA UNAVAILABLE</span><h2>The observations haven’t arrived.</h2><p id="errorMessage">The trace file could not be loaded.</p><button class="primary-button" id="retryButton">Try again <span aria-hidden="true">↻</span></button><p class="quiet">This instrument only displays recorded model outputs.</p></div>
 
     <div id="instrument" hidden>
-      <nav class="scene-nav" aria-label="Choose an example"><span class="scene-nav-label">THE PROMPT</span><div id="sceneTabs" class="scene-tabs" role="tablist"></div></nav>
+      <nav class="scene-nav" aria-label="Choose an example"><div id="sceneTabs" class="scene-tabs" role="tablist"></div></nav>
 
       <section class="instrument-grid">
         <section class="prompt-panel" aria-label="Prompt and completion">
-          <div class="panel-topline"><span class="eyebrow">01 / THE PROMPT</span></div>
-          <div class="scene-heading"><h2 id="sceneTitle"></h2><p id="sceneDescription"></p></div>
+          <div class="panel-topline"><span class="eyebrow">Prompt</span></div>
           <p id="presetStatus" class="custom-prompt-status" role="status" aria-live="polite" hidden></p>
           <form id="customPromptForm" class="custom-prompt-form" hidden aria-busy="false">
-            <label class="custom-prompt-label" for="customPromptInput">Your prompt</label>
+            <label class="custom-prompt-label sr-only" for="customPromptInput">Your prompt</label>
             <textarea id="customPromptInput" name="prompt" rows="3" maxlength="400" aria-label="Your prompt" aria-describedby="customPromptHint customPromptStatus" placeholder="The best thing about science is" spellcheck="false" required></textarea>
-            <p id="customPromptHint" class="custom-prompt-hint">Up to 32 tokens · 38 checkpoints</p>
+            <p id="customPromptHint" class="custom-prompt-hint">32 tokens max</p>
             <div class="custom-prompt-actions"><button id="analyzePromptButton" class="primary-button" type="submit">Analyze <span aria-hidden="true">↗</span></button><button id="cancelPromptButton" class="text-button" type="button" hidden>Cancel</button></div>
             <p id="customPromptStatus" class="custom-prompt-status" role="status" aria-live="polite" aria-atomic="true"></p>
           </form>
           <div class="prompt-line"><p id="promptText"></p><span class="next-token-gap" aria-label="Next token to predict">→ ?</span></div>
-          <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div><div><span class="small-label">MODEL’S TOP GUESS HERE</span><strong id="exampleGuess"></strong></div></div><p id="exampleObservation"></p></div>
+          <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div></div></div>
         </section>
 
         <div class="attention-panel">
-          <div class="panel-topline"><span class="eyebrow">02 / ATTENTION</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
-          <div class="attention-toolbar"><div><span class="small-label">INSPECTING</span><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label">LAST-TOKEN FOCUS</span><span id="focusValue"></span></div></div>
+          <div class="panel-topline"><span class="eyebrow">Attention</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
+          <div class="attention-toolbar"><div><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label" title="Concentration of attention from the final prompt token">Focus</span><span id="focusValue"></span></div></div>
           <div class="visualization" id="visualization"><div class="custom-pending-note" id="customPendingNote" hidden>Previous result · new prompt is being analyzed</div><svg id="flowGraph" role="img" aria-label="Attention from the selected token to earlier tokens"></svg><div class="matrix-wrap" id="matrixWrap" hidden><canvas id="attentionMatrix" aria-label="Attention matrix. Rows are query tokens and columns are key tokens." role="img"></canvas><div id="matrixTip" class="matrix-tip" hidden></div></div></div>
-          <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High attention</span></div>
-          <div class="token-select"><span class="small-label">QUERY TOKEN <span class="quiet">/ click to inspect</span></span><div id="queryTokens" class="query-tokens" aria-label="Select query token"></div></div>
+          <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High</span></div>
+          <div class="token-select"><span class="small-label">Token</span><div id="queryTokens" class="query-tokens" aria-label="Select query token"></div></div>
 
-          <section class="heads-section"><div class="heads-intro"><h3>Attention heads</h3><select id="layerPage" aria-label="Attention layer group" hidden></select><p><span id="headFocusDescription">Darker squares focus on fewer tokens.</span><br>Focus is not importance.</p><span class="head-axis">ROWS: LAYERS · COLUMNS: HEADS<br>Labels start at 1.</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
+          <section class="heads-section"><div class="heads-intro"><h3>Heads</h3><select id="layerPage" aria-label="Attention layer group" hidden></select><p class="sr-only"><span id="headFocusDescription">Darker squares focus on fewer tokens.</span></p><span class="head-axis">Layer ↓ · Head →</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
         </div>
 
         <aside class="prediction-panel">
-          <div class="panel-topline"><span class="eyebrow">03 / NEXT TOKEN</span><span class="small-cross" aria-hidden="true">↗</span></div>
-          <h2>The model’s next guess.</h2>
-          <div class="prediction-lead"><span class="small-label">MOST LIKELY NEXT TOKEN</span><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
+          <div class="panel-topline"><span class="eyebrow">Next token</span></div>
+
+          <div class="prediction-lead"><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
           <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
-          <div class="history-panel"><div class="history-title"><div><span class="small-label">COMPLETION CHANCE</span><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button><p class="history-note">Click the chart to jump. Checkpoints are evenly spaced here; training gaps vary.</p></div>
+          <div class="history-panel"><div class="history-title"><div><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button></div>
         </aside>
       </section>
 
       <section class="timeline-panel" aria-label="Training checkpoint timeline">
         <div class="timeline-top">
-          <div class="timeline-title"><span class="small-label">TRAINING STEP</span><strong id="stepNumber"></strong><span id="checkpointCount"></span></div>
+          <div class="timeline-title"><span class="small-label">Step</span><strong id="stepNumber"></strong><span id="checkpointCount" class="sr-only"></span></div>
           <div class="transport"><button id="previousButton" class="icon-button" aria-label="Previous checkpoint" title="Previous checkpoint (left arrow)">←</button><button id="playButton" class="play-button" aria-label="Play checkpoints"><span id="playIcon" aria-hidden="true">▶</span><span id="playLabel">Play training</span></button><button id="nextButton" class="icon-button" aria-label="Next checkpoint" title="Next checkpoint (right arrow)">→</button></div>
         </div>
         <div class="timeline-options">
-          <label class="timeline-select-label" for="checkpointSelect">Jump to <select id="checkpointSelect" aria-label="Jump to a recorded training step"></select></label>
-          <label class="timeline-select-label" for="playbackSpeed">Speed <select id="playbackSpeed" aria-label="Playback speed" title="At 1×, each recorded checkpoint stays on screen for 1.2 seconds"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
-          <p class="sampling-note" id="samplingNote">One tick per snapshot. Training gaps vary.</p>
+          <label class="timeline-select-label" for="checkpointSelect"><select id="checkpointSelect" aria-label="Jump to a recorded training step"></select></label>
+          <label class="timeline-select-label" for="playbackSpeed"><select id="playbackSpeed" aria-label="Playback speed" title="At 1×, each recorded checkpoint stays on screen for 1.2 seconds"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+          <p class="sampling-note sr-only" id="samplingNote">One tick per snapshot. Training gaps vary.</p>
         </div>
         <div class="timeline-track"><div id="timelineRail" class="timeline-rail" aria-hidden="true"><span class="timeline-fill"></span><span class="timeline-thumb"></span></div><span id="timelinePreview" class="timeline-preview" aria-hidden="true" hidden></span><input id="checkpointSlider" type="range" min="0" max="1" value="0" aria-label="Training checkpoint" aria-describedby="samplingNote"><div id="timelineTicks" class="timeline-ticks" aria-hidden="true"></div></div>
-        <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span>Recorded checkpoints · training gaps vary</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
+        <div class="timeline-bottom"><span id="timelineStart">INITIALIZATION</span><span id="timelineEnd">FINAL CHECKPOINT</span></div>
       </section>
       <footer class="page-footer"><button class="text-button" id="provenanceButton">Inspect the experiment <span aria-hidden="true">↗</span></button></footer>
     </div>
   </main>
 
-  <dialog id="provenanceDialog" aria-labelledby="provenanceTitle"><div class="dialog-top"><span class="eyebrow">THE OBSERVATION RECORD</span><button class="icon-button close-button" id="closeDialog" aria-label="Close experiment details">×</button></div><h2 id="provenanceTitle">Nothing here is imagined.</h2><p class="dialog-intro">These are recorded forward passes through real model checkpoints. The timeline moves between observations; it does not invent the moments in between.</p><div id="provenanceContent"></div><div class="dialog-actions"><a href="data/traces.json" download="transformer-time-machine-traces.json" class="primary-button">Download the observations <span aria-hidden="true">↓</span></a></div></dialog>
+  <dialog id="provenanceDialog" aria-labelledby="provenanceTitle"><div class="dialog-top"><button class="icon-button close-button" id="closeDialog" aria-label="Close experiment details">×</button></div><h2 id="provenanceTitle">Experiment notes</h2><p class="dialog-intro">Measured predictions and attention at saved training checkpoints.</p><div id="provenanceContent"></div><div class="dialog-actions"><a href="data/traces.json" download="transformer-time-machine-traces.json" class="primary-button">Download data <span aria-hidden="true">↓</span></a></div></dialog>
   <div id="screenReaderStatus" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>
