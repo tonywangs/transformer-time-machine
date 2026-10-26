@@ -537,3 +537,8 @@ html[data-theme="light"] #customPromptInput[aria-invalid=true]{border-color:var(
   .visualization{min-height:80px}
   .prediction-panel #probabilityHistory{width:100%;min-height:65px}
 }
+
+/* Use tall displays for both synchronized attention views. */
+.visualization.combined-attention{display:grid;grid-template-rows:minmax(0,1fr) 160px;gap:12px;overflow:visible}
+.combined-attention #matrixWrap{grid-row:1;min-height:0;height:100%}
+.combined-attention #flowGraph{grid-row:2;min-height:0;height:100%}

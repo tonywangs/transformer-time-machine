@@ -397,13 +397,17 @@ function renderHeads() {
 }
 
 function renderVisualization() {
-  $('flowGraph').toggleAttribute('hidden', state.view !== 'flow');
-  $('matrixWrap').hidden = state.view !== 'matrix';
+  const combined = window.innerWidth >= 1100 && $('visualization').clientHeight >= 300;
+  $('visualization').classList.toggle('combined-attention', combined);
+  $('flowButton').parentElement.hidden = combined;
+  $('flowGraph').toggleAttribute('hidden', !combined && state.view !== 'flow');
+  $('matrixWrap').hidden = !combined && state.view !== 'matrix';
   $('flowButton').classList.toggle('active', state.view === 'flow');
   $('matrixButton').classList.toggle('active', state.view === 'matrix');
   $('flowButton').setAttribute('aria-pressed', String(state.view === 'flow'));
   $('matrixButton').setAttribute('aria-pressed', String(state.view === 'matrix'));
-  if (state.view === 'flow') renderFlow(); else renderMatrix();
+  if (combined || state.view === 'flow') renderFlow();
+  if (combined || state.view === 'matrix') renderMatrix();
   updateSelectionIndicators();
   const row = frame().attention[state.layer][state.head][state.query];
   const maxIndex = row.indexOf(Math.max(...row));
@@ -415,7 +419,7 @@ function renderFlow() {
   const row = frame().attention[state.layer][state.head][state.query];
   const svg = $('flowGraph');
   const available = Math.max(1, $('visualization').clientWidth);
-  const height = Math.max(100, $('visualization').clientHeight || 226);
+  const height = Math.max(100, svg.clientHeight || 226);
   // Dense prompts use numbered nodes; the query strip and tooltips retain every exact token.
   const widest = Math.max(...s.tokens.map((t) => Math.max(34, Math.min(110, displayToken(t).length * 6.2 + 12))));
   const potentialSpacing = (available - Math.min(widest + 16, available / 2)) / Math.max(1, s.tokens.length - 1);
@@ -561,16 +565,19 @@ function renderHistory() {
   const max = Math.max(...values, .000001);
   const chart = $('probabilityHistory');
   const bounds = chart.getBoundingClientRect();
-  const width = bounds.height > 0 ? 120 * bounds.width / bounds.height : 320;
-  chart.setAttribute('viewBox', `0 0 ${width} 120`);
+  const width = Math.max(100, bounds.width || 320);
+  const chartHeight = Math.max(50, bounds.height || 120);
+  chart.setAttribute('viewBox', `0 0 ${width} ${chartHeight}`);
+  const bottom = chartHeight - 10;
+  const middle = (bottom + 19) / 2;
   const right = width - 9;
-  const height = 86;
+  const height = bottom - 19;
   const x = (i) => 9 + i / Math.max(1, values.length - 1) * (width - 18);
-  const y = (p) => 105 - p / max * height;
+  const y = (p) => bottom - p / max * height;
   const points = values.map((p, i) => `${x(i)},${y(p)}`).join(' ');
   const currentX = x(state.frame);
   const currentY = y(values[state.frame]);
-  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="${right}" y2="105" stroke="${palette.historyGrid}"/><line x1="9" y1="62" x2="${right}" y2="62" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} ${right},105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="${palette.history}" stroke="${palette.background}" stroke-width="2"/>`);
+  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="${palette.historyGrid}"/><line x1="9" y1="${middle}" x2="${right}" y2="${middle}" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,${bottom} ${points} ${right},${bottom}" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 1.35}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="${bottom}" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="3" fill="${palette.history}" stroke="${palette.background}" stroke-width="1.3"/>`);
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
   $('historyStart').textContent = `${compactStep(state.data.checkpoints[0].step)}`;
   $('historyEnd').textContent = `${compactStep(state.data.checkpoints.at(-1).step)}`;
