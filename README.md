@@ -4,7 +4,7 @@
 
 An interactive view of Pythia's training. Choose an example or type your own short prompt, then scrub checkpoints to inspect actual attention and next-token probabilities.
 
-The dataset covers **Pythia-70M-deduped**, 38 checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
+The bundled dataset covers **Pythia-70M-deduped**, 38 checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
 
 The factual example completes “The capital of France is the city of” with “ Paris”. It was selected for a visible success through a [documented candidate screen](docs/fact-candidate-screen.json): 16 initial prompts, then eight Paris-format variants. The original “The capital of France is” did not put Paris first at any sampled checkpoint. This wording change illustrates prompt sensitivity; it is not a general factual-accuracy result.
 
@@ -12,11 +12,11 @@ The observations are extracted and verified. See the [verification record](docs/
 
 ## Your own prompt
 
-Choose **Your prompt**, type an unfinished phrase, and press **Analyze**. A bounded Modal CPU worker evaluates the exact input at all 38 immutable checkpoints. Once the full run arrives, the same timeline, attention heads, Flow/Matrix views, and playback work on your observations. Nothing is generated while typing, and an incomplete run never replaces the previous result.
+Choose **Your prompt**, type an unfinished phrase, and press **Analyze**. A bounded Modal L4 GPU worker evaluates the exact input at all 38 immutable checkpoints. Once the full run arrives, the same timeline, attention heads, Flow/Matrix views, and playback work on your observations. Choose Pythia 70M, 160M, 410M, or 1B from the model dropdown to rerun the current prompt with that model. All four use the deduplicated Pythia training series and the same 38 training steps. Nothing is generated while typing, and an incomplete run never replaces the previous result.
 
 Custom prompts support up to 32 tokenizer tokens and 400 characters; overlong prompts are rejected rather than truncated. The history tracks the **final checkpoint's most likely next token** across training. This is not a correct-answer label. Pythia is a small pretrained completion model, not a chat assistant.
 
-The first run after inactivity may take a minute. Cancel stops the job; failures leave existing examples usable. About the data downloads the currently displayed custom experiment, including its prompt, tokens, probabilities, attention, runtime metadata, and immutable checkpoint sources. Custom observations stay in browser memory for this visit. Server access expires after an hour; expired records are cleaned on later requests and otherwise follow Modal Dict retention. See [the service contract and limits](docs/custom-api.md) and [the Vercel proxy setup](docs/custom-prompt-proxy.md).
+A first run can take several minutes, especially for larger models; it evaluates 38 separate weight snapshots. Completed model/prompt combinations are cached in browser memory for quick comparisons. Cancel stops the job; failures leave existing examples usable. About the data downloads the currently displayed custom experiment, including its prompt, tokens, probabilities, attention, runtime metadata, and immutable checkpoint sources. Custom observations stay in browser memory for this visit. Server access expires after an hour; expired records are cleaned on later requests and otherwise follow Modal Dict retention. See [the service contract and limits](docs/custom-api.md) and [the Vercel proxy setup](docs/custom-prompt-proxy.md).
 
 ## Preview
 

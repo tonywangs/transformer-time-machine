@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bounded, authenticated Pythia timeline service. Deploy explicitly with Modal.
 
-Only immutable model snapshots are baked into the worker image. Prompts are
+Only immutable model snapshots from the allowlisted catalog are loaded from a Volume. Prompts are
 never logged. The small gateway admits jobs serially; a separate worker computes
 real observations. No HTTP response contains more than one checkpoint.
 """
@@ -25,10 +25,14 @@ MANIFEST_SHA = hashlib.sha256(MANIFEST_BYTES).hexdigest()
 EXTRACTOR_SHA = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 MODEL_ID = MANIFEST["model"]["id"]
 CHECKPOINTS = MANIFEST["checkpoints"]
+CATALOG_PATH = SOURCE / "models.json"
+if not CATALOG_PATH.exists():
+    CATALOG_PATH = SOURCE.parent / "dist/data/models.json"
+CATALOG = json.loads(CATALOG_PATH.read_text())
 TOTAL = len(CHECKPOINTS)
 MAX_TOKENS = 32
 MAX_CHARS = 400
-JOB_TIMEOUT = 180
+JOB_TIMEOUT = 900
 ACCESS_TTL = 3600
 MAX_OUTSTANDING = 2  # One running and at most one waiting.
 GLOBAL_DAILY = 200
@@ -54,11 +58,13 @@ def validate_request(payload):
     if not isinstance(payload, dict):
         raise RequestError("Send a JSON object.")
     action = payload.get("action")
-    allowed = {"start": {"action", "prompt"}, "poll": {"action", "job_id", "cursor"},
+    allowed = {"start": {"action", "prompt", "model"}, "poll": {"action", "job_id", "cursor"},
                "cancel": {"action", "job_id"}}
     if not isinstance(action, str) or action not in allowed or set(payload) - allowed[action]:
         raise RequestError("Unknown request action or fields.")
     if action == "start":
+        if not isinstance(payload.get("model", "70m"), str) or payload.get("model", "70m") not in CATALOG:
+            raise RequestError("Choose a supported Pythia model.")
         prompt = payload.get("prompt")
         if not isinstance(prompt, str) or not prompt.strip():
             raise RequestError("Enter a short prompt first.")
@@ -97,7 +103,8 @@ def public_progress(job, progress):
         if key in progress:
             result[key] = progress[key]
     if "scene" in progress:
-        result.update(model=MANIFEST["model"], checkpoints=CHECKPOINTS)
+        manifest = CATALOG[job.get("model", "70m")]
+        result.update(model=manifest["model"], checkpoints=manifest["checkpoints"])
     return result
 
 
@@ -173,7 +180,7 @@ class Gateway:
             if len(active) >= MAX_OUTSTANDING:
                 raise RequestError("The model is busy. Try again in a minute.", 429, "busy", 60)
             job_id = str(uuid.uuid4())
-            job = {"id": job_id, "client": client, "prompt": payload["prompt"],
+            job = {"id": job_id, "client": client, "prompt": payload["prompt"], "model": payload.get("model", "70m"),
                    "created_at": now, "expires_at": now + ACCESS_TTL}
             self.store[f"job:{job_id}"] = job
             self.store[f"progress:{job_id}"] = {"status": "queued", "completed": 0}
@@ -215,27 +222,32 @@ class Gateway:
 
 def get_tokenizer():
     global _TOKENIZER
-    if _TOKENIZER is None:
-        from transformers import AutoTokenizer
-        _TOKENIZER = AutoTokenizer.from_pretrained(MODEL_ID, revision=MANIFEST["tokenizer_commit_sha"],
-            cache_dir="/models", local_files_only=True, trust_remote_code=False)
+    from transformers import AutoTokenizer
+    _TOKENIZER = AutoTokenizer.from_pretrained(MODEL_ID, revision=MANIFEST["tokenizer_commit_sha"],
+        cache_dir="/models", local_files_only=True, trust_remote_code=False)
     return _TOKENIZER
 
 
 def get_model(index):
-    if index not in _MODEL_CACHE:
-        import torch
-        from transformers import AutoModelForCausalLM
-        _MODEL_CACHE[index] = AutoModelForCausalLM.from_pretrained(MODEL_ID,
+    # Bound memory to one checkpoint, even when changing model sizes.
+    import gc
+    import torch
+    from transformers import AutoModelForCausalLM
+    key = (MODEL_ID, index)
+    if key not in _MODEL_CACHE:
+        _MODEL_CACHE.clear()
+        gc.collect()
+        torch.cuda.empty_cache()
+        _MODEL_CACHE[key] = AutoModelForCausalLM.from_pretrained(MODEL_ID,
             revision=CHECKPOINTS[index]["commit_sha"], cache_dir="/models", local_files_only=True,
-            torch_dtype=torch.float32, attn_implementation="eager", trust_remote_code=False).eval()
-    return _MODEL_CACHE[index]
+            torch_dtype=torch.float32, attn_implementation="eager", trust_remote_code=False).eval().to("cuda")
+    return _MODEL_CACHE[key]
 
 
 def observe(model, tokenizer, token_ids, index, target_id=None):
     import torch
     with torch.inference_mode():
-        tokens = torch.tensor([token_ids], dtype=torch.long)
+        tokens = torch.tensor([token_ids], dtype=torch.long, device=model.device)
         result = model(input_ids=tokens, attention_mask=torch.ones_like(tokens), output_attentions=True, use_cache=False)
         probabilities = torch.softmax(result.logits[0, -1].float(), dim=-1)
         if not result.attentions or any(a is None for a in result.attentions):
@@ -265,18 +277,25 @@ def observe(model, tokenizer, token_ids, index, target_id=None):
 
 
 def run_job(job_id, store):
+    global MANIFEST, MANIFEST_SHA, MODEL_ID, CHECKPOINTS
     import platform
     import torch
     import transformers
     job = store.get(f"job:{job_id}")
     if not job or store.get(f"cancel:{job_id}", False):
         return
+    MANIFEST = CATALOG[job.get("model", "70m")]
+    MANIFEST_SHA = hashlib.sha256(json.dumps(MANIFEST, sort_keys=True).encode()).hexdigest()
+    MODEL_ID = MANIFEST["model"]["id"]
+    CHECKPOINTS = MANIFEST["checkpoints"]
     started = time.time()
     progress = {"status": "running", "completed": 0, "started_at": started}
     store[f"progress:{job_id}"] = progress
     try:
         torch.set_num_threads(4)
         torch.manual_seed(0)
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
         tokenizer = get_tokenizer()
         token_ids = tokenizer.encode(job["prompt"], add_special_tokens=False)
         if not 1 <= len(token_ids) <= MAX_TOKENS:
@@ -287,14 +306,14 @@ def run_job(job_id, store):
                  "prompt": job["prompt"], "tokens": [tokenizer.decode([i]) for i in token_ids],
                  "token_ids": token_ids, "target_label": tokenizer.decode([target_id]), "target_token_ids": [target_id],
                  "target_selection": "final_checkpoint_argmax"}
-        provenance = {"extracted_at": iso(started), "device": "cpu", "dtype": "float32",
+        provenance = {"extracted_at": iso(started), "device": "cuda", "gpu": torch.cuda.get_device_name(), "dtype": "float32",
                       "platform": platform.platform(), "torch_version": str(torch.__version__),
                       "transformers_version": transformers.__version__,
                       "extractor_sha256": EXTRACTOR_SHA,
                       "manifest_sha256": MANIFEST_SHA, "tokenizer_commit_sha": MANIFEST["tokenizer_commit_sha"],
                       "notes": ["Actual eval-mode forward passes at all 38 immutable checkpoints.",
                                 "Tracked token is the final checkpoint's top guess, not an accuracy label.",
-                                "CPU float32, eager attention, inference mode, no KV cache, no implicit BOS.",
+                                "CUDA float32 (TF32 disabled), eager attention, inference mode, no KV cache, no implicit BOS.",
                                 "Attention weights rounded to six decimals; no interpolated model observations.",
                                 "Concentration is final-query focus; a one-token prompt has concentration 1."],
                       "environment": {"attention_implementation": "eager", "eval_mode": True,
@@ -341,23 +360,41 @@ def get_store():
 base_image = (modal.Image.debian_slim(python_version="3.11")
               .pip_install("fastapi==0.116.1")
               .add_local_file(MANIFEST_PATH, "/service/model-manifest.json", copy=True)
+              .add_local_file(CATALOG_PATH, "/service/models.json", copy=True)
               .env({"PYTHONPATH": "/service"}))
 gateway_image = base_image.add_local_file(__file__, "/service/serve_custom.py", copy=True)
 worker_image = (base_image
-    .pip_install("torch==2.8.0", index_url="https://download.pytorch.org/whl/cpu")
+    .pip_install("torch==2.8.0")
     .pip_install("transformers==4.56.2", "huggingface_hub==0.35.3")
     .env({"HF_HUB_DISABLE_TELEMETRY": "1", "TOKENIZERS_PARALLELISM": "false",
           "HF_XET_CHUNK_CACHE_SIZE_BYTES": "0"})
     .add_local_file(SOURCE / "cache_custom_models.py", "/service/cache_custom_models.py", copy=True)
-    .run_commands("python /service/cache_custom_models.py")
     .add_local_file(__file__, "/service/serve_custom.py", copy=True))
 
 
-@app.function(image=worker_image, cpu=(4, 4), memory=(16384, 16384), timeout=JOB_TIMEOUT,
+model_volume = modal.Volume.from_name("transformer-time-machine-models", create_if_missing=True)
+
+
+@app.function(image=worker_image, cpu=(4, 4), memory=(16384, 16384), gpu="L4",
+              volumes={"/models": model_volume}, timeout=JOB_TIMEOUT,
               max_containers=1, min_containers=0, retries=0, scaledown_window=120,
               serialized=True, include_source=False)
 def analyze(job_id):
+    modal.Volume.from_name("transformer-time-machine-models").reload()
     run_job(job_id, get_store())
+
+
+@app.function(image=worker_image, cpu=4, memory=8192, timeout=7200,
+              volumes={"/models": model_volume}, serialized=True, include_source=False)
+def prepare_models():
+    import subprocess
+    subprocess.run(["python", "/service/cache_custom_models.py"], check=True)
+    modal.Volume.from_name("transformer-time-machine-models").commit()
+
+
+@app.local_entrypoint()
+def prepare():
+    prepare_models.remote()
 
 
 @app.function(image=gateway_image, cpu=(0.25, 0.25), memory=(512, 512), timeout=30,

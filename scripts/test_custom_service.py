@@ -7,6 +7,14 @@ from types import SimpleNamespace
 import serve_custom as service
 
 
+class SimpleNamespaceModel:
+    device = "cpu"
+    def __init__(self, forward):
+        self.forward = forward
+    def __call__(self, **inputs):
+        return self.forward(**inputs)
+
+
 class Store(dict):
     # Modal Dict returns deserialized copies, not shared mutable references.
     def get(self, key, default=None):
@@ -109,6 +117,24 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(service.MANIFEST["tokenizer_commit_sha"], traces["provenance"]["tokenizer_commit_sha"])
         self.assertEqual(service.TOTAL, 38)
 
+    def test_model_selection_and_manifest_isolation(self):
+        for invalid in ['12b', '', [], None]:
+            self.assert_error('invalid_request', {'action': 'start', 'prompt': 'Hello', 'model': invalid})
+        for size, manifest in service.CATALOG.items():
+            job, _ = self.gateway.handle({'action': 'start', 'prompt': 'Hello', 'model': size}, self.client)
+            stored = self.store['job:' + job['job_id']]
+            self.assertEqual(stored['model'], size)
+            result = service.public_progress(stored, {'scene': {}})
+            self.assertEqual(result['model'], manifest['model'])
+            self.assertEqual(result['checkpoints'], manifest['checkpoints'])
+            self.finish(job)
+
+    def test_all_models_fit_proxy_payload_limit(self):
+        for manifest in service.CATALOG.values():
+            m = manifest['model']
+            frame = {'attention': [[[[0.123456] * 32 for _ in range(32)] for _ in range(m['heads'])] for _ in range(m['layers'])]}
+            self.assertLess(len(json.dumps(frame).encode()) + 50000, 4 * 1024 * 1024)
+
     def test_maximum_rounded_frame_payload_is_bounded(self):
         frame = {"attention": [[[[0.123456] * 32 for _ in range(32)] for _ in range(8)] for _ in range(6)]}
         self.assertLess(len(json.dumps(frame).encode()), 500_000)
@@ -133,7 +159,7 @@ class ObservationTests(unittest.TestCase):
 
     def test_single_token_focus_and_target_are_actual_finite_values(self):
         tokenizer = SimpleNamespace(decode=lambda ids: f"token-{ids[0]}")
-        frame, target = service.observe(self.model, tokenizer, [3], 37)
+        frame, target = service.observe(SimpleNamespaceModel(self.model), tokenizer, [3], 37)
         self.assertEqual(target, 9)
         self.assertEqual(frame["target_probability"], frame["top_tokens"][0]["probability"])
         self.assertEqual(frame["concentration"], [[1.0] * 8] * 6)
@@ -141,7 +167,7 @@ class ObservationTests(unittest.TestCase):
 
     def test_fixed_target_is_preserved_and_real_frame_stays_small(self):
         tokenizer = SimpleNamespace(decode=lambda ids: f"token-{ids[0]}")
-        frame, target = service.observe(self.model, tokenizer, list(range(32)), 0, target_id=2)
+        frame, target = service.observe(SimpleNamespaceModel(self.model), tokenizer, list(range(32)), 0, target_id=2)
         self.assertEqual(target, 2)
         self.assertNotEqual(frame["target_probability"], frame["top_tokens"][0]["probability"])
         self.assertEqual(frame["attention"][0][0][0][1], 0.0)

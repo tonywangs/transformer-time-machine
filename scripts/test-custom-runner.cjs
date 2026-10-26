@@ -46,7 +46,7 @@ function harness(implementation) {
 test('assembles exactly the 38 observed chronological frames and preserves the exact prompt', async () => {
   const h = harness();
   await h.runner.start(prompt, checkpoints);
-  assert.deepEqual(h.calls[0], { action: 'start', prompt });
+  assert.deepEqual(h.calls[0], { action: 'start', prompt, model: '70m' });
   assert.deepEqual(h.calls.filter((call) => call.action === 'poll').map((call) => call.cursor), steps.map((_, i) => i));
   assert.equal(h.completed.length, 1);
   assert.equal(h.completed[0].prompt, prompt);
@@ -257,5 +257,32 @@ test('invalid prompt input reports an error without touching the current run or 
     assert.deepEqual(h.calls, []);
     assert.equal(h.errors.length, 1);
     assert.deepEqual(h.completed, []);
+  }
+});
+
+
+test('rejects a different model even when checkpoint metadata matches', async () => {
+  const h = harness((call) => {
+    if (call.action === 'start') return admitted();
+    if (call.action === 'cancel') return {};
+    return { ...observation(call.cursor), model: { ...manifest.model, id: 'EleutherAI/pythia-1b-deduped' } };
+  });
+  await h.runner.start(prompt, checkpoints, '70m');
+  assert.equal(h.completed.length, 0);
+  assert.equal(h.errors.length, 1);
+});
+
+test('each larger model carries its own immutable manifest to completion', async () => {
+  const catalog = require('../dist/data/models.json');
+  for (const size of ['160m', '410m', '1b']) {
+    const m = catalog[size];
+    const h = harness((call) => call.action === 'start' ? admitted() : {
+      ...observation(call.cursor), model: m.model, checkpoints: m.checkpoints,
+      provenance: { tokenizer_commit_sha: m.tokenizer_commit_sha }
+    });
+    await h.runner.start(prompt, m.checkpoints, size);
+    assert.equal(h.calls[0].model, size);
+    assert.deepEqual(h.errors, []);
+    assert.equal(h.completed[0].model.id, m.model.id);
   }
 });

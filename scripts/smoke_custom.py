@@ -17,28 +17,29 @@ def main():
     parser.add_argument('--base-url', default='https://transformer-time-machine.vercel.app')
     parser.add_argument('--prompt', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--model', choices=['70m', '160m', '410m', '1b'], default='70m')
     args = parser.parse_args()
-    expected = json.loads((Path(__file__).parent / 'model-manifest.json').read_text())
+    expected = json.loads((Path(__file__).parent.parent / 'dist/data/models.json').read_text())[args.model]
     def request(payload):
         req = urllib.request.Request(args.base_url.rstrip('/') + '/api/analyze',
             data=json.dumps(payload).encode(), headers={'Content-Type': 'application/json'})
         try:
             with urllib.request.urlopen(req, timeout=40) as response:
-                data = response.read(1024 * 1024 + 1)
-                if len(data) > 1024 * 1024:
+                data = response.read(4 * 1024 * 1024 + 1)
+                if len(data) > 4 * 1024 * 1024:
                     raise RuntimeError('Response exceeded one-frame limit')
                 return json.loads(data)
         except urllib.error.HTTPError as error:
             payload = json.loads(error.read(4096))
             raise RuntimeError(f"HTTP {error.code}: {payload.get('error', 'Request failed')}") from None
     started = time.monotonic()
-    admission = request({'action': 'start', 'prompt': args.prompt})
+    admission = request({'action': 'start', 'prompt': args.prompt, 'model': args.model})
     job = admission['job_id']
     frames = []
     last_progress = None
     try:
         while len(frames) < len(expected['checkpoints']):
-            if time.monotonic() - started > 240:
+            if time.monotonic() - started > 1920:
                 raise RuntimeError('Experiment exceeded smoke-test deadline')
             result = request({'action': 'poll', 'job_id': job, 'cursor': len(frames)})
             if result['status'] in {'error', 'cancelled'}:

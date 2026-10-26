@@ -164,7 +164,7 @@ test('hides backend failures and rejects malformed or oversized output', async (
   assert.ok(!JSON.stringify(result.data).includes('secret'));
   global.fetch = async () => new Response('<html>oops</html>', { headers: { 'content-type': 'text/html' } });
   assert.equal((await run()).statusCode, 502);
-  global.fetch = async () => Response.json({ data: 'x'.repeat(1024 * 1024) });
+  global.fetch = async () => Response.json({ data: 'x'.repeat(4 * 1024 * 1024) });
   assert.equal((await run()).statusCode, 502);
   global.fetch = async () => { throw new Error('private service URL and credentials'); };
   result = await run();
@@ -205,4 +205,16 @@ test('a disconnected client aborts the proxy request without writing a response'
   assert.equal(res.data, undefined);
   assert.equal(req.listenerCount('aborted'), 0);
   assert.equal(res.listenerCount('close'), 0);
+});
+
+test('forwards allowlisted model identity and rejects arbitrary model requests', async () => {
+  for (const model of ['70m', '160m', '410m', '1b']) {
+    assert.equal((await run({ action: 'start', prompt: 'Hello', model })).statusCode, 202);
+    assert.equal(JSON.parse(calls.at(-1)[1].body).model, model);
+  }
+  for (const model of ['12b', '../model', [], {}, null]) {
+    const count = calls.length;
+    assert.equal((await run({ action: 'start', prompt: 'Hello', model })).statusCode, 400);
+    assert.equal(calls.length, count);
+  }
 });

@@ -7,13 +7,18 @@ from huggingface_hub import hf_hub_download
 
 
 def main():
-    manifest = json.loads(Path("/service/model-manifest.json").read_text())
+    catalog = json.loads(Path("/service/models.json").read_text())
+    for manifest in catalog.values():
+        cache(manifest)
+
+
+def cache(manifest):
 
     def fetch(checkpoint):
         for filename in ("config.json", "model.safetensors"):
             hf_hub_download(manifest["model"]["id"], filename,
                             revision=checkpoint["commit_sha"], cache_dir="/models")
-        print(f"Cached immutable checkpoint {checkpoint['step']}", flush=True)
+        print(f"Cached {manifest['model']['id']} immutable checkpoint {checkpoint['step']}", flush=True)
 
     with ThreadPoolExecutor(max_workers=4) as pool:
         list(pool.map(fetch, manifest["checkpoints"]))

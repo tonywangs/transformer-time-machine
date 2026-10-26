@@ -1,0 +1,89 @@
+{
+  "verification": "Real operator-only GPU inference; all 38 frames checked for dimensions, normalized attention, and response size. Timings include checkpoint loading and storage, and are not controlled performance benchmarks.",
+  "results": [
+    {
+      "model": "EleutherAI/pythia-70m-deduped",
+      "prompt": "The quick brown fox jumps over the",
+      "token_count": 7,
+      "checkpoint_count": 38,
+      "layers": 6,
+      "heads": 8,
+      "device": "cuda",
+      "gpu": "NVIDIA L4",
+      "dtype": "float32",
+      "inference_seconds": 52.282,
+      "maximum_frame_bytes": 20717,
+      "final_top_token": {
+        "id": 1390,
+        "token": " last",
+        "probability": 0.020672587677836418
+      },
+      "record_sha256": "3bd7f9d4cd4f94345ac9ae04a04a7961a92a0135ef1f6731f55d7b49fb65cdc7",
+      "extractor_sha256": "ba0fc31e778c78705a6af570b4f1f6da10273913f72ec70da73533bcbe33c840",
+      "manifest_sha256": "3f26941375b25d7aa78f8cff54e0cc1b0164ea97432b7acddc6561d97b2b1f23"
+    },
+    {
+      "model": "EleutherAI/pythia-160m-deduped",
+      "prompt": "The quick brown fox jumps over the",
+      "token_count": 7,
+      "checkpoint_count": 38,
+      "layers": 12,
+      "heads": 12,
+      "device": "cuda",
+      "gpu": "NVIDIA L4",
+      "dtype": "float32",
+      "inference_seconds": 114.744,
+      "maximum_frame_bytes": 60533,
+      "final_top_token": {
+        "id": 19354,
+        "token": " fence",
+        "probability": 0.20375627279281616
+      },
+      "record_sha256": "8abfcb17c0609569f71ea3d42a271c437238db7f1bd39160894439266c69a20e",
+      "extractor_sha256": "fe348d4fea6ad8a4bf6ee3098e8730eeb8ab571053a6b900f09ef5d49f112711",
+      "manifest_sha256": "cd325ac0ff54f31a66a33e7bc5a63d4caf12efb294da35df3449b3b05940eef7"
+    },
+    {
+      "model": "EleutherAI/pythia-410m-deduped",
+      "prompt": " red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red",
+      "token_count": 32,
+      "checkpoint_count": 38,
+      "layers": 24,
+      "heads": 16,
+      "device": "cuda",
+      "gpu": "NVIDIA L4",
+      "dtype": "float32",
+      "inference_seconds": 220.103,
+      "maximum_frame_bytes": 2990538,
+      "final_top_token": {
+        "id": 13,
+        "token": ",",
+        "probability": 0.09042324125766754
+      },
+      "record_sha256": "fc6995acff6a3fae5a5754395d6160bac776fc7f8d3d15a63d81efe27ea9bf7f",
+      "extractor_sha256": "fe348d4fea6ad8a4bf6ee3098e8730eeb8ab571053a6b900f09ef5d49f112711",
+      "manifest_sha256": "06a99c20bfae1542915e348dd39eae6a58be775f71f11dfa18e90661fcfce459"
+    },
+    {
+      "model": "EleutherAI/pythia-1b-deduped",
+      "prompt": "The quick brown fox jumps over the",
+      "token_count": 7,
+      "checkpoint_count": 38,
+      "layers": 16,
+      "heads": 8,
+      "device": "cuda",
+      "gpu": "NVIDIA L4",
+      "dtype": "float32",
+      "inference_seconds": 253.98,
+      "maximum_frame_bytes": 53939,
+      "final_top_token": {
+        "id": 22658,
+        "token": " lazy",
+        "probability": 0.9865568280220032
+      },
+      "record_sha256": "f4f87285e4d483bf0af167c6b63f02323d2b983dc8b56439e8038ff1f1e3e4e2",
+      "extractor_sha256": "fe348d4fea6ad8a4bf6ee3098e8730eeb8ab571053a6b900f09ef5d49f112711",
+      "manifest_sha256": "9f9ba3661abf8052a95f805da8ae9eb3553bdd308a397ecfd0ddcfc5ee0d9e3c"
+    }
+  ]
+}

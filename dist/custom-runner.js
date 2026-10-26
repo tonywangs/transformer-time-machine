@@ -14,7 +14,7 @@ class PromptExperiment {
     this.job = null;
     if (job) { try { await this.request({ action: 'cancel', job_id: job }); } catch (_) {} }
   }
-  async start(prompt, checkpoints) {
+  async start(prompt, checkpoints, model = '70m') {
     // Do not normalize the prompt: whitespace is part of the tokenized experiment.
     if (typeof prompt !== 'string' || !prompt.trim() || [...prompt].length > 400) {
       this.onError('Enter a prompt of 1–400 characters.');
@@ -31,17 +31,17 @@ class PromptExperiment {
     try {
       await previousCancellation;
       if (!current()) return;
-      const started = await this.request({ action: 'start', prompt });
+      const started = await this.request({ action: 'start', prompt, model });
       job = started.job_id;
       if (typeof job !== 'string' || started.total !== checkpoints.length) throw new Error('The experiment server returned an incompatible run.');
       // A cancel can race with admission. Cancel the accepted job as soon as its ID arrives.
       if (!current()) { await this.request({ action: 'cancel', job_id: job }).catch(() => {}); return; }
       this.job = job;
       const frames = [];
-      let metadata, provenance;
+      let metadata, provenance, observedModel;
       let manifestVerified = false;
       let failures = 0;
-      const deadline = Date.now() + 240000;
+      const deadline = Date.now() + 1920000;
       while (frames.length < checkpoints.length) {
         if (!current()) return;
         if (Date.now() > deadline) throw new Error('This run took too long. Please try again in a moment.');
@@ -69,11 +69,12 @@ class PromptExperiment {
               && checkpoint.step === checkpoints[index].step
               && /^[a-f0-9]{40}$/i.test(checkpoints[index].commit_sha || '')
               && checkpoint.commit_sha === checkpoints[index].commit_sha);
-          if (!sameManifest || result.provenance?.tokenizer_commit_sha !== checkpoints.at(-1).commit_sha) {
+          if (result.model?.id !== `EleutherAI/pythia-${model}-deduped` || !sameManifest || result.provenance?.tokenizer_commit_sha !== checkpoints.at(-1).commit_sha) {
             throw new Error('This experiment used a different checkpoint or tokenizer. Please refresh and try again.');
           }
           manifestVerified = true;
         }
+        if (result.model) observedModel = result.model;
         if (result.scene) metadata = result.scene;
         if (result.provenance) provenance = result.provenance;
         this.onProgress(result);
@@ -83,7 +84,7 @@ class PromptExperiment {
         } else await this.wait(750);
       }
       if (!metadata || metadata.prompt !== prompt || !provenance || !manifestVerified) throw new Error('The completed experiment is missing its observation record.');
-      if (current()) this.onComplete({ ...metadata, custom: true, provenance, frames });
+      if (current()) this.onComplete({ ...metadata, custom: true, provenance, frames, model: observedModel, checkpoints });
     } catch (error) {
       if (current()) this.onError(error.message || 'The experiment could not be completed.');
       if (job) await this.request({ action: 'cancel', job_id: job }).catch(() => {});

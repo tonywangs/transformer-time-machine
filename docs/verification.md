@@ -56,3 +56,21 @@ A separate Apple-silicon replay had identical tokenization, checkpoint hashes, a
 The automated checks cover complete ordered assembly, immutable checkpoint/tokenizer identity, cancellation and late responses, transient failures, request limits, client ownership, quotas, expiry, one-token focus, and the 32-token payload bound. The 12 existing playback tests, 14 experiment-runner tests, 13 proxy tests, and 11 backend tests passed. Bundled observations retain SHA-256 `21e806364dace6d96c2b51349ea480e92031d58b77f7af86012e0896423390a3`.
 
 Browser checks confirmed completed 1-token and 32-token live experiments (including all 48 single-token heads at 100% focus), a rejected 33-token prompt without truncation, cancellation preserving the last result, all 38 selectable steps, Flow/Matrix inspection, exact prompt preservation, a read-only editor during analysis, and a visible distinction between the pending draft and the previous displayed result. The 1100 × 620 desktop view has no page overflow; the 390-pixel mobile view has no horizontal overflow. The backend rejects unauthenticated direct requests with HTTP 401.
+
+
+## Selectable Pythia models (2026-10-25)
+
+The model dropdown supports deduplicated Pythia 70M, 160M, 410M, and 1B.
+All four were run on a Modal L4 at all 38 pinned checkpoints. The 410M run
+used the maximum 32-token input and its largest serialized frame was 2,990,538
+bytes, below the 4 MiB proxy limit. See [the measured results](model-verification.json)
+for exact prompts, final probabilities, record hashes, and runtime metadata.
+`verify_models.py` reproduces these operator checks through the authenticated
+Modal SDK; `smoke_custom.py --model SIZE` exercises the public Vercel route.
+
+Offline checks: 16 experiment-runner cases, 14 proxy cases, 12 playback cases,
+and 13 service cases passed. Browser checks used the real GPU records through
+a local replay transport: model switching, checkpoint preservation, cached
+revisits, failure labeling, all 24 layers, 32-token Flow/Matrix, light/dark themes,
+1100×620 with no page scrolling, and 390px mobile with no horizontal overflow.
+The replay transport is test-only and is not deployed.

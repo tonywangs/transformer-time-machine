@@ -473,3 +473,11 @@ html[data-theme="light"] #customPromptInput[aria-invalid=true]{border-color:var(
   #customPromptInput{height:96px;font-size:12px}
   .custom-pending-note{font-size:7px}
 }
+
+/* Model and layer selection stay within the existing dashboard footprint. */
+.model-picker{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.model-picker select,#layerPage{font:11px var(--mono);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:5px 24px 5px 8px;cursor:pointer;transition:border-color .18s ease,background .18s ease}
+.model-picker select:hover,#layerPage:hover{border-color:var(--mint)}
+.model-picker select:focus-visible,#layerPage:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+#layerPage{font-size:9px;padding:4px 5px;margin-top:5px;max-width:150px}
+.head-row[hidden]{display:none!important}

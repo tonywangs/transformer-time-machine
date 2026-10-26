@@ -7,18 +7,20 @@ this key server-side and forwards `Authorization: Bearer …` plus `X-TTM-Client
 a 64-character lowercase HMAC fingerprint of the trusted client IP.
 
 The gateway serializes admission with one container and a local lock. The
-separate inference function has one container, 4 CPU cores, 16 GiB RAM, a
-180-second execution timeout, no retries, and no minimum warm containers. Its
-image contains all 38 checkpoint snapshots from `scripts/model-manifest.json`;
-all loads use immutable commit hashes and local files only. Models remain cached
-in RAM while that worker is alive. The worker stays warm for two minutes after
-a run, so playing the timeline does not immediately discard its model cache.
-It then scales to zero. HTTP status polls never load model weights.
+separate inference function has one L4 GPU, 4 CPU cores, 16 GiB RAM, a
+900-second execution timeout, no retries, and no minimum warm containers.
+`dist/data/models.json` pins 38 checkpoints each for 70M, 160M, 410M, and 1B
+(all deduped). `modal run scripts/serve_custom.py::prepare` explicitly populates
+the `transformer-time-machine-models` Volume before deployment; public requests
+cannot download arbitrary weights. Inference loads local files only and retains
+at most one checkpoint in GPU memory. The worker scales to zero after two minutes.
+The Volume persists between runs; HTTP status polls never load model weights.
 
 ## Requests and responses
 
-Start: `{"action":"start","prompt":"Once upon a"}` returns HTTP 202 with
+Start: `{"action":"start","prompt":"Once upon a","model":"1b"}` returns HTTP 202 with
 `{job_id,status:"queued",completed:0,total:38,expires_at}`. `job_id` is a UUIDv4.
+The model is allowlisted (`70m`, `160m`, `410m`, `1b`); omission defaults to `70m` for older clients. Model identity is saved with the job and checked in the browser along with every checkpoint SHA.
 The exact prompt is preserved, including leading/trailing whitespace. Empty
 prompts and more than 400 Unicode characters fail before admission. The worker
 rejects prompts outside 1–32 tokenizer tokens before loading a model.
@@ -53,12 +55,14 @@ a correctness label, and the final top guess can be punctuation or a special
 token. The final frame still occupies chronological index 37. The remaining
 checkpoints run in order from index 0.
 
-All frames use CPU float32, eager attention, eval/inference mode, no KV cache,
+New live frames use CUDA float32 with TF32 disabled, eager attention, eval/inference mode, no KV cache,
 and the recorded final tokenizer with no implicit BOS. Attention is rounded to
-six decimal places as Python scalars, keeping even a 32-token, 48-head frame
-below 500 KB. Focus is one minus normalized entropy of the final query's
+six decimal places as Python scalars. Even the largest supported attention layout
+(410M: 24 layers × 16 heads × 32 × 32 tokens) fits the 4 MiB proxy response cap.
+The original bundled 70M examples retain their recorded CPU observations. Focus is one minus normalized entropy of the final query's
 attention; a one-token prompt has focus 1. The manifest, extractor, runtime,
 tokenizer hash, and original immutable checkpoint URLs accompany each result.
+The selected manifest hash is SHA-256 of Python `json.dumps(manifest, sort_keys=True).encode()`.
 
 ## Public compute and retention limits
 
@@ -92,3 +96,20 @@ the Vercel proxy. Runtime failures never fall back to synthetic observations.
 Official references: [Modal HTTP timeouts](https://modal.com/docs/guide/webhook-timeouts),
 [Modal scaling](https://modal.com/docs/guide/scale),
 [Vercel payload limits](https://vercel.com/docs/functions/limitations).
+
+## Model-switching UI
+
+The dropdown reruns the displayed/draft prompt using the selected model and
+preserves the selected training step. A completed result installs its model,
+checkpoint manifest, and frames together. During a run or after failure, the
+previous result remains labeled with its actual model. The client retains at
+most four complete model/prompt results in memory for immediate revisits;
+refreshing the page clears this cache. Preset buttons seed a new live experiment
+when a larger model is selected. The original 70M examples remain available
+without inference. Attention heads are paged in groups of six layers, with all
+heads and layers accessible at every recorded checkpoint.
+
+The first run can take several minutes to load and evaluate 38 separate weight
+snapshots. It is not a chat endpoint. The browser allows up to 32 minutes for
+one queued job plus a 15-minute worker run; HTTP requests remain individually
+bounded to 30 seconds at the proxy. Cancel stops outstanding inference.

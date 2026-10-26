@@ -14,7 +14,7 @@ The proxy sends `Authorization: Bearer <key>` and `X-TTM-Client: <HMAC-SHA256 fi
 All calls are `POST /api/analyze` with `Content-Type: application/json`:
 
 ```json
-{"action":"start","prompt":"Once upon a"}
+{"action":"start","prompt":"Once upon a","model":"1b"}
 ```
 
 ```json
@@ -25,7 +25,7 @@ All calls are `POST /api/analyze` with `Content-Type: application/json`:
 {"action":"cancel","job_id":"12345678-1234-4123-8123-123456789abc"}
 ```
 
-Only these fields are forwarded. Prompt whitespace is preserved exactly. The proxy allows at most 400 Unicode code points and a 4 KiB JSON body; the model service enforces its separate 32-token limit. Poll cursors are chronological checkpoint indices from 0 through 37. Each response contains at most one real checkpoint observation and must fit within 1 MiB. Responses are never HTTP-cached.
+Only these fields are forwarded. Prompt whitespace is preserved exactly. The proxy allows at most 400 Unicode code points and a 4 KiB JSON body; the model service enforces its separate 32-token limit. Poll cursors are chronological checkpoint indices from 0 through 37. Each response contains at most one real checkpoint observation and must fit within 4 MiB. Responses are never HTTP-cached.
 
 Same-site browser requests from the canonical production URL and Vercel's configured deployment URLs are accepted. Cross-site browser requests are rejected. Non-browser clients can call the endpoint; origin checks are not bot prevention. In production, a missing or ambiguous Vercel client-IP header disables custom requests instead of accepting a user-supplied identity. The direct local development path uses the socket IP and accepts a matching localhost origin only outside production.
 
@@ -45,3 +45,5 @@ The tests mock the model service; they verify the proxy boundary and do not perf
 Static-only preview with `python3 -m http.server --directory dist` does not serve `/api/analyze`. Use Vercel's local development server with separately configured local environment variables when testing custom inference, or test a deployed preview. Recorded examples continue to work without backend configuration.
 
 Official deployment references: [Node.js functions](https://vercel.com/docs/functions/runtimes/node-js), [project configuration](https://vercel.com/docs/project-configuration/vercel-json), and [Vercel request headers](https://vercel.com/docs/headers/request-headers).
+
+Model selection accepts only `70m`, `160m`, `410m`, or `1b`; omitted model IDs default to `70m` for old clients. The backend owns the immutable checkpoint catalog and returns the selected model metadata with every observation.

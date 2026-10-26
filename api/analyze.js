@@ -6,7 +6,7 @@ const { createHmac } = require('node:crypto');
 const { isIP } = require('node:net');
 
 const MAX_REQUEST_BYTES = 4096;
-const MAX_RESPONSE_BYTES = 1024 * 1024;
+const MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
 const TIMEOUT_MS = 30000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -84,7 +84,9 @@ async function readPayload(req) {
     if (typeof body.prompt !== 'string' || !body.prompt.trim()) throw error(400, 'Enter a prompt first.');
     if ([...body.prompt].length > 400) throw error(400, 'Keep your prompt to 400 characters or fewer.');
     // Whitespace is part of the model input. Validate emptiness without trimming.
-    return { action: 'start', prompt: body.prompt };
+    const model = body.model === undefined ? '70m' : body.model;
+    if (!['70m', '160m', '410m', '1b'].includes(model)) throw error(400, 'Choose a supported Pythia model.');
+    return { action: 'start', prompt: body.prompt, ...(body.model !== undefined ? { model } : {}) };
   }
   if (body.action !== 'poll' && body.action !== 'cancel') throw error(400, 'Unknown analysis action.');
   if (typeof body.job_id !== 'string' || !UUID.test(body.job_id)) throw error(400, 'The analysis ID is invalid.');
