@@ -504,3 +504,36 @@ html[data-theme="light"] #customPromptInput[aria-invalid=true]{border-color:var(
 }
 
 .history-peak{flex-direction:row}
+
+/* Predictions lead the reading order; attention remains available alongside them. */
+.prediction-panel{min-width:0;padding-left:0;padding-right:28px;border-left:0}
+.attention-panel{padding-left:24px;padding-right:0;border-left:1px solid var(--line)}
+#leadingToken{max-width:80%}
+@media(min-width:1100px) and (min-height:620px){
+  .instrument-grid{grid-template-columns:minmax(180px, .65fr) minmax(0,1.4fr) minmax(340px,1fr)}
+  .prediction-panel{padding:12px 24px;border-left:1px solid var(--line)}
+  .attention-panel{padding:12px 0 12px 18px}
+  #leadingToken{font-size:42px;line-height:1.15}
+  #leadingProbability{font-size:16px}
+  .prediction-lead{padding:8px 0 12px}
+  .probability-row{grid-template-columns:80px minmax(0,1fr) 52px;font-size:11px;margin:5px 0}
+  .probability-value{font-size:10px}
+  .probability-bar-track{height:5px}
+  .history-title h3{font-size:21px}
+  #probabilityHistory{max-height:none}
+  .heads-section{display:block}
+  .heads-intro{display:flex;align-items:center;justify-content:space-between;max-width:none;margin-bottom:7px}
+  .heads-intro h3{margin:0}
+  .head-axis{display:none}
+  .heads-grid-wrap{min-width:0;max-width:none}
+}
+@media(max-width:800px){
+  .prediction-panel{padding:24px 0;border:0}
+  .attention-panel{padding:24px 0;border-left:0;border-top:1px solid var(--line)}
+}
+
+@media(min-width:1100px) and (min-height:620px){
+  .attention-panel{grid-template-rows:27px 18px minmax(80px,1fr) 20px auto auto}
+  .visualization{min-height:80px}
+  .prediction-panel #probabilityHistory{width:100%;min-height:65px}
+}

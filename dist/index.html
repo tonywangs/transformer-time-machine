@@ -18,7 +18,7 @@
   </script>
   <link rel="stylesheet" href="style.css">
   <script src="custom-runner.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=prediction-layout" defer></script>
 </head>
 <body>
   <div class="page-grain" aria-hidden="true"></div>
@@ -54,6 +54,14 @@
           <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div></div></div>
         </section>
 
+        <section class="prediction-panel" aria-label="Next-token predictions">
+          <div class="panel-topline"><span class="eyebrow">Next token</span></div>
+
+          <div class="prediction-lead"><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
+          <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
+          <div class="history-panel"><div class="history-title"><div><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button></div>
+        </section>
+
         <div class="attention-panel">
           <div class="panel-topline"><span class="eyebrow">Attention</span><div class="segmented" role="group" aria-label="Attention visualization"><button id="flowButton" class="active" aria-pressed="true">Flow</button><button id="matrixButton" aria-pressed="false">Matrix</button></div></div>
           <div class="attention-toolbar"><div><strong id="headLabel"></strong></div><div class="focus-readout"><span class="small-label" title="Concentration of attention from the final prompt token">Focus</span><span id="focusValue"></span></div></div>
@@ -63,14 +71,6 @@
 
           <section class="heads-section"><div class="heads-intro"><h3>Heads</h3><select id="layerPage" aria-label="Attention layer group" hidden></select><p class="sr-only"><span id="headFocusDescription">Darker squares focus on fewer tokens.</span></p><span class="head-axis">Layer ↓ · Head →</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
         </div>
-
-        <aside class="prediction-panel">
-          <div class="panel-topline"><span class="eyebrow">Next token</span></div>
-
-          <div class="prediction-lead"><div class="lead-row"><span id="leadingToken"></span><span id="leadingProbability"></span></div></div>
-          <div id="probabilityBars" class="probability-bars" aria-label="Top next-token probabilities"></div>
-          <div class="history-panel"><div class="history-title"><div><h3 id="targetLabel"></h3></div><span id="targetProbability"></span></div><svg id="probabilityHistory" viewBox="0 0 320 120" role="img" aria-label="Target token probability across training checkpoints"></svg><div class="history-axis"><span id="historyStart"></span><span id="historyEnd"></span></div><button id="peakProbability" class="history-peak" type="button"></button></div>
-        </aside>
       </section>
 
       <section class="timeline-panel" aria-label="Training checkpoint timeline">

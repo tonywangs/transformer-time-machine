@@ -559,13 +559,18 @@ function renderPredictions() {
 function renderHistory() {
   const values = scene().frames.map((f) => f.target_probability);
   const max = Math.max(...values, .000001);
+  const chart = $('probabilityHistory');
+  const bounds = chart.getBoundingClientRect();
+  const width = bounds.height > 0 ? 120 * bounds.width / bounds.height : 320;
+  chart.setAttribute('viewBox', `0 0 ${width} 120`);
+  const right = width - 9;
   const height = 86;
-  const x = (i) => 9 + i / Math.max(1, values.length - 1) * 302;
+  const x = (i) => 9 + i / Math.max(1, values.length - 1) * (width - 18);
   const y = (p) => 105 - p / max * height;
   const points = values.map((p, i) => `${x(i)},${y(p)}`).join(' ');
   const currentX = x(state.frame);
   const currentY = y(values[state.frame]);
-  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="311" y2="105" stroke="${palette.historyGrid}"/><line x1="9" y1="62" x2="311" y2="62" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} 311,105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="${palette.history}" stroke="${palette.background}" stroke-width="2"/>`);
+  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="${right}" y2="105" stroke="${palette.historyGrid}"/><line x1="9" y1="62" x2="${right}" y2="62" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} ${right},105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="${palette.history}" stroke="${palette.background}" stroke-width="2"/>`);
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
   $('historyStart').textContent = `${compactStep(state.data.checkpoints[0].step)}`;
   $('historyEnd').textContent = `${compactStep(state.data.checkpoints.at(-1).step)}`;
@@ -884,7 +889,7 @@ $('probabilityHistory').addEventListener('click', (event) => {
   const point = svg.createSVGPoint();
   point.x = event.clientX;
   point.y = event.clientY;
-  const fraction = (point.matrixTransform(transform.inverse()).x - 9) / 302;
+  const fraction = (point.matrixTransform(transform.inverse()).x - 9) / (svg.viewBox.baseVal.width - 18);
   setFrame(Math.round(fraction * (state.data.checkpoints.length - 1)));
 });
 $('peakProbability').addEventListener('click', (event) => setFrame(Number(event.currentTarget.dataset.frame)));
@@ -929,12 +934,14 @@ let visualizationResizeFrame;
 function resizeVisualization() {
   cancelAnimationFrame(visualizationResizeFrame);
   visualizationResizeFrame = requestAnimationFrame(() => {
-    if (state.data && !$('instrument').hidden) renderVisualization();
+    if (state.data && !$('instrument').hidden) { renderVisualization(); renderHistory(); }
   });
 }
 // Layout changes from scene text and viewport height both resize the drawing area.
 if (typeof ResizeObserver !== 'undefined') {
-  new ResizeObserver(resizeVisualization).observe($('visualization'));
+  const observer = new ResizeObserver(resizeVisualization);
+  observer.observe($('visualization'));
+  observer.observe($('probabilityHistory'));
 } else {
   window.addEventListener('resize', resizeVisualization);
 }
