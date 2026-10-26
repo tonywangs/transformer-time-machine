@@ -76,3 +76,15 @@ revisits, failure labeling, all 24 layers, 32-token Flow/Matrix, light/dark them
 The replay transport is test-only and is not deployed.
 
 Production verification: the browser completed and exported a new Pythia 1B run through Vercel and Modal. All 38 frames exactly matched the operator run for token probabilities, attention, and concentration. See [the production verification record](model-production-verification.json).
+
+## Preset-tab navigation regression fix
+
+All four model sizes now have their own three recorded presets. The 342 new
+larger-model frames passed independent manifest, reference-token, probability,
+causal-attention, normalization, and entropy checks; see
+[preset verification](preset-model-verification.json). Browser checks confirmed
+that each preset tab stays selected, its explanatory copy and fixed target remain
+visible, and an existing custom draft survives navigation. Six navigation tests
+cover every size, restoring custom results, stale model downloads, changing tabs
+while loading, leaving a pending analysis, and failed downloads. Preset navigation
+performs no inference request and does not consume custom-prompt quota.

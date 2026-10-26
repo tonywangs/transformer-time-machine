@@ -1,0 +1,84 @@
+{
+  "method": "Real GPU forward passes; independent checks of pinned manifests, preset targets, probability ordering, causal attention, normalization, and entropy-derived focus.",
+  "preset_extractor_sha256": "c4defc646a27ba823e966c91022515eff64bc9e378607867323bded9714bc116",
+  "models": [
+    {
+      "model": "EleutherAI/pythia-160m-deduped",
+      "frames": 114,
+      "attention_rows_checked": 120384,
+      "maximum_row_sum_error": 3.000000000086267e-06,
+      "sha256": "d46cf95964f68eb12efafb1c14e56e73bde9040123ed45396631b7fad590fd39",
+      "bytes": 7650847,
+      "extraction_seconds": 48.409,
+      "final_top_tokens": {
+        "echo": {
+          "id": 4759,
+          "token": " green",
+          "probability": 0.14235559105873108
+        },
+        "story": {
+          "id": 673,
+          "token": " time",
+          "probability": 0.24511803686618805
+        },
+        "capital": {
+          "id": 7785,
+          "token": " Paris",
+          "probability": 0.13600775599479675
+        }
+      }
+    },
+    {
+      "model": "EleutherAI/pythia-410m-deduped",
+      "frames": 114,
+      "attention_rows_checked": 321024,
+      "maximum_row_sum_error": 3.000000000086267e-06,
+      "sha256": "8593def4dc00ea349e2f04773882f88f2304a596e896783c3fe112f559e932e7",
+      "bytes": 20446712,
+      "extraction_seconds": 96.153,
+      "final_top_tokens": {
+        "echo": {
+          "id": 19445,
+          "token": " purple",
+          "probability": 0.8163338899612427
+        },
+        "story": {
+          "id": 673,
+          "token": " time",
+          "probability": 0.9902346134185791
+        },
+        "capital": {
+          "id": 7785,
+          "token": " Paris",
+          "probability": 0.4858371615409851
+        }
+      }
+    },
+    {
+      "model": "EleutherAI/pythia-1b-deduped",
+      "frames": 114,
+      "attention_rows_checked": 107008,
+      "maximum_row_sum_error": 2.9999999999752447e-06,
+      "sha256": "b56cf8687e1349efb79ec693dc170dc6b2956059008c149b98855bb5ab0c1a19",
+      "bytes": 6882711,
+      "extraction_seconds": 145.083,
+      "final_top_tokens": {
+        "echo": {
+          "id": 19445,
+          "token": " purple",
+          "probability": 0.24912497401237488
+        },
+        "story": {
+          "id": 673,
+          "token": " time",
+          "probability": 0.7879074811935425
+        },
+        "capital": {
+          "id": 7785,
+          "token": " Paris",
+          "probability": 0.6663561463356018
+        }
+      }
+    }
+  ]
+}

@@ -27,6 +27,11 @@ const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, vie
 let modelCatalog, bundledData;
 let selectedModel = '70m';
 const completedModels = new Map();
+const presetModels = new Map();
+const customResults = new Map();
+let activeTab = 'story';
+let modelLoading = false, modelSwitchGeneration = 0, requestIntent = 0;
+let pendingCancellation = Promise.resolve();
 const custom = { selected: false, sceneIndex: null, busy: false, status: '', statusKind: '' };
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const transport = { position: 0, raf: null, lastTime: null, seek: null };
@@ -164,15 +169,18 @@ function renderCustomUI() {
   if (selector) selector.value = selectedModel;
   $('customPromptForm').setAttribute('aria-busy', String(custom.busy));
   $('customPromptInput').readOnly = custom.busy;
-  $('analyzePromptButton').disabled = custom.busy || !$('customPromptInput').value.trim();
+  $('analyzePromptButton').disabled = modelLoading || custom.busy || !$('customPromptInput').value.trim();
   $('analyzePromptButton').textContent = custom.busy ? 'Analyzing…' : 'Analyze';
   $('cancelPromptButton').hidden = !custom.busy;
   $('customPromptStatus').textContent = custom.status;
   $('customPromptStatus').dataset.state = custom.statusKind;
+  $('presetStatus').hidden = custom.selected || !custom.status;
+  $('presetStatus').textContent = custom.status;
+  $('presetStatus').dataset.state = custom.statusKind;
   const modelDiffers = state.data.model.id !== modelCatalog?.[selectedModel]?.model.id;
   const draftDiffers = custom.selected && (modelDiffers || !scene().custom || $('customPromptInput').value !== scene().prompt);
-  $('customPendingNote').hidden = !custom.selected || (!custom.busy && !draftDiffers);
-  $('customPendingNote').textContent = modelDiffers ? `Still showing ${state.data.model.label.replace('-deduped', '')} · ${custom.busy ? 'loading selected model' : 'Analyze to update'}` : scene().custom
+  $('customPendingNote').hidden = !modelLoading && !modelDiffers && (!custom.selected || (!custom.busy && !draftDiffers));
+  $('customPendingNote').textContent = modelDiffers ? `Still showing ${state.data.model.label.replace('-deduped', '')} · ${modelLoading || custom.busy ? 'loading selected model' : 'Selected model unavailable'}` : scene().custom
     ? custom.busy ? 'Previous result · analysis in progress' : 'Draft changed · Analyze to update'
     : `Showing example: ${exampleCopy[scene().id]?.tab || scene().title}`;
   $('customPendingNote').title = `Currently displayed prompt: ${scene().prompt}`;
@@ -215,6 +223,8 @@ const experiment = new PromptExperiment({
     const next = { schema_version: 1, model: result.model, checkpoints: result.checkpoints,
       provenance: result.provenance, scenes: [result] };
     validateData(next);
+    customResults.set(selectedModel, result);
+    activeTab = 'custom';
     completedModels.set(`${selectedModel}:${result.prompt}`, result);
     if (completedModels.size > 4) completedModels.delete(completedModels.keys().next().value);
     pause();
@@ -259,7 +269,7 @@ $('customPromptInput').addEventListener('input', () => {
   renderCustomUI();
 });
 $('cancelPromptButton').addEventListener('click', () => {
-  experiment.cancel();
+  cancelAnalysis();
   custom.busy = false;
   custom.resumeFrame = null;
   custom.status = 'Cancelled. Your previous observations are still here.';
@@ -289,6 +299,7 @@ async function loadData() {
     const order = (id) => exampleOrder.includes(id) ? exampleOrder.indexOf(id) : exampleOrder.length;
     state.data = { ...data, scenes: [...data.scenes].sort((a, b) => order(a.id) - order(b.id)) };
     bundledData = { ...state.data, scenes: [...state.data.scenes] };
+    presetModels.set('70m', bundledData);
     state.scene = 0;
     state.frame = data.checkpoints.length - 1;
     transport.position = state.frame;
@@ -338,7 +349,7 @@ function render() {
   $('headLabel').textContent = `Layer ${state.layer + 1} / Head ${state.head + 1}`;
   $('focusValue').textContent = `${(f.concentration[state.layer][state.head] * 100).toFixed(1)}%`;
   document.querySelectorAll('.scene-tab').forEach((b) => {
-    const selected = b.dataset.custom ? custom.selected : !custom.selected && Number(b.dataset.scene) === state.scene;
+    const selected = b.dataset.custom ? custom.selected : !custom.selected && bundledData.scenes[Number(b.dataset.scene)]?.id === activeTab;
     b.setAttribute('aria-selected', String(selected)); b.tabIndex = selected ? 0 : -1;
   });
   renderCustomUI();
@@ -702,7 +713,8 @@ function openProvenance() {
       const record = { schema_version: 1, model: state.data.model, checkpoints: state.data.checkpoints, provenance: scene().provenance, scenes: [scene()] };
       observationDownload = URL.createObjectURL(new Blob([JSON.stringify(record)], { type: 'application/json' }));
     }
-    link.href = observationDownload || 'data/traces.json';
+    const observedSize = Object.keys(modelCatalog).find((size) => modelCatalog[size].model.id === state.data.model.id);
+    link.href = observationDownload || (observedSize === '70m' ? 'data/traces.json' : `data/examples-${observedSize}.json`);
     link.download = scene().custom ? 'my-prompt-observations.json' : 'transformer-time-machine-traces.json';
   }
   pause();
@@ -710,21 +722,99 @@ function openProvenance() {
 }
 
 
-function runSelectedModel(prompt, { preserveFrame = false } = {}) {
+function cancelAnalysis() {
+  requestIntent += 1;
+  pendingCancellation = Promise.allSettled([pendingCancellation, experiment.cancel()]);
+  custom.busy = false;
+  custom.resumeFrame = null;
+}
+
+function installPreset(id = activeTab) {
+  const index = bundledData.scenes.findIndex((s) => s.id === id);
+  pause();
+  state.data = bundledData;
+  state.scene = Math.max(0, index);
+  state.layer = Math.min(state.layer, state.data.model.layers - 1);
+  state.head = Math.min(state.head, state.data.model.heads - 1);
+  state.query = scene().tokens.length - 1;
+  state.frame = Math.min(state.frame, state.data.checkpoints.length - 1);
+  transport.position = state.frame;
+  $('headGrid').replaceChildren();
+  initDataUI();
+  render();
+}
+
+function selectTab(tab) {
+  cancelAnalysis();
+  activeTab = tab;
+  custom.selected = tab === 'custom';
+  custom.status = modelLoading ? 'Loading recorded examples…' : '';
+  custom.statusKind = '';
+  if (custom.selected) {
+    const previous = customResults.get(selectedModel);
+    if (previous && !modelLoading) { custom.resumeFrame = state.frame; experiment.onComplete(previous); }
+    else { installPreset('story'); renderCustomUI(); }
+  } else installPreset(tab);
+}
+
+async function runSelectedModel(prompt, { preserveFrame = false } = {}) {
+  const intent = ++requestIntent;
+  const size = selectedModel;
   custom.resumeFrame = preserveFrame ? state.frame : null;
   pause();
-  custom.busy = false;
+  activeTab = 'custom';
   custom.selected = true;
-  $('customPromptInput').value = prompt;
-  const cached = completedModels.get(`${selectedModel}:${prompt}`);
+  const cached = completedModels.get(`${size}:${prompt}`);
   render();
-  if (cached) { experiment.cancel(); experiment.onComplete(cached); }
-  else experiment.start(prompt, modelCatalog[selectedModel].checkpoints, selectedModel);
+  await pendingCancellation;
+  if (intent !== requestIntent || size !== selectedModel || modelLoading) return;
+  if (cached) { await experiment.cancel(); if (intent === requestIntent) experiment.onComplete(cached); }
+  else experiment.start(prompt, modelCatalog[size].checkpoints, size);
+}
+
+async function changeModel(size) {
+  const generation = ++modelSwitchGeneration;
+  cancelAnalysis();
+  selectedModel = size;
+  modelLoading = true;
+  custom.status = 'Loading recorded examples…';
+  custom.statusKind = '';
+  render();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000);
+  try {
+    let data = presetModels.get(size);
+    if (!data) {
+      const response = await fetch(`data/examples-${size}.json`, { signal: controller.signal });
+      if (!response.ok) throw new Error('The recorded examples could not load. Choose the model again to retry.');
+      data = await response.json();
+      validateData(data);
+      const manifest = modelCatalog[size];
+      if (data.model.id !== manifest.model.id || data.checkpoints.length !== manifest.checkpoints.length || data.checkpoints.some((c, i) => c.commit_sha !== manifest.checkpoints[i]?.commit_sha)) throw new Error('These examples do not match the selected model. Please refresh.');
+      data.scenes.sort((a, b) => exampleOrder.indexOf(a.id) - exampleOrder.indexOf(b.id));
+      presetModels.set(size, data);
+    }
+    await pendingCancellation;
+    if (generation !== modelSwitchGeneration) return;
+    bundledData = data;
+    modelLoading = false;
+    custom.status = '';
+    if (activeTab === 'custom') {
+      const previous = customResults.get(size);
+      if (previous && previous.prompt === $('customPromptInput').value) { custom.resumeFrame = state.frame; experiment.onComplete(previous); }
+      else if ($('customPromptInput').value.trim()) runSelectedModel($('customPromptInput').value, { preserveFrame: true });
+      else selectTab('custom');
+    } else installPreset(activeTab);
+  } catch (error) {
+    if (generation !== modelSwitchGeneration) return;
+    modelLoading = false;
+    custom.statusKind = 'error';
+    custom.status = error.name === 'AbortError' ? 'The examples took too long to load. Choose another model and retry.' : error.message;
+    renderCustomUI();
+  } finally { clearTimeout(timeout); }
 }
 $('modelSpec').addEventListener('change', (event) => {
-  if (event.target.id !== 'modelSelect' || !modelCatalog[event.target.value]) return;
-  selectedModel = event.target.value;
-  runSelectedModel(custom.selected && $('customPromptInput').value.trim() ? $('customPromptInput').value : scene().prompt, { preserveFrame: true });
+  if (event.target.id === 'modelSelect' && modelCatalog[event.target.value]) changeModel(event.target.value);
 });
 $('layerPage').addEventListener('change', () => {
   state.layer = Number($('layerPage').value) * 6;
@@ -734,29 +824,9 @@ $('layerPage').addEventListener('change', () => {
 $('sceneTabs').addEventListener('click', (event) => {
   const button = event.target.closest('[data-scene],[data-custom]');
   if (!button) return;
-  if (!button.dataset.custom && (selectedModel !== '70m' || custom.busy)) {
-    const example = bundledData.scenes[Number(button.dataset.scene)];
-    runSelectedModel(example.prompt);
-    return;
-  }
-  if (!button.dataset.custom) {
-    state.data = { ...bundledData, scenes: [...bundledData.scenes] };
-    state.scene = Number(button.dataset.scene);
-    custom.sceneIndex = null;
-    state.layer = Math.min(state.layer, 5); state.head = Math.min(state.head, 7);
-    $('headGrid').replaceChildren(); initDataUI();
-  }
-  pause();
-  custom.selected = Boolean(button.dataset.custom);
-  if (custom.selected) {
-    const previous = completedModels.get(`${selectedModel}:${$('customPromptInput').value}`);
-    if (previous) { experiment.onComplete(previous); return; }
-    if (custom.sceneIndex !== null) state.scene = custom.sceneIndex;
-  } else state.scene = Number(button.dataset.scene);
-  state.query = scene().tokens.length - 1;
-  setFrame(state.frame);
-  document.querySelectorAll('.prompt-panel,.prediction-panel,.visualization').forEach((panel) => settle(panel, undefined, 240));
-  if (custom.selected && custom.sceneIndex === null) $('customPromptInput').focus({ preventScroll: true });
+  const tab = button.dataset.custom ? 'custom' : exampleOrder[Number(button.dataset.scene)];
+  if (tab === activeTab) return;
+  selectTab(tab);
 });
 $('sceneTabs').addEventListener('keydown', (event) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || !state.data) return;

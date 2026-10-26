@@ -4,15 +4,15 @@
 
 An interactive view of Pythia's training. Choose an example or type your own short prompt, then scrub checkpoints to inspect actual attention and next-token probabilities.
 
-The bundled dataset covers **Pythia-70M-deduped**, 38 checkpoints, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. No Modal training or GPU job is needed to reproduce this small dataset.
+The bundled datasets cover **Pythia 70M, 160M, 410M, and 1B** (deduped), 38 checkpoints each, and three short curated prompts. It is a visual prototype, not a representative capability benchmark. Exploring the recorded examples requires no inference job.
 
-The factual example completes “The capital of France is the city of” with “ Paris”. It was selected for a visible success through a [documented candidate screen](docs/fact-candidate-screen.json): 16 initial prompts, then eight Paris-format variants. The original “The capital of France is” did not put Paris first at any sampled checkpoint. This wording change illustrates prompt sensitivity; it is not a general factual-accuracy result.
+The factual example completes “The capital of France is the city of” with “ Paris”. It was selected for a visible success through a [documented candidate screen](docs/fact-candidate-screen.json): 16 initial prompts, then eight Paris-format variants. The original 70M prompt “The capital of France is” did not put Paris first at any sampled checkpoint. This wording change illustrates prompt sensitivity; it is not a general factual-accuracy result.
 
 The observations are extracted and verified. See the [verification record](docs/verification.md), including independent checkpoint replays.
 
 ## Your own prompt
 
-Choose **Your prompt**, type an unfinished phrase, and press **Analyze**. A bounded Modal L4 GPU worker evaluates the exact input at all 38 immutable checkpoints. Once the full run arrives, the same timeline, attention heads, Flow/Matrix views, and playback work on your observations. Choose Pythia 70M, 160M, 410M, or 1B from the model dropdown to rerun the current prompt with that model. All four use the deduplicated Pythia training series and the same 38 training steps. Nothing is generated while typing, and an incomplete run never replaces the previous result.
+Choose **Your prompt**, type an unfinished phrase, and press **Analyze**. A bounded Modal L4 GPU worker evaluates the exact input at all 38 immutable checkpoints. Once the full run arrives, the same timeline, attention heads, Flow/Matrix views, and playback work on your observations. Choose Pythia 70M, 160M, 410M, or 1B from the model dropdown. Preset tabs load that model’s recorded examples; Your prompt runs live inference. Preset navigation never overwrites the custom draft. All four use the deduplicated Pythia training series and the same 38 training steps. Nothing is generated while typing, and an incomplete run never replaces the previous result.
 
 Custom prompts support up to 32 tokenizer tokens and 400 characters; overlong prompts are rejected rather than truncated. The history tracks the **final checkpoint's most likely next token** across training. This is not a correct-answer label. Pythia is a small pretrained completion model, not a chat assistant.
 
@@ -87,10 +87,21 @@ See [the trace contract](docs/data-contract.md) for tensor axes and semantics.
 
 `vercel.json` selects the Other framework preset, skips installation and builds, publishes `dist/`, and enables the Node function in `api/analyze.js`. Import this GitHub repository into Vercel, or run `vercel --prod` from its root. The connected Vercel project deploys changes pushed to `main`.
 
-The recorded examples need no credentials. Custom prompts require the separately deployed `scripts/serve_custom.py` Modal service and server-only `TTM_MODAL_URL` and `TTM_API_KEY` variables. The same key must be in Modal's `transformer-time-machine-api` secret. Never expose the key to browser code. The service scales to zero, permits one worker, limits job duration and admission, and has a fixed expiry. Model weights are baked into its private worker image, never Vercel assets. See the setup documents above.
+The recorded examples need no credentials. Custom prompts require the separately deployed `scripts/serve_custom.py` Modal service and server-only `TTM_MODAL_URL` and `TTM_API_KEY` variables. The same key must be in Modal's `transformer-time-machine-api` secret. Never expose the key to browser code. The service scales to zero, permits one worker, limits job duration and admission, and has a fixed expiry. Model weights stay in its private Modal Volume, never Vercel assets. See the setup documents above.
 
 ## Source and attribution
 
 `dist/` contains only static assets and recorded traces; `scripts/` contains extraction, validation, prompt-screening, and playback-test code. Keep model weights, caches, credentials, and virtual environments out of source and deployment archives.
 
 The model and checkpoint trajectory come from [EleutherAI Pythia](https://github.com/EleutherAI/pythia) and its [Hugging Face model repository](https://huggingface.co/EleutherAI/pythia-70m-deduped). [AttentionViz](https://arxiv.org/abs/2305.03210) is related visualization work. This project presents measured snapshots; it does not claim a new interpretability method.
+
+
+### Rebuild the larger-model examples
+
+Run `modal run scripts/build_model_examples.py` with the existing model Volume prepared.
+It evaluates all three fixed-reference prompts at each of 38 pinned checkpoints,
+reusing each loaded model for the three prompts. The resulting
+`dist/data/examples-{160m,410m,1b}.json` files are real observations, served as
+static data. Run `python scripts/validate_model_examples.py` to check all model
+manifests, prompt/target identities, causal attention, normalization, and focus.
+`node --test scripts/test-preset-navigation.cjs` tests the navigation regression.

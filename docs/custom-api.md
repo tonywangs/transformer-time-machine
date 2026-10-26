@@ -99,15 +99,19 @@ Official references: [Modal HTTP timeouts](https://modal.com/docs/guide/webhook-
 
 ## Model-switching UI
 
-The dropdown reruns the displayed/draft prompt using the selected model and
-preserves the selected training step. A completed result installs its model,
-checkpoint manifest, and frames together. During a run or after failure, the
-previous result remains labeled with its actual model. The client retains at
-most four complete model/prompt results in memory for immediate revisits;
-refreshing the page clears this cache. Preset buttons seed a new live experiment
-when a larger model is selected. The original 70M examples remain available
-without inference. Attention heads are paged in groups of six layers, with all
-heads and layers accessible at every recorded checkpoint.
+The dropdown preserves the active tab and selected training step. Each model has
+three recorded preset scenes in `dist/data/traces.json` (70M) or
+`dist/data/examples-{size}.json`. Preset clicks never start inference or change
+the custom textarea. Their fixed reference tokens are time, purple, and Paris;
+these remain reference targets even when a model predicts something else.
+
+On Your prompt, changing models reruns the custom draft (or restores its cached
+result). Completed custom results and the draft stay separate from preset
+navigation. The client retains at most four complete model/prompt results plus
+the latest custom result per model; refreshing clears these caches. A completed
+run installs model metadata, checkpoint manifest, and frames together. Pending
+model downloads cannot overwrite a more recent model or tab selection. Attention
+heads remain accessible in groups of six layers.
 
 The first run can take several minutes to load and evaluate 38 separate weight
 snapshots. It is not a chat endpoint. The browser allows up to 32 minutes for
