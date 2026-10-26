@@ -59,6 +59,8 @@ This temporary job has one container, a four-core CPU limit, an 8 GiB memory lim
 
 ## Reading the display
 
+The paper light theme is the default. The header’s Light/Dark switch remembers your choice locally and preserves the selected checkpoint, head, token, and playback state. Both SVG and canvas visualizations use matching palettes; higher attention is darker blue in light mode and brighter green in dark mode.
+
 Desktop windows at least 1,100 × 620 CSS pixels use a single-screen dashboard: prompt, attention, and predictions sit side by side above a reserved playback dock. Charts resize to their panels; crowded token labels stagger rather than scrolling out of view. Smaller or zoomed windows use a readable scrolling layout.
 
 - Predictions always refer to the **next token after the full prompt**. Selecting an earlier query changes only the attention view.

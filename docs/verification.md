@@ -37,3 +37,10 @@ The following browser checks were completed during the dashboard and motion revi
 ## Historical extraction change
 
 The [archived expansion audit](history/expansion-audit.json) covers the earlier move from eight Mac CPU checkpoints to 38 Linux CPU checkpoints, with its original hashes and numerical comparisons intact. It is not a validation report for the current factual replacement. The current validation and replay reports above all identify the new dataset checksum.
+
+
+## Paper and dark themes
+
+The first visit opens in a warm paper light theme, with a persisted header switch for the original dark palette. Theme selection runs before stylesheet paint. Source-level bootstrap checks passed for no saved preference, either valid preference, invalid values, and blocked storage. Browser checks confirmed persistence after reload and immediate SVG/canvas repaint without resetting checkpoint, selected head/query, view, or active playback.
+
+All three light-mode prompts fit at 1,100 × 620 CSS pixels with zero document or panel overflow. The 390 × 844 layout retained zero horizontal overflow and a visible theme control. Flow, Matrix, the About dialog, and both palette legends were inspected. Token-label ink is selected by actual luminance; a 1,001-shade sweep measured minimum contrast above 4.58:1 in both palettes. No application console errors were observed; an unrelated browser extension emitted an error during testing. The 12 playback regression checks passed. Theme changes do not alter the recorded dataset or extraction code; the current dataset checksum above is unchanged.

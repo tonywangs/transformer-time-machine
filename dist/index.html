@@ -1,11 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#101a1c">
+  <meta name="theme-color" content="#f7f7f2">
   <meta name="description" content="Rewind a language model's training. Explore recorded attention patterns and next-token predictions across real model checkpoints.">
   <title>Transformer Time Machine</title>
+  <script>
+    // Resolve the saved theme before styles paint; paper is the first-visit default.
+    (() => {
+      let theme = 'light';
+      try { const saved = localStorage.getItem('ttm-theme'); if (saved === 'dark' || saved === 'light') theme = saved; } catch (_) {}
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+      document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#101a1c' : '#f7f7f2';
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
@@ -13,7 +23,7 @@
   <div class="page-grain" aria-hidden="true"></div>
   <header class="masthead">
     <a class="wordmark" href="./" aria-label="Transformer Time Machine home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22M5 25h22M9 7c0 6 14 12 14 18M23 7c0 6-14 12-14 18"/><circle cx="16" cy="16" r="2"/></svg><span>MODEL OBSERVATORY<span class="wordmark-sub">FIELD NOTE № 001</span></span></a>
-    <div class="masthead-right"><span class="live-label"><i></i> REAL CHECKPOINTS</span><button class="text-button" id="aboutButton">About the data <span aria-hidden="true">↗</span></button></div>
+    <div class="masthead-right"><span class="live-label"><i></i> REAL CHECKPOINTS</span><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><g class="theme-sun"><circle cx="10" cy="10" r="3.2"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4"/></g><g class="theme-moon"><path d="M15.9 12.7A6.4 6.4 0 0 1 7.3 4.1a6.4 6.4 0 1 0 8.6 8.6Z"/></g></svg><span id="themeLabel">Light</span></button><button class="text-button" id="aboutButton">About the data <span aria-hidden="true">↗</span></button></div>
   </header>
 
   <main>
@@ -43,7 +53,7 @@
           <div class="viz-caption"><span id="attentionDetail">Select a token to see where it looks.</span><span class="weight-legend"><i></i> Low <b></b> High attention</span></div>
           <div class="token-select"><span class="small-label">QUERY TOKEN <span class="quiet">/ click to inspect</span></span><div id="queryTokens" class="query-tokens" aria-label="Select query token"></div></div>
 
-          <section class="heads-section"><div class="heads-intro"><h3>Attention heads</h3><p>Brighter squares focus on fewer tokens.<br>Focus is not importance.</p><span class="head-axis">ROWS: LAYERS · COLUMNS: HEADS<br>Labels start at 1.</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
+          <section class="heads-section"><div class="heads-intro"><h3>Attention heads</h3><p><span id="headFocusDescription">Darker squares focus on fewer tokens.</span><br>Focus is not importance.</p><span class="head-axis">ROWS: LAYERS · COLUMNS: HEADS<br>Labels start at 1.</span></div><div class="heads-grid-wrap"><div id="headColumnLabels" class="head-column-labels" aria-hidden="true"></div><div id="headGrid" class="head-grid" aria-label="Choose an attention head"></div></div></section>
         </div>
 
         <aside class="prediction-panel">

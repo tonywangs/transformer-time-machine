@@ -54,6 +54,7 @@ function harness() {
   const context = vm.createContext({
     window: { matchMedia: () => preference },
     document: {
+      documentElement: { dataset: { theme: 'dark' } },
       getElementById: element,
       querySelector: element,
       getAnimations: () => [{ cancel: () => { cancelledAnimations += 1; } }]

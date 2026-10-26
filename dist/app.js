@@ -2,6 +2,27 @@
 'use strict';
 
 const $ = (id) => document.getElementById(id);
+const palettes = {
+  dark: {
+    background: '#101a1c', low: [37, 58, 54], high: [210, 238, 154],
+    dots: '#29403d', baseline: '#304542', flow: '#cdeba1',
+    masked: '#213131', maskedDot: '#364646', maskedBorder: '#2d3b3b', maskedText: '#96a9a6',
+    stem: '#4b6253', selected: '#d2ee9a', ink: '#000000', inverse: '#ffffff',
+    axis: '#66827a', label: '#96a9a6', matrixMask: '#172527',
+    history: '#e8bd7b', historyGrid: '#304144', historyAxis: '#78938b',
+    lineWeight: 5, nodeRadius: 5, nodeBase: 2
+  },
+  light: {
+    background: '#f7f7f2', low: [232, 236, 231], high: [65, 101, 124],
+    dots: '#b7c2bd', baseline: '#bec8c2', flow: '#41657c',
+    masked: '#eef0eb', maskedDot: '#aeb9b4', maskedBorder: '#cbd2cc', maskedText: '#626e70',
+    stem: '#a0aea6', selected: '#41657c', ink: '#000000', inverse: '#ffffff',
+    axis: '#626e70', label: '#626e70', matrixMask: '#edf0ea',
+    history: '#886a42', historyGrid: '#d5dad4', historyAxis: '#626e70',
+    lineWeight: 2.4, nodeRadius: 2.8, nodeBase: 1.7
+  }
+};
+let palette = palettes[document.documentElement.dataset.theme] || palettes.light;
 const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, playbackSpeed: 1 };
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const transport = { position: 0, raf: null, lastTime: null, seek: null };
@@ -75,8 +96,38 @@ const scene = () => state.data.scenes[state.scene];
 const frame = () => scene().frames[state.frame];
 const weightColor = (p, minimum = 0) => {
   const t = Math.max(minimum, clamp(p, 0, 1));
-  return `rgb(${Math.round(37 + 173 * t)},${Math.round(58 + 180 * t)},${Math.round(54 + 100 * t)})`;
+  return `rgb(${palette.low.map((channel, i) => Math.round(channel + (palette.high[i] - channel) * t)).join(",")})`;
 };
+// Choose readable ink from the actual shade, including intermediate heatmap values.
+function tokenInk(rgb) {
+  const luminance = (channels) => channels.map((v) => {
+    const value = v / 255;
+    return value <= .04045 ? value / 12.92 : Math.pow((value + .055) / 1.055, 2.4);
+  }).reduce((sum, value, i) => sum + value * [.2126, .7152, .0722][i], 0);
+  const hex = (value) => [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16));
+  const background = luminance(rgb.match(/\d+/g).map(Number));
+  const contrast = (color) => {
+    const foreground = luminance(hex(color));
+    return (Math.max(background, foreground) + .05) / (Math.min(background, foreground) + .05);
+  };
+  return contrast(palette.ink) >= contrast(palette.inverse) ? palette.ink : palette.inverse;
+}
+function applyTheme(theme, remember = false) {
+  const dark = theme === 'dark';
+  const selected = dark ? 'dark' : 'light';
+  document.documentElement.dataset.theme = selected;
+  document.documentElement.style.colorScheme = selected;
+  palette = palettes[selected];
+  document.querySelector('meta[name="theme-color"]').content = palette.background;
+  $('themeLabel').textContent = dark ? 'Dark' : 'Light';
+  $('themeToggle').setAttribute('aria-pressed', String(dark));
+  $('themeToggle').setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} mode`);
+  $('themeToggle').title = `Switch to ${dark ? 'light' : 'dark'} mode`;
+  $('headFocusDescription').textContent = `${dark ? 'Brighter' : 'Darker'} squares focus on fewer tokens.`;
+  if (remember) { try { localStorage.setItem('ttm-theme', selected); } catch (_) {} }
+  // Redraw canvas as well as SVG; theme changes preserve playback and every selection.
+  if (state.data) { renderHeads(); renderVisualization(); renderHistory(); }
+}
 const safeUrl = (value) => {
   try { const u = new URL(value); return ['https:', 'http:'].includes(u.protocol) ? u.href : '#'; } catch { return '#'; }
 };
@@ -254,7 +305,7 @@ function renderFlow() {
   const source = positions[state.query];
   const baseline = labelTop - 13;
   const strongest = Math.max(...row);
-  let content = `<defs><pattern id="flowDots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="#29403d"/></pattern></defs><rect x="0" y="16" width="${width}" height="${Math.max(0, baseline - 16)}" fill="url(#flowDots)" opacity=".6"/><line x1="13" x2="${width - 13}" y1="${baseline}" y2="${baseline}" stroke="#304542" stroke-dasharray="2 5"/>`;
+  let content = `<defs><pattern id="flowDots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="${palette.dots}"/></pattern></defs><rect x="0" y="16" width="${width}" height="${Math.max(0, baseline - 16)}" fill="url(#flowDots)" opacity=".6"/><line x1="13" x2="${width - 13}" y1="${baseline}" y2="${baseline}" stroke="${palette.baseline}" stroke-dasharray="2 5"/>`;
   // Each curve is the actual selected query-to-key observation; no interpolated frames.
   row.forEach((weight, k) => {
     if (k > state.query || k === state.query) return;
@@ -262,17 +313,17 @@ function renderFlow() {
     const distance = Math.abs(end - source);
     const lift = Math.min(baseline - 8, 25 + distance * .31);
     const opacity = weight > 0 ? .15 + .85 * Math.sqrt(weight / Math.max(strongest, .000001)) : 0;
-    const stroke = 1 + 5 * Math.sqrt(weight);
-    content += `<path class="attention-link" data-motion-key="edge-${k}" d="M ${source} ${baseline} C ${source} ${baseline - lift}, ${end} ${baseline - lift}, ${end} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${opacity}" stroke-width="${stroke}" data-weight-key="${k}"><title>${esc(displayToken(s.tokens[state.query]))} to ${esc(displayToken(s.tokens[k]))}: ${percent(weight)}</title></path>`;
+    const stroke = 1 + palette.lineWeight * Math.sqrt(weight);
+    content += `<path class="attention-link" data-motion-key="edge-${k}" d="M ${source} ${baseline} C ${source} ${baseline - lift}, ${end} ${baseline - lift}, ${end} ${baseline}" fill="none" stroke="${palette.flow}" stroke-opacity="${opacity}" stroke-width="${stroke}" data-weight-key="${k}"><title>${esc(displayToken(s.tokens[state.query]))} to ${esc(displayToken(s.tokens[k]))}: ${percent(weight)}</title></path>`;
   });
-  content += `<path class="attention-link" data-motion-key="self" d="M ${source - 5} ${baseline} C ${source - 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 5} ${baseline}" fill="none" stroke="#cdeba1" stroke-opacity="${row[state.query] > 0 ? .15 + .85 * Math.sqrt(row[state.query] / Math.max(strongest, .000001)) : 0}" stroke-width="${1 + 5 * Math.sqrt(row[state.query])}"/>`;
+  content += `<path class="attention-link" data-motion-key="self" d="M ${source - 5} ${baseline} C ${source - 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 25} ${baseline - Math.min(44, baseline - 8)}, ${source + 5} ${baseline}" fill="none" stroke="${palette.flow}" stroke-opacity="${row[state.query] > 0 ? .15 + .85 * Math.sqrt(row[state.query] / Math.max(strongest, .000001)) : 0}" stroke-width="${1 + palette.lineWeight * Math.sqrt(row[state.query])}"/>`;
   positions.forEach((x, i) => {
     const selected = i === state.query;
     const future = i > state.query;
     const w = widths[i];
     const labelY = labelTop + (i % bands) * labelStride;
-    const color = future ? '#213131' : weightColor(Math.sqrt(row[i] || 0), .04);
-    content += `<g class="token-node" data-query="${i}" tabindex="0" role="button" aria-label="Query token ${i + 1}: ${esc(s.tokens[i])}" aria-pressed="${selected}"><circle cx="${x}" cy="${baseline}" r="${future ? 2 : 2 + 5 * Math.sqrt(row[i] || 0)}" fill="${future ? '#364646' : '#cdeba1'}"/><line x1="${x}" y1="${baseline + 6}" x2="${x}" y2="${labelY - 3}" stroke="#4b6253" stroke-opacity=".5"/><rect x="${x - w / 2}" y="${labelY}" width="${w}" height="${labelHeight}" rx="3" fill="${color}" stroke="${selected ? '#d2ee9a' : future ? '#2d3b3b' : '#4b6253'}" stroke-width="${selected ? 1.5 : 1}"/><text x="${x}" y="${labelY + labelHeight / 2 + 3}" text-anchor="middle" fill="${future ? '#667a76' : row[i] > .25 ? '#102019' : selected ? '#f1f7df' : '#d3dfcc'}" font-size="10">${esc(displayToken(s.tokens[i]))}</text><text x="${x}" y="${height - 2}" text-anchor="middle" font-size="7" fill="${selected ? '#d2ee9a' : '#66827a'}">${selected ? 'QUERY' : future ? 'FUTURE' : String(i + 1).padStart(2, '0')}</text></g>`;
+    const color = future ? palette.masked : weightColor(Math.sqrt(row[i] || 0), .04);
+    content += `<g class="token-node" data-query="${i}" tabindex="0" role="button" aria-label="Query token ${i + 1}: ${esc(s.tokens[i])}" aria-pressed="${selected}"><circle cx="${x}" cy="${baseline}" r="${future ? 2 : palette.nodeBase + palette.nodeRadius * Math.sqrt(row[i] || 0)}" fill="${future ? palette.maskedDot : palette.flow}"/><line x1="${x}" y1="${baseline + 6}" x2="${x}" y2="${labelY - 3}" stroke="${palette.stem}" stroke-opacity=".5"/><rect x="${x - w / 2}" y="${labelY}" width="${w}" height="${labelHeight}" rx="3" fill="${color}" stroke="${selected ? palette.selected : future ? palette.maskedBorder : palette.stem}" stroke-width="${selected ? 1.5 : 1}"/><text x="${x}" y="${labelY + labelHeight / 2 + 3}" text-anchor="middle" fill="${future ? palette.maskedText : tokenInk(color)}" font-size="10">${esc(displayToken(s.tokens[i]))}</text><text x="${x}" y="${height - 2}" text-anchor="middle" font-size="7" fill="${selected ? palette.selected : palette.axis}">${selected ? 'QUERY' : future ? 'FUTURE' : String(i + 1).padStart(2, '0')}</text></g>`;
   });
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.style.minWidth = '0';
@@ -306,21 +357,21 @@ function renderMatrix() {
   ctx.clearRect(0, 0, width, size);
   const matrix = frame().attention[state.layer][state.head];
   matrix.forEach((row, q) => row.forEach((value, k) => {
-    ctx.fillStyle = k > q ? '#172527' : weightColor(Math.sqrt(value));
+    ctx.fillStyle = k > q ? palette.matrixMask : weightColor(Math.sqrt(value));
     ctx.fillRect(left + k * cell, top + q * cell, Math.max(1, cell - .7), Math.max(1, cell - .7));
   }));
-  ctx.strokeStyle = '#d2ee9a';
+  ctx.strokeStyle = palette.selected;
   ctx.lineWidth = 1;
   ctx.strokeRect(left - 2, top + state.query * cell - 1, gridSize + 3, cell + 1);
   ctx.font = '8px ui-monospace, monospace';
-  ctx.fillStyle = '#96a9a6';
+  ctx.fillStyle = palette.label;
   ctx.textAlign = 'center';
   ctx.fillText('KEY TOKEN →', left + gridSize / 2, 9);
   ctx.save(); ctx.translate(11, top + gridSize / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('QUERY TOKEN →', 0, 0); ctx.restore();
   ctx.textAlign = 'right';
   const interval = n > 15 ? Math.ceil(n / 10) : 1;
   for (let q = 0; q < n; q += interval) ctx.fillText(String(q + 1), left - 7, top + (q + .65) * cell);
-  ctx.fillStyle = '#66827a'; ctx.textAlign = 'left';
+  ctx.fillStyle = palette.axis; ctx.textAlign = 'left';
   ctx.fillText('FUTURE', left + gridSize - 28, top + 14);
   ctx.fillText('MASKED', left + gridSize - 28, top + 25);
   matrixLayout = { left, top, cell, n, width, height: size };
@@ -376,7 +427,7 @@ function renderHistory() {
   const points = values.map((p, i) => `${x(i)},${y(p)}`).join(' ');
   const currentX = x(state.frame);
   const currentY = y(values[state.frame]);
-  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8bd7b" stop-opacity=".16"/><stop offset="1" stop-color="#e8bd7b" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="311" y2="105" stroke="#304144"/><line x1="9" y1="62" x2="311" y2="62" stroke="#304144" stroke-dasharray="2 5"/><text x="9" y="10" fill="#78938b" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} 311,105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="#e8bd7b" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="#e8bd7b" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="#e8bd7b" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="#e8bd7b" stroke="#101a1c" stroke-width="2"/>`);
+  reconcileSvg($('probabilityHistory'), `<defs><linearGradient id="historyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${palette.history}" stop-opacity=".16"/><stop offset="1" stop-color="${palette.history}" stop-opacity="0"/></linearGradient></defs><line x1="9" y1="105" x2="311" y2="105" stroke="${palette.historyGrid}"/><line x1="9" y1="62" x2="311" y2="62" stroke="${palette.historyGrid}" stroke-dasharray="2 5"/><text x="9" y="10" fill="${palette.historyAxis}" font-family="ui-monospace,monospace" font-size="8">${percent(max)}</text><polygon points="9,105 ${points} 311,105" fill="url(#historyFill)"/><polyline points="${points}" fill="none" stroke="${palette.history}" stroke-width="1.8"/>${values.map((p, i) => `<circle cx="${x(i)}" cy="${y(p)}" r="${i === state.frame ? 0 : 2}" fill="${palette.history}" opacity=".55"><title>Step ${number.format(state.data.checkpoints[i].step)}: ${percent(p)}</title></circle>`).join('')}<line x1="${currentX}" y1="18" x2="${currentX}" y2="105" stroke="${palette.history}" stroke-opacity=".4" stroke-dasharray="2 3"/><circle class="history-current" data-motion-key="history-current" cx="${currentX}" cy="${currentY}" r="4" fill="${palette.history}" stroke="${palette.background}" stroke-width="2"/>`);
   $('probabilityHistory').setAttribute('aria-label', `Probability of ${scene().target_label} across ${values.length} checkpoints. Current step ${frame().step}: ${percent(frame().target_probability)}. Chart maximum ${percent(max)}.`);
   $('historyStart').textContent = `STEP ${compactStep(state.data.checkpoints[0].step)}`;
   $('historyEnd').textContent = `STEP ${compactStep(state.data.checkpoints.at(-1).step)}`;
@@ -609,6 +660,7 @@ $('previousButton').addEventListener('click', () => setFrame(state.frame - 1));
 $('nextButton').addEventListener('click', () => setFrame(state.frame + 1));
 $('playButton').addEventListener('click', play);
 $('retryButton').addEventListener('click', loadData);
+$('themeToggle').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true));
 $('aboutButton').addEventListener('click', openProvenance);
 $('provenanceButton').addEventListener('click', openProvenance);
 $('closeDialog').addEventListener('click', () => $('provenanceDialog').close());
@@ -633,4 +685,5 @@ if (typeof ResizeObserver !== 'undefined') {
 } else {
   window.addEventListener('resize', resizeVisualization);
 }
+applyTheme(document.documentElement.dataset.theme);
 loadData();
