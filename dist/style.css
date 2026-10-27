@@ -550,3 +550,10 @@ h1,h1 em{font-family:var(--serif);font-weight:400;font-style:normal;letter-spaci
 .timeline-select-label{position:relative}
 .timeline-select-label:after{content:"";position:absolute;right:12px;top:50%;width:5px;height:5px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-70%) rotate(45deg);pointer-events:none}
 .timeline-select-label select{appearance:none;-webkit-appearance:none;padding-right:32px;padding-left:11px}
+
+/* Visible activity during cold starts, without inventing a completion percentage. */
+.analysis-activity{display:none;height:3px;margin-top:15px;overflow:hidden;border-radius:2px;background:var(--line)}
+.custom-prompt-form[aria-busy=true] .analysis-activity{display:block}
+.analysis-activity span{display:block;width:38%;height:100%;border-radius:inherit;background:var(--mint);animation:analysis-sweep 2s cubic-bezier(.45,0,.55,1) infinite alternate;will-change:transform}
+@keyframes analysis-sweep{from{transform:translateX(-95%)}to{transform:translateX(260%)}}
+@media(prefers-reduced-motion:reduce){.analysis-activity span{animation:none;transform:translateX(80%)}}

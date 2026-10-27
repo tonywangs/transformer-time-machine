@@ -16,7 +16,7 @@
       document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#101a1c' : '#f7f7f2';
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=inset-selects">
+  <link rel="stylesheet" href="style.css?v=analysis-activity">
   <script src="custom-runner.js" defer></script>
   <script src="app.js?v=aligned-playhead" defer></script>
 </head>
@@ -48,6 +48,7 @@
             <textarea id="customPromptInput" name="prompt" rows="3" maxlength="400" aria-label="Your prompt" aria-describedby="customPromptHint customPromptStatus" placeholder="The best thing about science is" spellcheck="false" required></textarea>
             <p id="customPromptHint" class="custom-prompt-hint">32 tokens max</p>
             <div class="custom-prompt-actions"><button id="analyzePromptButton" class="primary-button" type="submit">Analyze <span aria-hidden="true">↗</span></button><button id="cancelPromptButton" class="text-button" type="button" hidden>Cancel</button></div>
+            <div class="analysis-activity" role="progressbar" aria-label="Analyzing your prompt" aria-describedby="customPromptStatus"><span></span></div>
             <p id="customPromptStatus" class="custom-prompt-status" role="status" aria-live="polite" aria-atomic="true"></p>
           </form>
           <div class="prompt-line"><p id="promptText"></p><span class="next-token-gap" aria-label="Next token to predict">→ ?</span></div>
