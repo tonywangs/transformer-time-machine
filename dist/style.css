@@ -575,3 +575,8 @@ html .masthead .wordmark h1{font:400 19px/1.2 var(--serif);letter-spacing:-.35px
   .masthead-right{width:100%;gap:16px}
   .masthead-right .model-spec{margin-right:auto;text-align:left}
 }
+
+.saved-prompt-control{margin-top:18px;padding-top:13px;border-top:1px solid var(--line);display:grid;gap:7px}
+.saved-prompt-control label{font:10px var(--mono);color:var(--muted)}
+.saved-prompt-control select{width:100%;min-width:0;padding:8px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:3px;font:11px var(--mono);text-overflow:ellipsis}
+#savedPromptNote{font:9px var(--sans);color:var(--muted)}

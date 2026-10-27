@@ -160,7 +160,60 @@ function validateData(data) {
   });
 }
 
+const promptHistory = new PromptHistory();
+let savedPrompts = [];
+let historyPersistent = true;
+function renderSavedPrompts() {
+  const options = savedPrompts.filter(item => item.size === selectedModel);
+  $('savedPromptControl').hidden = !options.length;
+  const select = $('savedPromptSelect');
+  select.disabled = modelLoading;
+  const signature = JSON.stringify(options.map(item => item.key));
+  if (select.dataset.options !== signature) {
+    select.replaceChildren(new Option('Choose a previous prompt', ''), ...options.map(item => new Option(item.prompt, item.key)));
+    select.dataset.options = signature;
+  }
+  select.value = scene().custom && scene().model?.id === modelCatalog?.[selectedModel]?.model.id ? `${selectedModel}:${scene().prompt}` : '';
+  $('savedPromptNote').textContent = historyPersistent ? 'Saved in this browser' : 'This session only · browser storage unavailable';
+}
+async function rememberPrompt(size, result) {
+  const key = `${size}:${result.prompt}`;
+  if (!savedPrompts.some(item => item.key === key)) savedPrompts.unshift({key, size, prompt: result.prompt});
+  renderSavedPrompts();
+  try { await promptHistory.save(size, result); }
+  catch (_) { historyPersistent = false; }
+  renderSavedPrompts();
+}
+async function restorePrompt(key) {
+  if (!key) return;
+  cancelAnalysis();
+  const intent = requestIntent;
+  const size = selectedModel;
+  const previousFrame = state.frame;
+  try {
+    const result = completedModels.get(key) || await promptHistory.get(key);
+    if (intent !== requestIntent || size !== selectedModel) return;
+    if (!result || result.model.id !== modelCatalog[size].model.id) throw new Error('That saved prompt is unavailable.');
+    $('customPromptInput').value = result.prompt;
+    custom.resumeFrame = previousFrame;
+    experiment.onComplete(result);
+  } catch (error) {
+    if (intent !== requestIntent) return;
+    custom.status = error.message || 'Could not open the saved prompt.';
+    custom.statusKind = 'error';
+    renderCustomUI();
+  }
+}
+$('savedPromptSelect').addEventListener('change', event => restorePrompt(event.target.value));
+promptHistory.list().then(items => {
+  const current = new Map(savedPrompts.map(item => [item.key, item]));
+  items.sort((a,b) => b.savedAt - a.savedAt).forEach(item => { if (!current.has(item.key)) current.set(item.key,item); });
+  savedPrompts = [...current.values()];
+  if (state.data) renderSavedPrompts();
+}).catch(() => { historyPersistent = false; });
+
 function renderCustomUI() {
+  renderSavedPrompts();
   const panel = document.querySelector('.prompt-panel');
   $('customPromptForm').hidden = !custom.selected;
   if (custom.selected) panel.dataset.customMode = scene().custom ? 'result' : 'draft';
@@ -225,6 +278,7 @@ const experiment = new PromptExperiment({
       provenance: result.provenance, scenes: [result] };
     validateData(next);
     customResults.set(selectedModel, result);
+    rememberPrompt(selectedModel, result);
     activeTab = 'custom';
     completedModels.set(`${selectedModel}:${result.prompt}`, result);
     if (completedModels.size > 4) completedModels.delete(completedModels.keys().next().value);

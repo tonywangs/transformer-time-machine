@@ -17,9 +17,10 @@
       document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#101a1c' : '#f7f7f2';
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=compact-header-2">
+  <link rel="stylesheet" href="style.css?v=prompt-history">
   <script src="custom-runner.js" defer></script>
-  <script src="app.js?v=default-1b" defer></script>
+  <script src="prompt-history.js" defer></script>
+  <script src="app.js?v=prompt-history" defer></script>
 </head>
 <body>
   <div class="page-grain" aria-hidden="true"></div>
@@ -48,6 +49,11 @@
             <div class="custom-prompt-actions"><button id="analyzePromptButton" class="primary-button" type="submit">Analyze <span aria-hidden="true">↗</span></button><button id="cancelPromptButton" class="text-button" type="button" hidden>Cancel</button></div>
             <div class="analysis-activity" role="progressbar" aria-label="Analyzing your prompt" aria-describedby="customPromptStatus"><span></span></div>
             <p id="customPromptStatus" class="custom-prompt-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <div id="savedPromptControl" class="saved-prompt-control" hidden>
+              <label for="savedPromptSelect">Saved prompts</label>
+              <select id="savedPromptSelect" aria-label="Saved prompts for the selected model"><option value="">Choose a previous prompt</option></select>
+              <span id="savedPromptNote">Saved in this browser</span>
+            </div>
           </form>
           <div class="prompt-line"><p id="promptText"></p><span class="next-token-gap" aria-label="Next token to predict">→ ?</span></div>
           <div class="example-guide"><div class="example-completions"><div><span class="small-label" id="referenceLabel"></span><strong id="referenceCompletion"></strong></div></div></div>
