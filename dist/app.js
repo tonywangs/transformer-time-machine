@@ -25,7 +25,7 @@ const palettes = {
 let palette = palettes[document.documentElement.dataset.theme] || palettes.light;
 const state = { data: null, scene: 0, frame: 0, layer: 0, head: 0, query: 0, view: 'flow', playing: false, playbackSpeed: 1 };
 let modelCatalog, bundledData;
-let selectedModel = '70m';
+let selectedModel = '1b';
 const completedModels = new Map();
 const presetModels = new Map();
 const customResults = new Map();
@@ -289,7 +289,7 @@ async function loadData() {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
   try {
-    const response = await fetch('data/traces.json', { signal: controller.signal, cache: 'no-cache' });
+    const response = await fetch(selectedModel === '70m' ? 'data/traces.json' : `data/examples-${selectedModel}.json`, { signal: controller.signal, cache: 'no-cache' });
     if (!response.ok) throw new Error(`The observation file returned HTTP ${response.status}. Please try again in a moment.`);
     const data = await response.json();
     const catalogResponse = await fetch('data/models.json', { signal: controller.signal });
@@ -300,7 +300,7 @@ async function loadData() {
     const order = (id) => exampleOrder.includes(id) ? exampleOrder.indexOf(id) : exampleOrder.length;
     state.data = { ...data, scenes: [...data.scenes].sort((a, b) => order(a.id) - order(b.id)) };
     bundledData = { ...state.data, scenes: [...state.data.scenes] };
-    presetModels.set('70m', bundledData);
+    presetModels.set(selectedModel, bundledData);
     state.scene = 0;
     state.frame = data.checkpoints.length - 1;
     transport.position = state.frame;
@@ -815,7 +815,7 @@ async function changeModel(size) {
   try {
     let data = presetModels.get(size);
     if (!data) {
-      const response = await fetch(`data/examples-${size}.json`, { signal: controller.signal });
+      const response = await fetch(size === '70m' ? 'data/traces.json' : `data/examples-${size}.json`, { signal: controller.signal });
       if (!response.ok) throw new Error('The recorded examples could not load. Choose the model again to retry.');
       data = await response.json();
       validateData(data);

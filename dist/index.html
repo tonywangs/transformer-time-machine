@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#f7f7f2">
   <meta name="description" content="Rewind a language model's training. Explore recorded attention patterns and next-token predictions across real model checkpoints.">
   <title>Transformer Time Machine</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script>
     // Resolve the saved theme before styles paint; paper is the first-visit default.
     (() => {
@@ -16,22 +17,19 @@
       document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#101a1c' : '#f7f7f2';
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=analysis-activity">
+  <link rel="stylesheet" href="style.css?v=compact-header-2">
   <script src="custom-runner.js" defer></script>
-  <script src="app.js?v=aligned-playhead" defer></script>
+  <script src="app.js?v=default-1b" defer></script>
 </head>
 <body>
   <div class="page-grain" aria-hidden="true"></div>
   <header class="masthead">
-    <a class="wordmark" href="./" aria-label="Transformer Time Machine home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22M5 25h22M9 7c0 6 14 12 14 18M23 7c0 6-14 12-14 18"/><circle cx="16" cy="16" r="2"/></svg></a>
-    <div class="masthead-right"><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><g class="theme-sun"><circle cx="10" cy="10" r="3.2"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4"/></g><g class="theme-moon"><path d="M15.9 12.7A6.4 6.4 0 0 1 7.3 4.1a6.4 6.4 0 1 0 8.6 8.6Z"/></g></svg><span id="themeLabel" class="sr-only">Light</span></button><button class="text-button" id="aboutButton">Notes</button></div>
+    <a class="wordmark" href="./" aria-label="Transformer Time Machine home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22M5 25h22M9 7c0 6 14 12 14 18M23 7c0 6-14 12-14 18"/><circle cx="16" cy="16" r="2"/></svg><h1>Transformer Time Machine</h1></a>
+    <div class="masthead-right"><div class="model-spec" id="modelSpec"><span class="spec-name">Pythia 1B</span><span class="spec-line">Loading model details</span></div><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><g class="theme-sun"><circle cx="10" cy="10" r="3.2"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4"/></g><g class="theme-moon"><path d="M15.9 12.7A6.4 6.4 0 0 1 7.3 4.1a6.4 6.4 0 1 0 8.6 8.6Z"/></g></svg><span id="themeLabel" class="sr-only">Light</span></button><button class="text-button" id="aboutButton">Notes</button></div>
   </header>
 
   <main>
-    <section class="intro">
-      <div><h1>Transformer <em>Time Machine</em></h1></div>
-      <div class="model-spec" id="modelSpec"><span class="spec-name">A recorded experiment</span><span class="spec-line">Loading model details</span></div>
-    </section>
+
 
     <div id="loadingState" class="loading-state" role="status"><span class="loading-orbit" aria-hidden="true"></span><h2>Opening the time machine</h2><p>Loading the recorded model observations.</p></div>
     <div id="errorState" class="error-state" hidden role="alert"><span class="eyebrow">DATA UNAVAILABLE</span><h2>The observations haven’t arrived.</h2><p id="errorMessage">The trace file could not be loaded.</p><button class="primary-button" id="retryButton">Try again <span aria-hidden="true">↻</span></button><p class="quiet">This instrument only displays recorded model outputs.</p></div>

@@ -22,6 +22,7 @@ function harness(fetcher) {
   vm.runInContext(section('const state =','const motionPreference =')+
     section('function cancelAnalysis()',"$('sceneTabs').addEventListener('keydown'")+`
     modelCatalog = ${JSON.stringify(require('../dist/data/models.json'))};
+    selectedModel = '70m';
     bundledData = ${JSON.stringify(base)}; state.data = bundledData; state.frame=20;
     presetModels.set('70m',bundledData);
     // Tiny navigation fixture: deliberately reuse steps; numerical validity is tested separately.
@@ -78,4 +79,13 @@ test('failed preset loading preserves the displayed model and does not overwrite
   assert.equal(h.context.snapshot().model,base.model.id);assert.equal(h.context.snapshot().tab,'capital');
   assert.equal(h.context.snapshot().draft,'Keep this');assert.equal(h.context.snapshot().loading,false);
   await h.context.changeModel('70m');assert.equal(h.context.snapshot().scene,'capital');
+});
+
+test('70M loads from its original trace file when the page starts on another model',async()=>{
+  const urls=[];
+  const h=harness(async url=>{urls.push(url);return {ok:true,json:async()=>structuredClone(base)};});
+  vm.runInContext("selectedModel='1b'; presetModels.clear();",h.context);
+  await h.context.changeModel('70m');
+  assert.deepEqual(urls,['data/traces.json']);
+  assert.equal(h.context.snapshot().model,'EleutherAI/pythia-70m-deduped');
 });

@@ -557,3 +557,21 @@ h1,h1 em{font-family:var(--serif);font-weight:400;font-style:normal;letter-spaci
 .analysis-activity span{display:block;width:38%;height:100%;border-radius:inherit;background:var(--mint);animation:analysis-sweep 2s cubic-bezier(.45,0,.55,1) infinite alternate;will-change:transform}
 @keyframes analysis-sweep{from{transform:translateX(-95%)}to{transform:translateX(260%)}}
 @media(prefers-reduced-motion:reduce){.analysis-activity span{animation:none;transform:translateX(80%)}}
+
+/* Compact identity leaves the observations in charge. */
+.masthead{padding-top:13px;padding-bottom:13px;gap:18px}
+.wordmark{gap:9px;flex-shrink:0}
+html .masthead .wordmark h1{font:400 19px/1.2 var(--serif);letter-spacing:-.35px;margin:0}
+.wordmark svg{width:23px;height:23px;flex-shrink:0}
+.masthead-right{gap:20px}
+@media(min-width:1100px) and (min-height:620px){
+  body{grid-template-rows:62px minmax(0,1fr)}
+  main{grid-template-rows:minmax(0,1fr)}
+  .masthead{padding:9px 24px}
+}
+@media(max-width:620px){
+  .masthead{padding:14px 16px;flex-wrap:wrap;gap:13px}
+  html .masthead .wordmark h1{font-size:18px}
+  .masthead-right{width:100%;gap:16px}
+  .masthead-right .model-spec{margin-right:auto;text-align:left}
+}
